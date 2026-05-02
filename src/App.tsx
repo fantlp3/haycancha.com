@@ -19,9 +19,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/canchas" element={<SearchPage />} />
-          <Route path="/canchas/:provincia" element={<SearchPage />} />
-          <Route path="/canchas/:provincia/:barrio" element={<SearchPage />} />
-          <Route path="/canchas/:provincia/:barrio/:slug" element={<ClubDetailPage />} />
+          <Route path="/canchas/:pais" element={<SearchPage />} />
+          <Route path="/canchas/:pais/:ciudad" element={<SearchPage />} />
+          <Route path="/canchas/:pais/:ciudad/:barrio" element={<SearchPage />} />
+          <Route path="/canchas/:pais/:ciudad/:barrio/:slug" element={<ClubDetailPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

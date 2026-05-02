@@ -20,7 +20,7 @@ export const Hero = () => {
           {/* Left */}
           <div className="space-y-6 lg:space-y-8">
             <p className="label-meta uppercase text-orange tracking-[3px]">
-              🎾 El directorio de tenis de Argentina
+              🎾 El directorio de tenis de Latinoamérica
             </p>
             <h1 className="font-display text-white text-[56px] md:text-[72px] lg:text-[80px] leading-[0.9]">
               ENCONTRÁ<br />
@@ -28,7 +28,7 @@ export const Hero = () => {
               <span className="text-orange">PERFECTA.</span>
             </h1>
             <p className="text-white/70 text-[16px] md:text-[18px] max-w-xl leading-relaxed">
-              Más de 1.500 clubes y canchas de tenis, pádel y pickleball en toda Argentina. Gratis.
+              Más de 1.500 clubes y canchas de tenis, pádel y pickleball en toda Latinoamérica. Gratis.
             </p>
 
             {/* Search */}
@@ -90,8 +90,8 @@ export const Hero = () => {
       <div className="relative bg-dark-2 border-t border-white/5">
         <div className="max-w-container mx-auto px-6 lg:px-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
           {[
-            { n: "1.500+", l: "Clubes y canchas" },
-            { n: "24", l: "Provincias" },
+            { n: "1.500+", l: "Clubes y canchas en toda Latinoamérica" },
+            { n: "15", l: "Países" },
             { n: "Gratis", l: "Para usuarios" },
           ].map((s) => (
             <div key={s.l} className="py-6 md:py-8 px-4 text-center">

@@ -16,7 +16,7 @@ export const Footer = () => (
         <div className="col-span-2 md:col-span-1 space-y-3">
           <Logo variant="light" size={28} />
           <p className="text-[14px] text-white/60 max-w-[220px]">
-            El directorio de tenis de Argentina.
+            El directorio de tenis de Latinoamérica.
           </p>
         </div>
         {cols.map((col) => (

@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/search/EmptyState";
 import { Breadcrumb } from "@/components/search/Breadcrumb";
 import { SAMPLE_COURTS } from "@/data/courts";
 import { cn } from "@/lib/utils";
+import { AdSlot } from "@/components/brand/AdSlot";
 
 const DEFAULT_FILTERS: FiltersState = {
   sports: [],

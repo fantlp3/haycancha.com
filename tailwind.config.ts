@@ -29,6 +29,7 @@ export default {
         orange: "hsl(var(--orange))",
         yellow: "hsl(var(--yellow))",
         celeste: "hsl(var(--celeste))",
+        lime: "hsl(var(--lime))",
         dark: {
           DEFAULT: "hsl(var(--dark))",
           2: "hsl(var(--dark-2))",
@@ -70,6 +71,7 @@ export default {
           "padel-fg": "hsl(var(--padel-fg))",
           "pickle-bg": "hsl(var(--pickle-bg))",
           "pickle-fg": "hsl(var(--pickle-fg))",
+          "pickle-border": "hsl(var(--pickle-border))",
           "gratis-bg": "hsl(var(--gratis-bg))",
           "gratis-fg": "hsl(var(--gratis-fg))",
         },

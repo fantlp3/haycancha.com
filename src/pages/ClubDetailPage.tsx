@@ -288,6 +288,19 @@ const ClubDetailPage = () => {
           </div>
         </section>
 
+        {/* Slot 6 — club-sidebar (300x600). Lives in document flow, not sticky.
+            Hidden on tablet/mobile (<lg) per density rules. */}
+        <aside className="hidden lg:block max-w-container mx-auto px-6 lg:px-10 mt-12">
+          <div className="ml-auto">
+            <AdSlot slot="club-sidebar" format="sidebar" />
+          </div>
+        </aside>
+
+        {/* Slot 7 — club-before-similar (leaderboard separator) */}
+        <div className="max-w-container mx-auto px-6 lg:px-10 mt-12">
+          <AdSlot slot="club-before-similar" format="leaderboard" />
+        </div>
+
         {/* Nearby */}
         <section className="max-w-container mx-auto px-6 lg:px-10 mt-16">
           <h2 className="font-display text-dark text-[28px] md:text-[32px] leading-none mb-6">

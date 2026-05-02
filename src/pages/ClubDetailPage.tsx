@@ -83,8 +83,9 @@ const ClubDetailPage = () => {
             <Breadcrumb
               items={[
                 { label: "Canchas", href: "/canchas" },
-                { label: "Buenos Aires", href: "/canchas/buenos-aires" },
-                { label: "Palermo", href: "/canchas/buenos-aires/palermo" },
+                { label: "Argentina", href: "/canchas/argentina" },
+                { label: "Buenos Aires", href: "/canchas/argentina/buenos-aires" },
+                { label: "Palermo", href: "/canchas/argentina/buenos-aires/palermo" },
                 { label: "Club Atlético Palermo" },
               ]}
             />
@@ -321,9 +322,10 @@ const ClubDetailPage = () => {
             <p className="label-meta uppercase text-gray mb-3">Más canchas en</p>
             <div className="flex flex-wrap gap-2">
               {[
-                { label: "Palermo", count: 24, href: "/canchas/buenos-aires/palermo" },
-                { label: "Buenos Aires", count: 480, href: "/canchas/buenos-aires" },
-                { label: "Argentina", count: 1500, href: "/canchas" },
+                { label: "Palermo", count: 24, href: "/canchas/argentina/buenos-aires/palermo" },
+                { label: "Buenos Aires", count: 480, href: "/canchas/argentina/buenos-aires" },
+                { label: "Argentina", count: 720, href: "/canchas/argentina" },
+                { label: "Latinoamérica", count: 1500, href: "/canchas" },
               ].map((l) => (
                 <a
                   key={l.label}

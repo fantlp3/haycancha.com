@@ -22,8 +22,8 @@ export const ZoneSection = () => (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {zones.map((z) => (
           <a
-            key={z.name}
-            href="#"
+            key={z.slug}
+            href={`/canchas/${z.slug}`}
             className="group bg-white border border-border rounded-lg p-5 flex items-center justify-between gap-3 transition-all hover:bg-orange hover:border-orange hover:-translate-y-0.5 hover:shadow-card-hover"
           >
             <div>

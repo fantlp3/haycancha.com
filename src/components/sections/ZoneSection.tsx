@@ -1,17 +1,26 @@
 import { ArrowRight } from "lucide-react";
+import { LATAM_COUNTRIES } from "@/lib/geo";
 
-const zones = [
-  { name: "Argentina", count: 720 },
-  { name: "México", count: 310 },
-  { name: "Colombia", count: 180 },
-  { name: "Chile", count: 145 },
-  { name: "Perú", count: 98 },
-  { name: "Uruguay", count: 67 },
-  { name: "Venezuela", count: 58 },
-  { name: "Ecuador", count: 52 },
-  { name: "Paraguay", count: 38 },
-  { name: "Bolivia", count: 27 },
-];
+const COUNTS: Record<string, number> = {
+  argentina: 720,
+  mexico: 310,
+  colombia: 180,
+  chile: 145,
+  peru: 98,
+  uruguay: 67,
+  venezuela: 58,
+  ecuador: 52,
+  paraguay: 38,
+  bolivia: 27,
+  "costa-rica": 22,
+  "republica-dominicana": 18,
+};
+
+const zones = LATAM_COUNTRIES.slice(0, 10).map((c) => ({
+  name: c.name,
+  slug: c.slug,
+  count: COUNTS[c.slug] ?? 0,
+}));
 
 export const ZoneSection = () => (
   <section className="bg-light py-16 md:py-20">
@@ -22,8 +31,8 @@ export const ZoneSection = () => (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {zones.map((z) => (
           <a
-            key={z.name}
-            href="#"
+            key={z.slug}
+            href={`/canchas/${z.slug}`}
             className="group bg-white border border-border rounded-lg p-5 flex items-center justify-between gap-3 transition-all hover:bg-orange hover:border-orange hover:-translate-y-0.5 hover:shadow-card-hover"
           >
             <div>

@@ -11,6 +11,22 @@ const sports = [
 
 const surfaces = ["Todos", "Polvo de ladrillo", "Cemento", "Césped sintético", "Multipiso", "Madera"];
 
+export const COUNTRIES = [
+  "Todos los países",
+  "Argentina",
+  "México",
+  "Colombia",
+  "Chile",
+  "Perú",
+  "Uruguay",
+  "Venezuela",
+  "Ecuador",
+  "Paraguay",
+  "Bolivia",
+  "Costa Rica",
+  "República Dominicana",
+];
+
 const services = [
   "Iluminación nocturna",
   "Vestuarios",
@@ -27,6 +43,7 @@ export interface FiltersState {
   surface: string;
   services: string[];
   sort: string;
+  country: string;
 }
 
 interface Props {
@@ -38,6 +55,7 @@ interface Props {
 
 export const FiltersPanel = ({ value, onChange, onApply, onClear }: Props) => {
   const [sortOpen, setSortOpen] = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
 
   const toggleSport = (id: string) => {
     const next = value.sports.includes(id)
@@ -54,6 +72,39 @@ export const FiltersPanel = ({ value, onChange, onApply, onClear }: Props) => {
 
   return (
     <div className="bg-white border-b border-border p-4 space-y-5">
+      {/* Country */}
+      <div className="space-y-2">
+        <p className="label-meta uppercase text-gray">País</p>
+        <div className="relative">
+          <button
+            onClick={() => setCountryOpen((o) => !o)}
+            className="w-full flex items-center justify-between bg-light border border-border rounded-md px-3 h-10 text-[13px] font-medium text-dark hover:border-orange/40"
+          >
+            {value.country}
+            <ChevronDown size={16} className={cn("transition", countryOpen && "rotate-180")} />
+          </button>
+          {countryOpen && (
+            <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-md shadow-card-hover overflow-hidden max-h-64 overflow-y-auto">
+              {COUNTRIES.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => {
+                    onChange({ ...value, country: c });
+                    setCountryOpen(false);
+                  }}
+                  className={cn(
+                    "w-full text-left px-3 py-2 text-[13px] hover:bg-light",
+                    value.country === c && "text-orange font-semibold"
+                  )}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Sports */}
       <div className="space-y-2">
         <p className="label-meta uppercase text-gray">Deportes</p>

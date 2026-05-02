@@ -188,7 +188,7 @@ const AgregarCanchaPage = () => {
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ nombre: string; email: string } | null>(null);
   const [phoneIsWhatsapp, setPhoneIsWhatsapp] = useState(false);
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const country = data.ubicacion.pais;
   const countryMeta = COUNTRIES_FORM.find((c) => c.name === country);

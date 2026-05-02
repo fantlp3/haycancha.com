@@ -9,7 +9,7 @@ export const SearchBar = () => (
     <input
       type="text"
       placeholder="Buscar por barrio, ciudad o nombre..."
-      className="w-full h-12 md:h-14 pl-12 pr-4 rounded-lg bg-white border-2 border-border text-dark placeholder:text-gray text-[15px] font-medium transition-all focus:outline-none focus:border-orange focus:shadow-focus-orange"
+      className="w-full h-12 md:h-14 pl-12 pr-4 rounded-lg bg-white border-2 border-border text-dark placeholder:text-gray text-[15px] font-medium transition-all focus:outline-none focus:border-orange focus:shadow-focus-orange focus:placeholder:text-transparent"
     />
   </div>
 );

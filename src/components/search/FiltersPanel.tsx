@@ -11,6 +11,22 @@ const sports = [
 
 const surfaces = ["Todos", "Polvo de ladrillo", "Cemento", "Césped sintético", "Multipiso", "Madera"];
 
+export const COUNTRIES = [
+  "Todos los países",
+  "Argentina",
+  "México",
+  "Colombia",
+  "Chile",
+  "Perú",
+  "Uruguay",
+  "Venezuela",
+  "Ecuador",
+  "Paraguay",
+  "Bolivia",
+  "Costa Rica",
+  "República Dominicana",
+];
+
 const services = [
   "Iluminación nocturna",
   "Vestuarios",
@@ -27,6 +43,7 @@ export interface FiltersState {
   surface: string;
   services: string[];
   sort: string;
+  country: string;
 }
 
 interface Props {
@@ -38,6 +55,7 @@ interface Props {
 
 export const FiltersPanel = ({ value, onChange, onApply, onClear }: Props) => {
   const [sortOpen, setSortOpen] = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
 
   const toggleSport = (id: string) => {
     const next = value.sports.includes(id)

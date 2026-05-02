@@ -1,4 +1,4 @@
-import { SearchX } from "lucide-react";
+import { SearchX, Plus } from "lucide-react";
 
 export const EmptyState = ({ onClear }: { onClear: () => void }) => (
   <div className="p-10 text-center">
@@ -17,5 +17,22 @@ export const EmptyState = ({ onClear }: { onClear: () => void }) => (
     >
       Limpiar filtros
     </button>
+
+    {/* Permanent UGC banner */}
+    <div
+      className="mt-8 mx-auto max-w-sm rounded-md p-4 flex items-start gap-3 text-left"
+      style={{ background: "rgba(232,99,42,0.08)", borderLeft: "3px solid #E8632A" }}
+    >
+      <Plus size={18} className="text-orange shrink-0 mt-0.5" />
+      <div className="flex-1">
+        <p className="text-[13px] font-semibold text-dark">¿Conocés un club que no está?</p>
+        <a
+          href="/agregar-cancha"
+          className="text-[12px] text-orange font-semibold hover:underline mt-0.5 inline-block"
+        >
+          Sumalo al directorio →
+        </a>
+      </div>
+    </div>
   </div>
 );

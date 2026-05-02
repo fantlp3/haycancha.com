@@ -11,7 +11,7 @@ const links = [
 export const Navbar = () => {
   return (
     <header className="sticky top-0 z-[1000] bg-dark border-b border-white/10">
-      <div className="max-w-container mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+      <div className="max-w-container mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between">
         <a href="/" aria-label="HayCancha inicio">
           <Logo variant="light" size={28} />
         </a>

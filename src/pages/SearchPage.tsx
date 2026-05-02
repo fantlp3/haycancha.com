@@ -74,7 +74,7 @@ const SearchPage = () => {
     <div className="min-h-screen flex flex-col bg-light">
       <Navbar />
 
-      <div className="flex flex-1 min-h-0" style={{ height: "calc(100vh - 64px)" }}>
+      <div className="flex flex-1 min-h-0" style={{ height: "calc(100vh - 60px)" }}>
         {/* Left column */}
         <aside
           className={cn(

@@ -68,7 +68,7 @@ export const Hero = () => {
             <div className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-card-hover">
               <img
                 src={argentinaMap}
-                alt="Mapa de canchas en Argentina"
+                alt="Mapa de canchas en Latinoamérica"
                 width={1024}
                 height={1024}
                 className="w-full h-full object-cover"

@@ -1,0 +1,45 @@
+import { Logo } from "@/components/brand/Logo";
+
+const cols = [
+  {
+    title: "Navegación",
+    links: ["Inicio", "Buscar canchas", "Agregá tu cancha", "Blog", "FAQ"],
+  },
+  { title: "Deportes", links: ["Tenis", "Pádel", "Pickleball"] },
+  { title: "Contacto", links: ["contacto@haycancha.com", "Instagram: @haycancha"] },
+];
+
+export const Footer = () => (
+  <footer style={{ backgroundColor: "#1A1B22" }} className="text-white/70">
+    <div className="max-w-container mx-auto px-6 lg:px-10 py-12 md:py-14">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
+        <div className="col-span-2 md:col-span-1 space-y-3">
+          <Logo variant="light" size={28} />
+          <p className="text-[13px] text-white/60 max-w-[220px]">
+            El directorio de tenis de Argentina.
+          </p>
+        </div>
+        {cols.map((col) => (
+          <div key={col.title}>
+            <div className="label-meta uppercase text-orange mb-4">{col.title}</div>
+            <ul className="space-y-2.5">
+              {col.links.map((l) => (
+                <li key={l}>
+                  <a
+                    href="#"
+                    className="text-[13px] text-white/70 hover:text-orange transition-colors"
+                  >
+                    {l}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div className="mt-12 pt-6 border-t border-white/10 text-center text-[12px] text-white/50">
+        © 2025 HayCancha<span className="text-orange">.</span>com · Hecho con ❤️ para el tenis argentino
+      </div>
+    </div>
+  </footer>
+);

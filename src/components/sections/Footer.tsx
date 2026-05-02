@@ -10,12 +10,12 @@ const cols = [
 ];
 
 export const Footer = () => (
-  <footer style={{ backgroundColor: "#1A1B22" }} className="text-white/70">
+  <footer style={{ backgroundColor: "#1A1B22" }} className="text-white/60">
     <div className="max-w-container mx-auto px-6 lg:px-10 py-12 md:py-14">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
         <div className="col-span-2 md:col-span-1 space-y-3">
           <Logo variant="light" size={28} />
-          <p className="text-[13px] text-white/60 max-w-[220px]">
+          <p className="text-[14px] text-white/60 max-w-[220px]">
             El directorio de tenis de Argentina.
           </p>
         </div>
@@ -27,7 +27,7 @@ export const Footer = () => (
                 <li key={l}>
                   <a
                     href="#"
-                    className="text-[13px] text-white/70 hover:text-orange transition-colors"
+                    className="text-[14px] font-normal text-white/60 hover:text-orange transition-colors"
                   >
                     {l}
                   </a>
@@ -37,7 +37,9 @@ export const Footer = () => (
           </div>
         ))}
       </div>
-      <div className="mt-12 pt-6 border-t border-white/10 text-center text-[12px] text-white/50">
+    </div>
+    <div style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+      <div className="max-w-container mx-auto px-6 lg:px-10 py-4 text-center text-[11px] text-white/50">
         © 2025 HayCancha<span className="text-orange">.</span>com · Hecho con ❤️ para el tenis argentino
       </div>
     </div>

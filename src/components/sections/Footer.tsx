@@ -3,10 +3,29 @@ import { Logo } from "@/components/brand/Logo";
 const cols = [
   {
     title: "Navegación",
-    links: ["Inicio", "Buscar canchas", "Agregá tu cancha", "Blog", "FAQ"],
+    links: [
+      { label: "Inicio", href: "/" },
+      { label: "Buscar canchas", href: "/canchas" },
+      { label: "¿Tu cancha no aparece? Agregala", href: "/agregar-cancha" },
+      { label: "Blog", href: "#" },
+      { label: "FAQ", href: "#" },
+    ],
   },
-  { title: "Deportes", links: ["Tenis", "Pádel", "Pickleball"] },
-  { title: "Contacto", links: ["contacto@haycancha.com", "Instagram: @haycancha"] },
+  {
+    title: "Deportes",
+    links: [
+      { label: "Tenis", href: "#" },
+      { label: "Pádel", href: "#" },
+      { label: "Pickleball", href: "#" },
+    ],
+  },
+  {
+    title: "Contacto",
+    links: [
+      { label: "contacto@haycancha.com", href: "mailto:contacto@haycancha.com" },
+      { label: "Instagram: @haycancha", href: "#" },
+    ],
+  },
 ];
 
 export const Footer = () => (
@@ -24,12 +43,12 @@ export const Footer = () => (
             <div className="label-meta uppercase text-orange mb-4">{col.title}</div>
             <ul className="space-y-2.5">
               {col.links.map((l) => (
-                <li key={l}>
+                <li key={l.label}>
                   <a
-                    href="#"
+                    href={l.href}
                     className="text-[14px] font-normal text-white/60 hover:text-orange transition-colors"
                   >
-                    {l}
+                    {l.label}
                   </a>
                 </li>
               ))}

@@ -27,8 +27,8 @@ export const Navbar = () => {
           ))}
         </nav>
         <a
-          href="#"
-          className="text-[13px] font-semibold uppercase tracking-wider text-orange border-2 border-orange rounded-md px-4 py-2 hover:bg-orange hover:text-white transition-colors"
+          href="/agregar-cancha"
+          className="text-[13px] font-semibold uppercase tracking-wider text-celeste border-2 border-celeste rounded-md px-4 py-2 hover:bg-celeste hover:text-dark transition-colors"
         >
           Agregá tu cancha
         </a>

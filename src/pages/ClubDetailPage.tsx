@@ -113,7 +113,11 @@ const ClubDetailPage = () => {
           </div>
         </section>
 
-        {/* Header */}
+        {/* Slot 5 — club-after-gallery (in-article, between gallery and practical info) */}
+        <div className="max-w-container mx-auto px-6 lg:px-10">
+          <AdSlot slot="club-after-gallery" format="in-article" />
+        </div>
+
         <section className="max-w-container mx-auto px-6 lg:px-10 mt-8">
           <div className="grid lg:grid-cols-[1fr_320px] gap-8 lg:gap-12 items-start">
             <div>

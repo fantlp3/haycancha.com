@@ -448,7 +448,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 1 — INFO */}
             <section
-              ref={(el) => (sectionRefs.current.info = el)}
+              ref={(el) => { sectionRefs.current.info = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Información del complejo</SectionLabel>
@@ -532,7 +532,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 2 — DEPORTES */}
             <section
-              ref={(el) => (sectionRefs.current.deportes = el)}
+              ref={(el) => { sectionRefs.current.deportes = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Deportes y canchas</SectionLabel>
@@ -672,7 +672,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 3 — SERVICIOS */}
             <section
-              ref={(el) => (sectionRefs.current.servicios = el)}
+              ref={(el) => { sectionRefs.current.servicios = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Servicios</SectionLabel>
@@ -712,7 +712,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 4 — UBICACIÓN */}
             <section
-              ref={(el) => (sectionRefs.current.ubicacion = el)}
+              ref={(el) => { sectionRefs.current.ubicacion = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Ubicación</SectionLabel>
@@ -853,7 +853,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 5 — CONTACTO */}
             <section
-              ref={(el) => (sectionRefs.current.contacto = el)}
+              ref={(el) => { sectionRefs.current.contacto = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Datos de contacto</SectionLabel>
@@ -960,7 +960,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 6 — HORARIOS */}
             <section
-              ref={(el) => (sectionRefs.current.horarios = el)}
+              ref={(el) => { sectionRefs.current.horarios = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Horarios</SectionLabel>
@@ -1033,7 +1033,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 7 — FOTOS */}
             <section
-              ref={(el) => (sectionRefs.current.fotos = el)}
+              ref={(el) => { sectionRefs.current.fotos = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Fotos</SectionLabel>
@@ -1050,7 +1050,7 @@ const AgregarCanchaPage = () => {
 
             {/* SECTION 8 — CONFIRMACIÓN */}
             <section
-              ref={(el) => (sectionRefs.current.confirmacion = el)}
+              ref={(el) => { sectionRefs.current.confirmacion = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
               <SectionLabel>Confirmación</SectionLabel>

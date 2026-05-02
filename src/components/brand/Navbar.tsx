@@ -1,11 +1,11 @@
 import { Logo } from "./Logo";
 
 const links = [
-  { label: "Buscar canchas", href: "#" },
-  { label: "Por zona", href: "#" },
-  { label: "Tenis", href: "#" },
-  { label: "Pádel", href: "#" },
-  { label: "Blog", href: "#" },
+  { label: "Buscar canchas", href: "/canchas", hover: "hover:text-orange" },
+  { label: "Mapa", href: "/canchas?view=map", hover: "hover:text-orange" },
+  { label: "Tenis", href: "/tenis", hover: "hover:text-yellow" },
+  { label: "Pádel", href: "/padel", hover: "hover:text-celeste" },
+  { label: "Pickleball", href: "/pickleball", hover: "hover:text-lime" },
 ];
 
 export const Navbar = () => {
@@ -15,12 +15,12 @@ export const Navbar = () => {
         <a href="/" aria-label="HayCancha inicio">
           <Logo variant="light" size={28} />
         </a>
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-7">
           {links.map((l) => (
             <a
               key={l.label}
               href={l.href}
-              className="text-[14px] font-medium text-white/80 hover:text-orange transition-colors"
+              className={`text-[14px] font-medium text-white/80 ${l.hover} transition-colors`}
             >
               {l.label}
             </a>

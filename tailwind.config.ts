@@ -3,6 +3,14 @@ import type { Config } from "tailwindcss";
 export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  safelist: [
+    // Sport accent classes generated dynamically from SportConfig.color
+    "bg-yellow", "bg-celeste", "bg-lime",
+    "text-yellow", "text-celeste", "text-lime",
+    "border-yellow", "border-celeste", "border-lime",
+    "border-l-yellow", "border-l-celeste", "border-l-lime",
+    "hover:border-yellow", "hover:border-celeste", "hover:border-lime",
+  ],
   prefix: "",
   theme: {
     container: {

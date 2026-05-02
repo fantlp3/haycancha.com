@@ -14,9 +14,9 @@ const cols = [
   {
     title: "Deportes",
     links: [
-      { label: "Tenis", href: "#" },
-      { label: "Pádel", href: "#" },
-      { label: "Pickleball", href: "#" },
+      { label: "Tenis", href: "/tenis" },
+      { label: "Pádel", href: "/padel" },
+      { label: "Pickleball", href: "/pickleball" },
     ],
   },
   {

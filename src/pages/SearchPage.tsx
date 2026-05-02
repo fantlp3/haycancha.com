@@ -134,14 +134,27 @@ const SearchPage = () => {
               <EmptyState onClear={clearFilters} />
             ) : (
               <>
-                {filtered.map((c) => (
-                  <ResultCard
-                    key={c.id}
-                    court={c}
-                    active={activeId === c.id}
-                    onClick={() => setActiveId(c.id)}
-                    onHover={() => setActiveId(c.id)}
-                  />
+                {filtered.map((c, i) => (
+                  <div key={c.id}>
+                    <ResultCard
+                      court={c}
+                      active={activeId === c.id}
+                      onClick={() => setActiveId(c.id)}
+                      onHover={() => setActiveId(c.id)}
+                    />
+                    {/* Slot 3 — search-infeed-1 (after 6th result) */}
+                    {i === 5 && (
+                      <div className="px-3">
+                        <AdSlot slot="search-infeed-1" format="infeed" />
+                      </div>
+                    )}
+                    {/* Slot 4 — search-infeed-2 (after 18th result, only if >18) */}
+                    {i === 17 && filtered.length > 18 && (
+                      <div className="px-3">
+                        <AdSlot slot="search-infeed-2" format="infeed" />
+                      </div>
+                    )}
+                  </div>
                 ))}
                 <div className="p-4">
                   <button className="w-full py-3 border border-border rounded-md text-[13px] font-semibold text-dark hover:border-orange hover:text-orange transition">

@@ -21,6 +21,7 @@ import { Breadcrumb } from "@/components/search/Breadcrumb";
 import { CtaButton } from "@/components/brand/CtaButton";
 import { SportBadge } from "@/components/brand/SportBadge";
 import { CourtCard } from "@/components/brand/CourtCard";
+import { AdSlot } from "@/components/brand/AdSlot";
 import { cn } from "@/lib/utils";
 import court1 from "@/assets/court-1.jpg";
 import court2 from "@/assets/court-2.jpg";
@@ -112,7 +113,11 @@ const ClubDetailPage = () => {
           </div>
         </section>
 
-        {/* Header */}
+        {/* Slot 5 — club-after-gallery (in-article, between gallery and practical info) */}
+        <div className="max-w-container mx-auto px-6 lg:px-10">
+          <AdSlot slot="club-after-gallery" format="in-article" />
+        </div>
+
         <section className="max-w-container mx-auto px-6 lg:px-10 mt-8">
           <div className="grid lg:grid-cols-[1fr_320px] gap-8 lg:gap-12 items-start">
             <div>
@@ -282,6 +287,19 @@ const ClubDetailPage = () => {
             ))}
           </div>
         </section>
+
+        {/* Slot 6 — club-sidebar (300x600). Lives in document flow, not sticky.
+            Hidden on tablet/mobile (<lg) per density rules. */}
+        <aside className="hidden lg:block max-w-container mx-auto px-6 lg:px-10 mt-12">
+          <div className="ml-auto">
+            <AdSlot slot="club-sidebar" format="sidebar" />
+          </div>
+        </aside>
+
+        {/* Slot 7 — club-before-similar (leaderboard separator) */}
+        <div className="max-w-container mx-auto px-6 lg:px-10 mt-12">
+          <AdSlot slot="club-before-similar" format="leaderboard" />
+        </div>
 
         {/* Nearby */}
         <section className="max-w-container mx-auto px-6 lg:px-10 mt-16">

@@ -40,7 +40,7 @@ export const Footer = () => (
     </div>
     <div style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
       <div className="max-w-container mx-auto px-6 lg:px-10 py-4 text-center text-[11px] text-white/50">
-        © 2025 HayCancha<span className="text-orange">.</span>com · Hecho con ❤️ para el tenis argentino
+        © 2025 HayCancha<span className="text-orange">.</span>com · Hecho con ❤️ para el tenis latinoamericano
       </div>
     </div>
   </footer>

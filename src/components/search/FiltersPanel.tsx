@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const sports = [
   { id: "tenis", emoji: "🎾", label: "Tenis", active: "bg-yellow border-yellow text-dark" },
   { id: "padel", emoji: "🏓", label: "Pádel", active: "bg-celeste border-celeste text-dark" },
-  { id: "pickleball", emoji: "🏸", label: "Pickleball", active: "bg-[#8B5CF6] border-[#8B5CF6] text-white" },
+  { id: "pickleball", emoji: "🏸", label: "Pickleball", active: "bg-lime border-lime text-white" },
 ];
 
 const surfaces = ["Todos", "Polvo de ladrillo", "Cemento", "Césped sintético", "Multipiso", "Madera"];

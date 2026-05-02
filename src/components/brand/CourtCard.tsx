@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import { SportBadge, type Sport } from "./SportBadge";
 import { cn } from "@/lib/utils";
 
@@ -23,8 +23,10 @@ export const CourtCard = ({
 }: CourtCardProps) => (
   <article
     className={cn(
-      "group bg-card rounded-xl border border-border shadow-card overflow-hidden transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-card-hover cursor-pointer",
-      premium && "border-l-[3px] border-l-orange"
+      "group bg-card rounded-xl border border-border overflow-hidden transition-all duration-200 ease-out hover:-translate-y-1 cursor-pointer",
+      premium
+        ? "border-l-[3px] border-l-orange shadow-[0_6px_20px_rgba(0,0,0,0.10)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]"
+        : "shadow-card hover:shadow-card-hover"
     )}
   >
     <div className="relative aspect-[16/10] overflow-hidden rounded-t-lg">
@@ -37,8 +39,13 @@ export const CourtCard = ({
         {sports.map((s) => (
           <SportBadge key={s} sport={s} />
         ))}
-        {premium && <SportBadge sport="premium" />}
       </div>
+      {premium && (
+        <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-orange text-white px-2 py-1 rounded text-[10px] font-semibold uppercase leading-none tracking-[1px] shadow-md">
+          <Star size={10} fill="currentColor" strokeWidth={0} />
+          Premium
+        </span>
+      )}
     </div>
     <div className="p-4">
       <h3 className="font-body font-bold text-[16px] text-dark leading-tight">{name}</h3>

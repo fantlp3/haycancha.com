@@ -1,16 +1,16 @@
 import { Navbar } from "@/components/brand/Navbar";
 import { CtaButton } from "@/components/brand/CtaButton";
 import { SearchBar } from "@/components/brand/SearchBar";
-import { CourtCard } from "@/components/brand/CourtCard";
+import { CourtCard, type CourtCardProps } from "@/components/brand/CourtCard";
 import { SportBadge } from "@/components/brand/SportBadge";
 
-const sampleCourt = {
+const sampleCourt: CourtCardProps = {
   name: "Club Atlético Palermo",
   neighborhood: "Palermo",
   city: "CABA",
   image:
     "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1200&q=80",
-  sports: ["tenis", "padel"] as const,
+  sports: ["tenis", "padel"],
   pricePerHour: "$8.500",
 };
 

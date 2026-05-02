@@ -45,16 +45,16 @@ export const Hero = () => {
                 Buscar
               </button>
             </div>
-            <button className="sm:hidden w-full h-12 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] rounded-md">
+            <button className="sm:hidden w-full h-[52px] bg-orange text-white font-bold text-[16px] uppercase tracking-[1px] rounded-md hover:brightness-90 transition">
               Buscar
             </button>
 
-            {/* Chips */}
-            <div className="flex flex-wrap gap-2">
+            {/* Chips — horizontal scroll on mobile, wrap on desktop */}
+            <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-visible flex-nowrap -mx-6 px-6 md:mx-0 md:px-0 scrollbar-none">
               {quickChips.map((c) => (
                 <button
                   key={c}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-[13px] font-medium border border-transparent hover:opacity-100 hover:border-orange hover:text-white transition"
+                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-[13px] font-medium border border-transparent hover:opacity-100 hover:border-orange hover:text-white transition whitespace-nowrap"
                 >
                   <MapPin size={13} className="text-orange" />
                   {c}

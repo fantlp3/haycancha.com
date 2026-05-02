@@ -1,7 +1,7 @@
 import { Search, MapPin } from "lucide-react";
 import argentinaMap from "@/assets/argentina-map.jpg";
 
-const quickChips = ["Buenos Aires", "Palermo", "Belgrano", "Córdoba", "Rosario"];
+const quickChips = ["Buenos Aires", "Ciudad de México", "Bogotá", "Santiago", "Lima"];
 
 export const Hero = () => {
   return (

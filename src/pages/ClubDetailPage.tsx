@@ -21,6 +21,7 @@ import { Breadcrumb } from "@/components/search/Breadcrumb";
 import { CtaButton } from "@/components/brand/CtaButton";
 import { SportBadge } from "@/components/brand/SportBadge";
 import { CourtCard } from "@/components/brand/CourtCard";
+import { AdSlot } from "@/components/brand/AdSlot";
 import { cn } from "@/lib/utils";
 import court1 from "@/assets/court-1.jpg";
 import court2 from "@/assets/court-2.jpg";

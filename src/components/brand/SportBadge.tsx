@@ -6,7 +6,7 @@ export type Sport = "tenis" | "padel" | "pickleball" | "gratuito" | "premium";
 const styles: Record<Sport, string> = {
   tenis: "bg-sport-tenis-bg text-sport-tenis-fg border-yellow",
   padel: "bg-sport-padel-bg text-sport-padel-fg border-celeste",
-  pickleball: "bg-sport-pickle-bg text-sport-pickle-fg border-[#C4B5FD]",
+  pickleball: "bg-sport-pickle-bg text-sport-pickle-fg border-sport-pickle-border",
   gratuito: "bg-sport-gratis-bg text-sport-gratis-fg border-[#BBF7D0]",
   premium: "bg-orange text-white border-orange",
 };

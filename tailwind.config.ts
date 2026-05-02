@@ -3,6 +3,14 @@ import type { Config } from "tailwindcss";
 export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  safelist: [
+    // Sport accent classes generated dynamically from SportConfig.color
+    "bg-yellow", "bg-celeste", "bg-lime",
+    "text-yellow", "text-celeste", "text-lime",
+    "border-yellow", "border-celeste", "border-lime",
+    "border-l-yellow", "border-l-celeste", "border-l-lime",
+    "hover:border-yellow", "hover:border-celeste", "hover:border-lime",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -29,6 +37,7 @@ export default {
         orange: "hsl(var(--orange))",
         yellow: "hsl(var(--yellow))",
         celeste: "hsl(var(--celeste))",
+        lime: "hsl(var(--lime))",
         dark: {
           DEFAULT: "hsl(var(--dark))",
           2: "hsl(var(--dark-2))",
@@ -70,6 +79,7 @@ export default {
           "padel-fg": "hsl(var(--padel-fg))",
           "pickle-bg": "hsl(var(--pickle-bg))",
           "pickle-fg": "hsl(var(--pickle-fg))",
+          "pickle-border": "hsl(var(--pickle-border))",
           "gratis-bg": "hsl(var(--gratis-bg))",
           "gratis-fg": "hsl(var(--gratis-fg))",
         },

@@ -13,6 +13,7 @@
     --orange: 17 80% 54%;        /* #E8632A */
     --yellow: 59 76% 58%;        /* #E7E242 */
     --celeste: 194 56% 60%;      /* #5DB8D4 */
+    --lime: 84 81% 44%;          /* #84CC16 */
     --dark: 232 9% 19%;          /* #2C2D35 */
     --dark-2: 232 10% 25%;       /* #3A3B47 */
     --gray: 220 9% 46%;          /* #6B7280 */
@@ -55,8 +56,9 @@
     --tenis-fg: 51 100% 24%;
     --padel-bg: 194 67% 94%;
     --padel-fg: 194 65% 35%;
-    --pickle-bg: 255 100% 96%;
-    --pickle-fg: 263 70% 42%;
+    --pickle-bg: 78 92% 89%;     /* #ECFCCB lime-100 */
+    --pickle-fg: 71 79% 27%;     /* #4D7C0F lime-700 */
+    --pickle-border: 84 85% 67%; /* #BEF264 lime-300 */
     --gratis-bg: 138 76% 97%;
     --gratis-fg: 142 64% 24%;
 

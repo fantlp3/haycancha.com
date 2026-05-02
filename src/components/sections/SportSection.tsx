@@ -11,13 +11,16 @@ interface SportCardProps {
 const SportCard = ({ emoji, title, count, variant }: SportCardProps) => {
   const dark = variant === "tenis";
   const accent =
-    variant === "tenis" ? "border-l-yellow" : variant === "padel" ? "border-l-celeste" : "border-l-[#8B5CF6]";
+    variant === "tenis" ? "border-l-yellow" : variant === "padel" ? "border-l-celeste" : "border-l-lime";
   const linkColor =
-    variant === "tenis" ? "text-yellow" : variant === "padel" ? "text-celeste" : "text-[#8B5CF6]";
+    variant === "tenis" ? "text-yellow" : variant === "padel" ? "text-celeste" : "text-lime";
+  const landing = variant === "tenis" ? "/tenis" : variant === "padel" ? "/padel" : "/pickleball";
+  const seeAll = `/canchas?deporte=${variant}`;
   return (
-    <div
+    <a
+      href={landing}
       className={cn(
-        "group relative rounded-xl p-8 border-l-4 transition-all duration-300 hover:-translate-y-1 cursor-pointer",
+        "group relative rounded-xl p-8 border-l-4 transition-all duration-300 hover:-translate-y-1 cursor-pointer block",
         accent,
         dark ? "bg-dark text-white" : "bg-white border border-border text-dark hover:shadow-card-hover"
       )}
@@ -30,7 +33,8 @@ const SportCard = ({ emoji, title, count, variant }: SportCardProps) => {
         {count}
       </p>
       <a
-        href="#"
+        href={seeAll}
+        onClick={(e) => e.stopPropagation()}
         className={cn(
           "mt-6 inline-flex items-center gap-1 text-[14px] font-semibold uppercase tracking-wide group-hover:underline",
           linkColor
@@ -38,7 +42,7 @@ const SportCard = ({ emoji, title, count, variant }: SportCardProps) => {
       >
         Ver todas <ArrowRight size={14} />
       </a>
-    </div>
+    </a>
   );
 };
 

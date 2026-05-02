@@ -11,12 +11,14 @@ import { Breadcrumb } from "@/components/search/Breadcrumb";
 import { SAMPLE_COURTS } from "@/data/courts";
 import { cn } from "@/lib/utils";
 import { AdSlot } from "@/components/brand/AdSlot";
+import { countrySlugToName } from "@/lib/geo";
 
 const DEFAULT_FILTERS: FiltersState = {
   sports: [],
   surface: "Todos",
   services: [],
   sort: "Relevancia",
+  country: "Todos los países",
 };
 
 const titleCase = (s: string) =>
@@ -25,14 +27,17 @@ const titleCase = (s: string) =>
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
 const SearchPage = () => {
-  const { provincia, barrio } = useParams();
+  const { pais, ciudad, barrio } = useParams();
   const [params] = useSearchParams();
   const sportParam = params.get("deporte");
+
+  const initialCountry = pais ? countrySlugToName(pais) : "Todos los países";
 
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<FiltersState>(() => ({
     ...DEFAULT_FILTERS,
     sports: sportParam ? [sportParam] : [],
+    country: initialCountry,
   }));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading] = useState(false);
@@ -50,21 +55,25 @@ const SearchPage = () => {
 
   const locationLabel = barrio
     ? titleCase(barrio)
-    : provincia
-    ? titleCase(provincia)
-    : "Argentina";
+    : ciudad
+    ? titleCase(ciudad)
+    : pais
+    ? countrySlugToName(pais)
+    : "Latinoamérica";
 
   const crumbs = [
     { label: "Canchas", href: "/canchas" },
-    ...(provincia ? [{ label: titleCase(provincia), href: `/canchas/${provincia}` }] : []),
+    ...(pais ? [{ label: countrySlugToName(pais), href: `/canchas/${pais}` }] : []),
+    ...(ciudad ? [{ label: titleCase(ciudad), href: `/canchas/${pais}/${ciudad}` }] : []),
     ...(barrio ? [{ label: titleCase(barrio) }] : []),
   ];
-  if (!provincia && !barrio) crumbs[crumbs.length - 1] = { label: "Canchas" };
+  if (!pais && !ciudad && !barrio) crumbs[crumbs.length - 1] = { label: "Canchas" };
 
   const activeFiltersCount =
     filters.sports.length +
     filters.services.length +
-    (filters.surface !== "Todos" ? 1 : 0);
+    (filters.surface !== "Todos" ? 1 : 0) +
+    (filters.country !== "Todos los países" ? 1 : 0);
 
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);

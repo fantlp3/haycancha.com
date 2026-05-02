@@ -1,7 +1,13 @@
 import { Search, MapPin } from "lucide-react";
 import argentinaMap from "@/assets/argentina-map.jpg";
 
-const quickChips = ["Buenos Aires", "Ciudad de México", "Bogotá", "Santiago", "Lima"];
+const quickChips: { label: string; href: string }[] = [
+  { label: "Buenos Aires", href: "/canchas/argentina/buenos-aires" },
+  { label: "Ciudad de México", href: "/canchas/mexico/ciudad-de-mexico" },
+  { label: "Bogotá", href: "/canchas/colombia/bogota" },
+  { label: "Santiago", href: "/canchas/chile/santiago" },
+  { label: "Lima", href: "/canchas/peru/lima" },
+];
 
 export const Hero = () => {
   return (
@@ -52,13 +58,14 @@ export const Hero = () => {
             {/* Chips — horizontal scroll on mobile, wrap on desktop */}
             <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-visible flex-nowrap -mx-6 px-6 md:mx-0 md:px-0 scrollbar-none">
               {quickChips.map((c) => (
-                <button
-                  key={c}
+                <a
+                  key={c.label}
+                  href={c.href}
                   className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-[13px] font-medium border border-transparent hover:opacity-100 hover:border-orange hover:text-white transition whitespace-nowrap"
                 >
                   <MapPin size={13} className="text-orange" />
-                  {c}
-                </button>
+                  {c.label}
+                </a>
               ))}
             </div>
           </div>

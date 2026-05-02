@@ -1,21 +1,23 @@
 import { ArrowRight } from "lucide-react";
 
 const zones = [
-  { name: "Buenos Aires Ciudad", count: 480 },
-  { name: "Gran Buenos Aires", count: 320 },
-  { name: "Córdoba", count: 180 },
-  { name: "Rosario", count: 145 },
-  { name: "Mendoza", count: 98 },
-  { name: "Tucumán", count: 67 },
-  { name: "La Plata", count: 58 },
-  { name: "Mar del Plata", count: 52 },
+  { name: "Argentina", count: 720 },
+  { name: "México", count: 310 },
+  { name: "Colombia", count: 180 },
+  { name: "Chile", count: 145 },
+  { name: "Perú", count: 98 },
+  { name: "Uruguay", count: 67 },
+  { name: "Venezuela", count: 58 },
+  { name: "Ecuador", count: 52 },
+  { name: "Paraguay", count: 38 },
+  { name: "Bolivia", count: 27 },
 ];
 
 export const ZoneSection = () => (
   <section className="bg-light py-16 md:py-20">
     <div className="max-w-container mx-auto px-6 lg:px-10 space-y-10">
       <h2 className="font-display text-dark text-[32px] md:text-[40px] leading-none">
-        EXPLORÁ POR ZONA
+        EXPLORÁ POR PAÍS
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {zones.map((z) => (

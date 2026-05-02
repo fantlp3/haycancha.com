@@ -23,7 +23,7 @@ export const CourtCard = ({
 }: CourtCardProps) => (
   <article
     className={cn(
-      "group bg-card rounded-xl border border-border shadow-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover cursor-pointer",
+      "group bg-card rounded-xl border border-border shadow-card overflow-hidden transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-card-hover cursor-pointer",
       premium && "border-l-[3px] border-l-orange"
     )}
   >

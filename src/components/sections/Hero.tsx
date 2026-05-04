@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Search, MapPin } from "lucide-react";
 import argentinaMap from "@/assets/argentina-map.jpg";
 import { useClubStats, useStatsByPais } from "@/hooks/useClubes";

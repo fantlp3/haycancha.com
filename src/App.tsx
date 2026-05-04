@@ -15,11 +15,8 @@ import SobrePage from "./pages/SobrePage.tsx";
 import ContactoPage from "./pages/ContactoPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+  <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
@@ -51,9 +48,7 @@ const App = () => (
           // TODO: mount Google AdSense script here, LOAD ONLY IF cookieConsent.advertising === true
         */}
         <CookieConsent />
-      </BrowserRouter>
     </TooltipProvider>
-  </QueryClientProvider>
 );
 
 export default App;

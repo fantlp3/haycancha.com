@@ -48,6 +48,7 @@ const App = () => (
           // TODO: mount Google AdSense script here, LOAD ONLY IF cookieConsent.advertising === true
         */}
         <CookieConsent />
+      </BrowserRouter>
     </TooltipProvider>
 );
 

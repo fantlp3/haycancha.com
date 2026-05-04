@@ -1,5 +1,8 @@
 import { Search, MapPin } from "lucide-react";
 import argentinaMap from "@/assets/argentina-map.jpg";
+import { useClubStats, useStatsByPais } from "@/hooks/useClubes";
+
+const nfAR = new Intl.NumberFormat("es-AR");
 
 const quickChips: { label: string; href: string }[] = [
   { label: "Buenos Aires", href: "/canchas/argentina/buenos-aires" },

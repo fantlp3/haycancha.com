@@ -54,7 +54,7 @@ export const Hero = () => {
               <span className="text-orange">PERFECTA.</span>
             </h1>
             <p className="text-white/70 text-[16px] md:text-[18px] max-w-xl leading-relaxed">
-              Más de 1.500 clubes y canchas de tenis, pádel y pickleball en toda Latinoamérica. Gratis.
+              Más de {totalDisplay} clubes y canchas de tenis, pádel y pickleball en toda Latinoamérica. Gratis.
             </p>
 
             {/* Search */}

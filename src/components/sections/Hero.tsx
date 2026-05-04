@@ -14,8 +14,13 @@ const quickChips: { label: string; href: string }[] = [
 ];
 
 export const Hero = () => {
-  const { data: stats, isLoading: statsLoading, isError: statsError } = useClubStats();
-  const { data: paises, isLoading: paisesLoading, isError: paisesError } = useStatsByPais();
+  const { data: stats, isLoading: statsLoading, isError: statsError, error: statsErr } = useClubStats();
+  const { data: paises, isLoading: paisesLoading, isError: paisesError, error: paisesErr } = useStatsByPais();
+
+  useEffect(() => {
+    if (statsError) console.error("[Hero] stats error:", statsErr, (statsErr as any)?.errors, (statsErr as any)?.response);
+    if (paisesError) console.error("[Hero] pais error:", paisesErr, (paisesErr as any)?.errors, (paisesErr as any)?.response);
+  }, [statsError, paisesError, statsErr, paisesErr]);
 
   const totalCanchas = stats?.total ?? 0;
   const totalPaises = paises?.length ?? 0;

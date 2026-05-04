@@ -297,3 +297,18 @@ export async function fetchClubesInBBox(bbox: BBox): Promise<ClubCard[]> {
   );
   return result as unknown as ClubCard[];
 }
+
+/**
+ * Returns the primary sport slug for a club based on its associations.
+ * Priority: pickleball > padel > tenis (rarer first).
+ */
+export function getPrimarySportSlug(
+  clubDeportes: Array<{ deporte: { slug: string } }>
+): "tenis" | "padel" | "pickleball" | null {
+  if (!clubDeportes || clubDeportes.length === 0) return null;
+  const slugs = new Set(clubDeportes.map((cd) => cd.deporte.slug));
+  if (slugs.has("pickleball")) return "pickleball";
+  if (slugs.has("padel")) return "padel";
+  if (slugs.has("tenis")) return "tenis";
+  return null;
+}

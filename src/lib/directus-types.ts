@@ -158,6 +158,40 @@ export interface HayCanchaSchema {
   barrios: Barrio[];
   clubes: Club[];
   clubes_deportes: ClubDeporte[];
+  clubes_pending: ClubPendingSubmission[];
+}
+
+// ============================================
+// Submission types — Agregá tu cancha
+// ============================================
+
+export type RelacionConClub = "dueño" | "empleado" | "socio" | "usuario_general";
+
+export interface ClubPendingSubmission {
+  // Identity
+  nombre: string;
+  tipo: ClubTipo;
+  direccion: string;
+
+  // Location (text, not normalized — admin will resolve to FKs on approval)
+  pais_texto: string;
+  ciudad_texto: string;
+  barrio_texto?: string;
+  latitud?: number;
+  longitud?: number;
+
+  // Club contact
+  telefono?: string;
+  email_club?: string;
+  website?: string;
+
+  // Submitter info
+  nombre_remitente: string;
+  email_remitente: string;
+  relacion_con_club: RelacionConClub;
+  deportes_indicados?: string[];
+  cantidad_canchas?: number;
+  notas_remitente?: string;
 }
 
 export type ClubFull = Omit<Club, "pais" | "ciudad" | "barrio" | "foto_portada"> & {

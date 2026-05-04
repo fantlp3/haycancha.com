@@ -1,6 +1,14 @@
 import { directus } from "./directus";
-import { readItems, aggregate } from "@directus/sdk";
+import { readItems as _readItems, aggregate as _aggregate } from "@directus/sdk";
 import type { ClubCard, ClubFull, ClubTipo, Pais } from "./directus-types";
+
+// The SDK's generated field-types are too strict for nested file/relation expansion
+// (e.g. it doesn't know `foto_portada` accepts subfields). We cast the options arg
+// to `any` here — return values are still typed via `as ClubCard[]` etc.
+const readItems = (collection: string, options: any) =>
+  _readItems(collection as any, options);
+const aggregate = (collection: string, options: any) =>
+  _aggregate(collection as any, options);
 
 // ============================================
 // LIST: clubes by barrio

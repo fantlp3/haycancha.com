@@ -1,5 +1,8 @@
 import { Search, MapPin } from "lucide-react";
 import argentinaMap from "@/assets/argentina-map.jpg";
+import { useClubStats, useStatsByPais } from "@/hooks/useClubes";
+
+const nfAR = new Intl.NumberFormat("es-AR");
 
 const quickChips: { label: string; href: string }[] = [
   { label: "Buenos Aires", href: "/canchas/argentina/buenos-aires" },
@@ -10,6 +13,23 @@ const quickChips: { label: string; href: string }[] = [
 ];
 
 export const Hero = () => {
+  const { data: stats, isLoading: statsLoading, isError: statsError } = useClubStats();
+  const { data: paises, isLoading: paisesLoading, isError: paisesError } = useStatsByPais();
+
+  const totalCanchas = stats?.total ?? 0;
+  const totalPaises = paises?.length ?? 0;
+
+  const totalDisplay = statsError
+    ? "1.500+"
+    : statsLoading
+    ? "…"
+    : nfAR.format(totalCanchas);
+  const paisesDisplay = paisesError
+    ? "15"
+    : paisesLoading
+    ? "…"
+    : nfAR.format(totalPaises);
+
   return (
     <section className="relative bg-dark overflow-hidden">
       {/* Diagonal lines pattern */}
@@ -97,8 +117,8 @@ export const Hero = () => {
       <div className="relative bg-dark-2 border-t border-white/5">
         <div className="max-w-container mx-auto px-6 lg:px-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
           {[
-            { n: "1.500+", l: "Clubes y canchas en toda Latinoamérica" },
-            { n: "15", l: "Países" },
+            { n: totalDisplay, l: "Clubes y canchas en toda Latinoamérica" },
+            { n: paisesDisplay, l: "Países" },
             { n: "Gratis", l: "Para usuarios" },
           ].map((s) => (
             <div key={s.l} className="py-6 md:py-8 px-4 text-center">

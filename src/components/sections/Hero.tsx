@@ -13,6 +13,23 @@ const quickChips: { label: string; href: string }[] = [
 ];
 
 export const Hero = () => {
+  const { data: stats, isLoading: statsLoading, isError: statsError } = useClubStats();
+  const { data: paises, isLoading: paisesLoading, isError: paisesError } = useStatsByPais();
+
+  const totalCanchas = stats?.total ?? 0;
+  const totalPaises = paises?.length ?? 0;
+
+  const totalDisplay = statsError
+    ? "1.500+"
+    : statsLoading
+    ? "…"
+    : nfAR.format(totalCanchas);
+  const paisesDisplay = paisesError
+    ? "15"
+    : paisesLoading
+    ? "…"
+    : nfAR.format(totalPaises);
+
   return (
     <section className="relative bg-dark overflow-hidden">
       {/* Diagonal lines pattern */}

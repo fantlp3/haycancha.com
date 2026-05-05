@@ -301,12 +301,31 @@ export async function fetchClubesInBBox(bbox: BBox): Promise<ClubCard[]> {
 }
 
 // ============================================
-// HOME STATS: active clubs, total courts, distinct cities
+// HOME STATS: active clubs, courts, cities + per-sport / per-country counts
 // ============================================
 export async function fetchHomeStats(): Promise<HomeStats> {
+  // Single fetch backs every count on the home page (StatsStrip,
+  // SportSection, ZoneSection). Payload is bounded by active-club count
+  // (~1.5k cap in practice). If it ever becomes a concern, switch to
+  // server-side `aggregate` calls grouped by `pais` and a junction
+  // aggregate over `clubes_deportes` for sport buckets.
   const result = await directus.request(
     readItems("clubes", {
-      fields: ["id", "ciudad", { clubes_deportes: ["cantidad_canchas"] }],
+      fields: [
+        "id",
+        {
+          ciudad: [
+            "id",
+            { pais: ["id", "slug", "nombre", "bandera_emoji"] },
+          ],
+        },
+        {
+          clubes_deportes: [
+            "cantidad_canchas",
+            { deporte: ["slug"] },
+          ],
+        },
+      ],
       filter: { activo: { _eq: true } },
       limit: -1,
     })

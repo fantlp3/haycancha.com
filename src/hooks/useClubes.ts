@@ -102,6 +102,8 @@ export function useHomeStats() {
     totalClubes: query.data?.totalClubes,
     totalCanchas: query.data?.totalCanchas,
     totalCiudades: query.data?.totalCiudades,
+    countsBySport: query.data?.countsBySport,
+    countsByCountry: query.data?.countsByCountry,
     isLoading: query.isLoading,
     isError: query.isError,
   };

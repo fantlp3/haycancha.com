@@ -1,5 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useHomeStats } from "@/hooks/useClubes";
+
+const nfAR = new Intl.NumberFormat("es-AR");
 
 interface SportCardProps {
   emoji: string;
@@ -46,15 +49,21 @@ const SportCard = ({ emoji, title, count, variant }: SportCardProps) => {
   );
 };
 
-export const SportSection = () => (
-  <section className="bg-light py-16 md:py-20">
-    <div className="max-w-container mx-auto px-6 lg:px-10 space-y-10">
-      <div className="section-divider">Encontrá por deporte</div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <SportCard emoji="🎾" title="TENIS" count="1.480 canchas" variant="tenis" />
-        <SportCard emoji="🏓" title="PÁDEL" count="280 canchas" variant="padel" />
-        <SportCard emoji="🏸" title="PICKLEBALL" count="45 canchas" variant="pickleball" />
+export const SportSection = () => {
+  const { countsBySport, isLoading } = useHomeStats();
+  const fmt = (n: number | undefined): string =>
+    isLoading || n === undefined ? "— canchas" : `${nfAR.format(n)} canchas`;
+
+  return (
+    <section className="bg-light py-16 md:py-20">
+      <div className="max-w-container mx-auto px-6 lg:px-10 space-y-10">
+        <div className="section-divider">Encontrá por deporte</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <SportCard emoji="🎾" title="TENIS" count={fmt(countsBySport?.tenis)} variant="tenis" />
+          <SportCard emoji="🏓" title="PÁDEL" count={fmt(countsBySport?.padel)} variant="padel" />
+          <SportCard emoji="🏸" title="PICKLEBALL" count={fmt(countsBySport?.pickleball)} variant="pickleball" />
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};

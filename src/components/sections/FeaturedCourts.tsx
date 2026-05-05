@@ -1,56 +1,95 @@
-import { ArrowRight } from "lucide-react";
-import { CourtCard, type CourtCardProps } from "@/components/brand/CourtCard";
-import court1 from "@/assets/court-1.jpg";
-import court2 from "@/assets/court-2.jpg";
-import court3 from "@/assets/court-3.jpg";
+import { ArrowRight, MapPin, Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ClubPhoto } from "@/components/ClubPhoto";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useClubesPremium } from "@/hooks/useClubes";
+import { cn } from "@/lib/utils";
+import type { ClubCard } from "@/lib/directus-types";
 
-const courts: CourtCardProps[] = [
-  {
-    name: "Club Deportivo Palermo",
-    neighborhood: "Palermo",
-    city: "CABA",
-    image: court1,
-    sports: ["tenis", "padel"],
-    premium: true,
-    pricePerHour: "$8.500",
-  },
-  {
-    name: "Asociación Tenis Belgrano",
-    neighborhood: "Belgrano",
-    city: "CABA",
-    image: court2,
-    sports: ["tenis"],
-    pricePerHour: "$6.200",
-  },
-  {
-    name: "Complejo Tenis Recoleta",
-    neighborhood: "Recoleta",
-    city: "CABA",
-    image: court3,
-    sports: ["tenis", "padel"],
-    pricePerHour: "$7.400",
-  },
-];
-
-export const FeaturedCourts = () => (
-  <section className="bg-white py-16 md:py-20">
-    <div className="max-w-container mx-auto px-6 lg:px-10 space-y-8">
-      <div className="flex items-end justify-between gap-4">
-        <h2 className="font-display text-dark text-[32px] md:text-[40px] leading-none">
-          CANCHAS DESTACADAS
-        </h2>
-        <a
-          href="#"
-          className="inline-flex items-center gap-1 text-orange font-medium text-[14px] hover:underline shrink-0"
-        >
-          Ver todas <ArrowRight size={14} />
-        </a>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {courts.map((c) => (
-          <CourtCard key={c.name} {...c} />
-        ))}
-      </div>
+const SkeletonCard = () => (
+  <article className="bg-card rounded-xl border border-border overflow-hidden shadow-card">
+    <Skeleton className="aspect-[16/10] w-full rounded-none" />
+    <div className="p-4 space-y-2">
+      <Skeleton className="h-5 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
     </div>
-  </section>
+  </article>
 );
+
+const PremiumCard = ({ club }: { club: ClubCard }) => {
+  const fileId = club.foto_portada?.id ?? null;
+  const location = club.barrio?.nombre
+    ? `${club.barrio.nombre} · ${club.ciudad.nombre}`
+    : club.ciudad.nombre;
+
+  return (
+    <Link
+      to={`/clubes/${club.slug}`}
+      className={cn(
+        "group block bg-card rounded-xl border border-border overflow-hidden transition-all duration-200 ease-out hover:-translate-y-1",
+        club.es_premium
+          ? "border-l-[3px] border-l-orange shadow-[0_6px_20px_rgba(0,0,0,0.10)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.16)]"
+          : "shadow-card hover:shadow-card-hover"
+      )}
+    >
+      <div className="relative aspect-[16/10] overflow-hidden rounded-t-lg">
+        <ClubPhoto
+          clubName={club.nombre}
+          fileId={fileId}
+          width={640}
+          height={400}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {club.es_premium && (
+          <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-orange text-white px-2 py-1 rounded text-[10px] font-semibold uppercase leading-none tracking-[1px] shadow-md">
+            <Star size={10} fill="currentColor" strokeWidth={0} />
+            Premium
+          </span>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="font-body font-bold text-[16px] text-dark leading-tight">{club.nombre}</h3>
+        <p className="mt-1 flex items-center gap-1 text-[13px] text-gray">
+          <MapPin size={14} className="text-orange shrink-0" />
+          {location}
+        </p>
+      </div>
+    </Link>
+  );
+};
+
+export const FeaturedCourts = () => {
+  const { data: clubs, isLoading, isError, error } = useClubesPremium(6);
+
+  if (isError) {
+    console.warn("[FeaturedCourts] failed to load premium clubs:", error);
+    return null;
+  }
+
+  if (!isLoading && (!clubs || clubs.length === 0)) {
+    return null;
+  }
+
+  return (
+    <section className="bg-white py-16 md:py-20">
+      <div className="max-w-container mx-auto px-6 lg:px-10 space-y-8">
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="font-display text-dark text-[32px] md:text-[40px] leading-none">
+            CANCHAS DESTACADAS
+          </h2>
+          <Link
+            to="/canchas"
+            className="inline-flex items-center gap-1 text-orange font-medium text-[14px] hover:underline shrink-0"
+          >
+            Ver todas <ArrowRight size={14} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+            : clubs!.map((club) => <PremiumCard key={club.id} club={club} />)}
+        </div>
+      </div>
+    </section>
+  );
+};

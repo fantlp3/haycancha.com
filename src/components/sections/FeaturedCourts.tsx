@@ -41,6 +41,7 @@ const PremiumCard = ({ club }: { club: ClubCard }) => {
           primarySportSlug={primarySportSlug}
           width={640}
           height={400}
+          size="lg"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {club.es_premium && (

@@ -201,15 +201,23 @@ export type ClubFull = Omit<Club, "pais" | "ciudad" | "barrio" | "foto_portada">
   foto_portada: DirectusFile | null;
 };
 
-export type ClubCard = Pick<Club, "id" | "nombre" | "slug" | "tipo" | "es_premium"> & {
+export type ClubCard = Pick<
+  Club,
+  | "id" | "nombre" | "slug" | "tipo" | "es_premium"
+  | "iluminacion" | "vestuarios" | "estacionamiento"
+  | "bar_restaurante" | "clases" | "alquiler_raquetas"
+  | "accesibilidad" | "reserva_online"
+> & {
   foto_portada: Pick<DirectusFile, "id" | "filename_download"> | null;
   pais: Pick<Pais, "nombre" | "slug">;
   barrio: Pick<Barrio, "nombre" | "slug"> | null;
   ciudad: Pick<Ciudad, "nombre" | "slug">;
   clubes_deportes?: Array<{
     es_primario?: boolean;
+    superficie?: Superficie | null;
     deporte: { slug: string; nombre?: string };
   }>;
+  ubicacion?: { type: "Point"; coordinates: [number, number] } | null;
 };
 
 export function isExpanded<T>(field: string | T | null): field is T {

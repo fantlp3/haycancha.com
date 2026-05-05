@@ -69,6 +69,7 @@ const ListRow = ({ club, last }: { club: ClubCard; last: boolean }) => {
             primarySportSlug={primary}
             width={160}
             height={160}
+            size="sm"
             className="w-full h-full object-cover"
           />
         </div>

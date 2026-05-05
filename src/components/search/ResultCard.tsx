@@ -42,6 +42,7 @@ export const ResultCard = ({ club, active, onClick, onHover }: Props) => {
           primarySportSlug={primary}
           width={160}
           height={160}
+          size="sm"
           className="w-full h-full object-cover"
         />
         {club.es_premium && (

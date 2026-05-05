@@ -16,12 +16,15 @@ export async function fetchClubesByBarrio(barrioSlug: string): Promise<ClubCard[
   const result = await directus.request(
     readItems("clubes", {
       fields: [
-        "id", "nombre", "slug", "tipo", "es_premium",
+        "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+        "iluminacion", "vestuarios", "estacionamiento",
+        "bar_restaurante", "clases", "alquiler_raquetas",
+        "accesibilidad", "reserva_online",
         { foto_portada: ["id", "filename_download"] },
         { pais: ["nombre", "slug"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
-        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+        { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
       ],
       filter: {
         barrio: { slug: { _eq: barrioSlug } },
@@ -41,12 +44,15 @@ export async function fetchClubesByCiudad(ciudadSlug: string): Promise<ClubCard[
   const result = await directus.request(
     readItems("clubes", {
       fields: [
-        "id", "nombre", "slug", "tipo", "es_premium",
+        "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+        "iluminacion", "vestuarios", "estacionamiento",
+        "bar_restaurante", "clases", "alquiler_raquetas",
+        "accesibilidad", "reserva_online",
         { foto_portada: ["id", "filename_download"] },
         { pais: ["nombre", "slug"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
-        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+        { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
       ],
       filter: {
         ciudad: { slug: { _eq: ciudadSlug } },
@@ -66,12 +72,15 @@ export async function fetchClubesByPais(paisSlug: string): Promise<ClubCard[]> {
   const result = await directus.request(
     readItems("clubes", {
       fields: [
-        "id", "nombre", "slug", "tipo", "es_premium",
+        "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+        "iluminacion", "vestuarios", "estacionamiento",
+        "bar_restaurante", "clases", "alquiler_raquetas",
+        "accesibilidad", "reserva_online",
         { foto_portada: ["id", "filename_download"] },
         { pais: ["nombre", "slug"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
-        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+        { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
       ],
       filter: {
         pais: { slug: { _eq: paisSlug } },
@@ -91,12 +100,15 @@ export async function fetchAllClubes(limit = 200): Promise<ClubCard[]> {
   const result = await directus.request(
     readItems("clubes", {
       fields: [
-        "id", "nombre", "slug", "tipo", "es_premium",
+        "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+        "iluminacion", "vestuarios", "estacionamiento",
+        "bar_restaurante", "clases", "alquiler_raquetas",
+        "accesibilidad", "reserva_online",
         { foto_portada: ["id", "filename_download"] },
         { pais: ["nombre", "slug"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
-        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+        { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
       ],
       filter: { activo: { _eq: true } },
       sort: ["-es_premium", "nombre"],
@@ -138,12 +150,15 @@ export async function fetchClubesByDeporte(deporteSlug: string): Promise<ClubCar
       fields: [
         {
           club: [
-            "id", "nombre", "slug", "tipo", "es_premium",
+            "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+            "iluminacion", "vestuarios", "estacionamiento",
+            "bar_restaurante", "clases", "alquiler_raquetas",
+            "accesibilidad", "reserva_online",
             { foto_portada: ["id", "filename_download"] },
             { pais: ["nombre", "slug"] },
             { barrio: ["nombre", "slug"] },
             { ciudad: ["nombre", "slug"] },
-            { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+            { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
           ],
         },
       ],
@@ -168,12 +183,15 @@ export async function fetchClubesByDeportes(deporteSlugs: string[]): Promise<Clu
       fields: [
         {
           club: [
-            "id", "nombre", "slug", "tipo", "es_premium",
+            "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+            "iluminacion", "vestuarios", "estacionamiento",
+            "bar_restaurante", "clases", "alquiler_raquetas",
+            "accesibilidad", "reserva_online",
             { foto_portada: ["id", "filename_download"] },
             { pais: ["nombre", "slug"] },
             { barrio: ["nombre", "slug"] },
             { ciudad: ["nombre", "slug"] },
-            { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+            { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
           ],
         },
       ],
@@ -203,12 +221,15 @@ export async function fetchClubesPremium(limit = 6): Promise<ClubCard[]> {
   const result = await directus.request(
     readItems("clubes", {
       fields: [
-        "id", "nombre", "slug", "tipo", "es_premium",
+        "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+        "iluminacion", "vestuarios", "estacionamiento",
+        "bar_restaurante", "clases", "alquiler_raquetas",
+        "accesibilidad", "reserva_online",
         { foto_portada: ["id", "filename_download"] },
         { pais: ["nombre", "slug"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
-        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+        { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
       ],
       filter: {
         es_premium: { _eq: true },
@@ -230,12 +251,15 @@ export async function searchClubes(query: string, limit = 20): Promise<ClubCard[
   const results = await directus.request(
     readItems("clubes", {
       fields: [
-        "id", "nombre", "slug", "tipo", "es_premium",
+        "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+        "iluminacion", "vestuarios", "estacionamiento",
+        "bar_restaurante", "clases", "alquiler_raquetas",
+        "accesibilidad", "reserva_online",
         { foto_portada: ["id", "filename_download"] },
         { pais: ["nombre", "slug"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
-        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+        { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
       ],
       filter: {
         nombre: { _icontains: query },
@@ -333,11 +357,14 @@ export async function fetchClubesInBBox(bbox: BBox): Promise<ClubCard[]> {
     readItems("clubes", {
       fields: [
         "id", "nombre", "slug", "tipo", "es_premium", "ubicacion",
+        "iluminacion", "vestuarios", "estacionamiento",
+        "bar_restaurante", "clases", "alquiler_raquetas",
+        "accesibilidad", "reserva_online",
         { foto_portada: ["id", "filename_download"] },
         { pais: ["nombre", "slug"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
-        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
+        { clubes_deportes: ["es_primario", "superficie", { deporte: ["slug", "nombre"] }] },
       ],
       filter: {
         ubicacion: {

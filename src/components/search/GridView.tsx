@@ -51,6 +51,7 @@ export const GridView = ({ clubs, loading, onLoadMore }: Props) => {
                   primarySportSlug={primary}
                   width={640}
                   height={400}
+                  size="md"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">

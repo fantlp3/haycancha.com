@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Filter, List, Map as MapIcon } from "lucide-react";
 import { Navbar } from "@/components/brand/Navbar";
 import { SearchHeader } from "@/components/search/SearchHeader";
@@ -14,18 +14,18 @@ import { ListView } from "@/components/search/ListView";
 import { FiltersChipBar } from "@/components/search/FiltersChipBar";
 import { cn } from "@/lib/utils";
 import { AdSlot } from "@/components/brand/AdSlot";
-import { countrySlugToName } from "@/lib/geo";
+import { countrySlugToName, countryNameToSlug } from "@/lib/geo";
+import { filterClubs } from "@/lib/filter";
 import {
   useAllClubes,
   useClubesByPais,
   useClubesByCiudad,
   useClubesByBarrio,
-  useHomeStats,
 } from "@/hooks/useClubes";
 
 const DEFAULT_FILTERS: FiltersState = {
   sports: [],
-  surface: "Todos",
+  surfaces: [],
   services: [],
   sort: "Relevancia",
   country: "Todos los países",
@@ -49,6 +49,7 @@ const isViewMode = (v: string | null): v is ViewMode =>
 const SearchPage = () => {
   const { pais, ciudad, barrio } = useParams();
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
   const sportParam = params.get("deporte");
 
   const initialCountry = pais ? countrySlugToName(pais) : "Todos los países";
@@ -120,30 +121,43 @@ const SearchPage = () => {
   const clubsData = clubsQuery.data;
   const dataLoading = clubsQuery.isLoading;
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (clubsData ?? []).filter((c) => {
-      if (filters.sports.length) {
-        const has = (c.clubes_deportes ?? []).some((cd) =>
-          filters.sports.includes(cd.deporte.slug)
-        );
-        if (!has) return false;
-      }
-      if (q) {
-        const haystack = `${c.nombre} ${c.barrio?.nombre ?? ""} ${c.ciudad.nombre}`.toLowerCase();
-        if (!haystack.includes(q)) return false;
-      }
-      return true;
-    });
-  }, [clubsData, filters, query]);
+  // Keep filters.country aligned with the URL — country is URL-canonical, the
+  // dropdown navigates rather than mutating in-memory state, and this useEffect
+  // back-fills the panel so it reflects the live URL on every render.
+  useEffect(() => {
+    const expected = pais ? countrySlugToName(pais) : "Todos los países";
+    setFilters((f) => (f.country === expected ? f : { ...f, country: expected }));
+  }, [pais]);
 
-  const locationLabel = barrio
-    ? titleCase(barrio)
-    : ciudad
-    ? titleCase(ciudad)
-    : pais
-    ? countrySlugToName(pais)
-    : "Latinoamérica";
+  const handleCountryChange = (countryName: string) => {
+    if (countryName === "Todos los países") {
+      if (pais || ciudad || barrio) navigate("/canchas");
+      return;
+    }
+    navigate(`/canchas/${countryNameToSlug(countryName)}`);
+  };
+
+  const filtered = useMemo(
+    () =>
+      filterClubs(clubsData ?? [], {
+        sports: filters.sports,
+        surfaces: filters.surfaces,
+        services: filters.services,
+        query,
+      }),
+    [clubsData, filters.sports, filters.surfaces, filters.services, query]
+  );
+
+  const scopeLabel =
+    barrio && ciudad
+      ? `${titleCase(barrio)}, ${titleCase(ciudad)}`
+      : barrio
+      ? titleCase(barrio)
+      : ciudad
+      ? titleCase(ciudad)
+      : pais
+      ? countrySlugToName(pais)
+      : "Latinoamérica";
 
   const crumbs = [
     { label: "Canchas", href: "/canchas" },
@@ -156,29 +170,36 @@ const SearchPage = () => {
   const activeFiltersCount =
     filters.sports.length +
     filters.services.length +
-    (filters.surface !== "Todos" ? 1 : 0) +
-    (filters.country !== "Todos los países" ? 1 : 0);
+    filters.surfaces.length +
+    (pais ? 1 : 0);
 
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);
     setQuery("");
+    if (pais || ciudad || barrio) navigate("/canchas");
   };
 
-  // Real club-count for the results header. Top-level → totalClubes; country
-  // level → per-country bucket. Below country (ciudad/barrio) we don't have a
-  // count in useHomeStats, so we omit the number rather than fabricate one.
-  const { totalClubes, countsByCountry, isLoading: statsLoading } = useHomeStats();
-  const clubCount: number | undefined =
-    !pais && !ciudad && !barrio
-      ? totalClubes
-      : pais && !ciudad && !barrio
-      ? countsByCountry?.find((c) => c.paisSlug === pais)?.totalClubes ?? 0
-      : undefined;
+  // Counter is driven by the filtered list, not global stats. When any
+  // in-memory filter is active we switch from "X clubes en {scope}" to
+  // "X resultados en {scope}" so the wording reflects that the number is
+  // narrowed. Scope is appended only when the URL has one — top-level
+  // /canchas with active filters reads simply "X resultados".
+  const inMemoryFilterActive =
+    filters.sports.length > 0 ||
+    filters.surfaces.length > 0 ||
+    filters.services.length > 0;
 
-  const resultsLabel =
-    clubCount !== undefined || statsLoading
-      ? `${statsLoading || clubCount === undefined ? "—" : nfAR.format(clubCount)} clubes en ${locationLabel}`
-      : `Clubes en ${locationLabel}`;
+  const n = filtered.length;
+  const scopeContext = pais || ciudad || barrio ? ` en ${scopeLabel}` : "";
+  const resultsLabel = dataLoading
+    ? "Cargando…"
+    : n === 0
+    ? "Sin resultados"
+    : inMemoryFilterActive
+    ? n === 1
+      ? `1 resultado${scopeContext}`
+      : `${nfAR.format(n)} resultados${scopeContext}`
+    : `${nfAR.format(n)} ${n === 1 ? "club" : "clubes"} en ${scopeLabel}`;
 
   return (
     <div className="min-h-screen flex flex-col bg-light">
@@ -224,8 +245,10 @@ const SearchPage = () => {
               <FiltersPanel
                 value={filters}
                 onChange={setFilters}
-                onApply={() => setFiltersOpen(false)}
+                onClose={() => setFiltersOpen(false)}
+                resultsCount={filtered.length}
                 onClear={clearFilters}
+                onCountryChange={handleCountryChange}
               />
             </div>
 
@@ -280,7 +303,7 @@ const SearchPage = () => {
           </aside>
 
           <div className={cn("flex-1 relative", mobileView === "map" ? "block" : "hidden md:block")}>
-            <MapView />
+            <MapView clubs={filtered} />
             <button
               onClick={() => setMobileView(mobileView === "map" ? "list" : "map")}
               className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 bg-orange text-white px-5 py-3 rounded-full shadow-card-hover text-[13px] font-semibold uppercase tracking-wider hover:brightness-90 transition"
@@ -334,6 +357,8 @@ const SearchPage = () => {
                 onChange={setFilters}
                 onClear={clearFilters}
                 resultsLabel={resultsLabel}
+                paisSlug={pais}
+                onCountryChange={handleCountryChange}
               />
 
               <div className="pt-2">

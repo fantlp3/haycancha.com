@@ -91,6 +91,7 @@ export const SportFeatured = ({ sport }: Props) => {
                       primarySportSlug={sport.key}
                       width={640}
                       height={400}
+                      size="lg"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute top-3 left-3">

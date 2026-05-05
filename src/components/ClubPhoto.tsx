@@ -11,13 +11,16 @@ interface ClubPhotoProps {
   loading?: "eager" | "lazy";
 }
 
+const DARK_TEXT = "#2C2D35";
+
 const SPORT_BG_COLORS: Record<string, { bg: string; text: string }> = {
-  tenis: { bg: "#E7E242", text: "#1F2937" },
-  padel: { bg: "#5DB8D4", text: "#FFFFFF" },
-  pickleball: { bg: "#84CC16", text: "#FFFFFF" },
+  tenis: { bg: "#E7E242", text: DARK_TEXT },
+  padel: { bg: "#5DB8D4", text: DARK_TEXT },
+  pickleball: { bg: "#84CC16", text: DARK_TEXT },
 };
 
-const DEFAULT_FALLBACK = { bg: "#1F2937", text: "#FFFFFF" };
+// No primary sport known → neutral gray (per spec), still with dark text.
+const DEFAULT_FALLBACK = { bg: "#9CA3AF", text: DARK_TEXT };
 
 /**
  * Renders the club's foto_portada via Directus assets endpoint, or a colored

@@ -205,6 +205,10 @@ export type ClubCard = Pick<Club, "id" | "nombre" | "slug" | "tipo" | "es_premiu
   foto_portada: Pick<DirectusFile, "id" | "filename_download"> | null;
   barrio: Pick<Barrio, "nombre" | "slug"> | null;
   ciudad: Pick<Ciudad, "nombre" | "slug">;
+  clubes_deportes?: Array<{
+    es_primario?: boolean;
+    deporte: { slug: string; nombre?: string };
+  }>;
 };
 
 export function isExpanded<T>(field: string | T | null): field is T {

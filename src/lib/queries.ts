@@ -151,6 +151,7 @@ export async function fetchClubesPremium(limit = 6): Promise<ClubCard[]> {
         { foto_portada: ["id", "filename_download"] },
         { barrio: ["nombre", "slug"] },
         { ciudad: ["nombre", "slug"] },
+        { clubes_deportes: ["es_primario", { deporte: ["slug", "nombre"] }] },
       ],
       filter: {
         es_premium: { _eq: true },

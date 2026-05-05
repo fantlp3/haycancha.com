@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ClubPhoto } from "@/components/ClubPhoto";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClubesPremium } from "@/hooks/useClubes";
+import { getPrimarySportSlug } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import type { ClubCard } from "@/lib/directus-types";
 
@@ -18,6 +19,7 @@ const SkeletonCard = () => (
 
 const PremiumCard = ({ club }: { club: ClubCard }) => {
   const fileId = club.foto_portada?.id ?? null;
+  const primarySportSlug = getPrimarySportSlug((club.clubes_deportes ?? []) as any);
   const location = club.barrio?.nombre
     ? `${club.barrio.nombre} · ${club.ciudad.nombre}`
     : club.ciudad.nombre;
@@ -36,6 +38,7 @@ const PremiumCard = ({ club }: { club: ClubCard }) => {
         <ClubPhoto
           clubName={club.nombre}
           fileId={fileId}
+          primarySportSlug={primarySportSlug}
           width={640}
           height={400}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

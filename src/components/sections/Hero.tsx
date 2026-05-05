@@ -73,7 +73,7 @@ export const Hero = () => {
                   className="w-full h-10 md:h-12 bg-transparent border-0 outline-none text-dark placeholder:text-gray text-[15px] font-medium"
                 />
               </div>
-              <button className="hidden sm:inline-flex h-10 md:h-12 px-6 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] rounded-md hover:brightness-90 transition">
+              <button className="hidden sm:inline-flex items-center justify-center h-10 md:h-12 px-6 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition">
                 Buscar
               </button>
             </div>

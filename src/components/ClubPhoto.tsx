@@ -56,15 +56,15 @@ export function ClubPhoto({
     <div
       role="img"
       aria-label={alt ?? clubName}
-      className={`flex items-center justify-center text-center font-semibold ${className}`}
+      className={`flex items-center justify-center text-center font-semibold p-4 ${className}`}
       style={{
-        width,
-        height,
         backgroundColor: colors.bg,
         color: colors.text,
       }}
     >
-      <span className="px-4 text-lg leading-tight">{clubName}</span>
+      <span className="text-lg leading-tight break-words [overflow-wrap:anywhere]">
+        {clubName}
+      </span>
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   fetchClubesByBarrio,
   fetchClubesByCiudad,
+  fetchClubesByPais,
+  fetchAllClubes,
   fetchClubBySlug,
   fetchClubesByDeporte,
   fetchClubesByDeportes,
@@ -28,6 +30,24 @@ export function useClubesByCiudad(ciudadSlug: string | undefined) {
     queryKey: ["clubes", "ciudad", ciudadSlug],
     queryFn: () => fetchClubesByCiudad(ciudadSlug!),
     enabled: Boolean(ciudadSlug),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useClubesByPais(paisSlug: string | undefined) {
+  return useQuery({
+    queryKey: ["clubes", "pais", paisSlug],
+    queryFn: () => fetchClubesByPais(paisSlug!),
+    enabled: Boolean(paisSlug),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useAllClubes(enabled = true) {
+  return useQuery({
+    queryKey: ["clubes", "all"],
+    queryFn: () => fetchAllClubes(),
+    enabled,
     staleTime: 10 * 60 * 1000,
   });
 }
@@ -104,6 +124,7 @@ export function useHomeStats() {
     totalCiudades: query.data?.totalCiudades,
     countsBySport: query.data?.countsBySport,
     countsByCountry: query.data?.countsByCountry,
+    countsBySportByCountry: query.data?.countsBySportByCountry,
     isLoading: query.isLoading,
     isError: query.isError,
   };

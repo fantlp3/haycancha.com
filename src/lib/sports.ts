@@ -11,10 +11,6 @@ export interface SportFeature {
   title: string;
   body: string;
 }
-export interface SportStat {
-  value: string;
-  label: string;
-}
 export interface EditorialBlock {
   heading: string;
   paragraphs: string[];
@@ -41,7 +37,6 @@ export interface SportConfig {
     ogImage: string;
   };
   features: [SportFeature, SportFeature, SportFeature];
-  stats: SportStat[];
   editorial: EditorialBlock[];
 }
 
@@ -54,12 +49,13 @@ export const SPORTS: Record<SportKey, SportConfig> = {
     color: "yellow",
     hex: "#E7E242",
     taglineWord: "perfecta",
-    subtitle: "1.480 canchas y clubes de tenis en 19 países de Latinoamérica",
+    subtitle:
+      "Encontrá clubes de tenis en toda Latinoamérica. Polvo de ladrillo, cemento, sintético, indoor y outdoor — sin intermediarios.",
     eyebrow: "🎾 EL DIRECTORIO DE TENIS DE LATINOAMÉRICA",
     meta: {
       title: "Canchas de tenis en Latinoamérica · HayCancha",
       description:
-        "1.480 canchas y clubes de tenis en 19 países. Polvo de ladrillo, cemento, sintético, indoor y outdoor. Datos curados, sin intermediarios.",
+        "Directorio de clubes de tenis en Latinoamérica. Polvo de ladrillo, cemento, sintético, indoor y outdoor. Datos curados, sin intermediarios.",
       ogImage: "/og-tenis.jpg",
     },
     features: [
@@ -78,12 +74,6 @@ export const SPORTS: Record<SportKey, SportConfig> = {
         title: "Sin intermediarios",
         body: "Link directo al teléfono o WhatsApp del club. Sin comisiones, sin cuentas, sin pasos extra.",
       },
-    ],
-    stats: [
-      { value: "1.480", label: "Canchas" },
-      { value: "19", label: "Países" },
-      { value: "320", label: "Clubes premium" },
-      { value: "5.000+", label: "Búsquedas/mes" },
     ],
     editorial: [
       {
@@ -118,12 +108,13 @@ export const SPORTS: Record<SportKey, SportConfig> = {
     color: "celeste",
     hex: "#5DB8D4",
     taglineWord: "indoor",
-    subtitle: "280 canchas de pádel en 19 países de Latinoamérica",
+    subtitle:
+      "Encontrá clubes de pádel en toda Latinoamérica. Indoor y outdoor, cristal panorámico, redes reglamentarias.",
     eyebrow: "🏓 EL DIRECTORIO DE PÁDEL DE LATINOAMÉRICA",
     meta: {
       title: "Canchas de pádel en Latinoamérica · HayCancha",
       description:
-        "280 canchas de pádel en 19 países. Indoor y outdoor, cristal panorámico, redes reglamentarias. Encontrá tu cancha, tu compañero y tu cuarteto.",
+        "Directorio de clubes de pádel en Latinoamérica. Indoor y outdoor, cristal panorámico, redes reglamentarias. Encontrá tu cancha, tu compañero y tu cuarteto.",
       ogImage: "/og-padel.jpg",
     },
     features: [
@@ -142,12 +133,6 @@ export const SPORTS: Record<SportKey, SportConfig> = {
         title: "Crecimiento imparable",
         body: "El deporte que más crece en LATAM. Nuevas canchas cada mes en CDMX, Bogotá, Buenos Aires y Lima.",
       },
-    ],
-    stats: [
-      { value: "280", label: "Canchas" },
-      { value: "19", label: "Países" },
-      { value: "95", label: "Clubes" },
-      { value: "+35%", label: "Crecimiento anual" },
     ],
     editorial: [
       {
@@ -182,12 +167,13 @@ export const SPORTS: Record<SportKey, SportConfig> = {
     color: "lime",
     hex: "#84CC16",
     taglineWord: "amateur",
-    subtitle: "45 canchas de pickleball en 19 países — el deporte que más crece",
+    subtitle:
+      "Encontrá clubes de pickleball en toda Latinoamérica — el deporte amateur de mayor crecimiento en la región.",
     eyebrow: "🏸 EL DIRECTORIO DE PICKLEBALL DE LATINOAMÉRICA",
     meta: {
       title: "Canchas de pickleball en Latinoamérica · HayCancha",
       description:
-        "45 canchas de pickleball en 19 países. El deporte que más crece en LATAM. Canchas dedicadas y mixtas sobre tenis. Encontrá dónde jugar.",
+        "Directorio de clubes de pickleball en Latinoamérica. El deporte amateur de mayor crecimiento. Canchas dedicadas y mixtas sobre tenis. Encontrá dónde jugar.",
       ogImage: "/og-pickleball.jpg",
     },
     features: [
@@ -206,12 +192,6 @@ export const SPORTS: Record<SportKey, SportConfig> = {
         title: "Canchas dedicadas y mixtas",
         body: "Canchas pickleball-only o adaptadas sobre tenis. Cada ficha del directorio indica claramente cuál es cuál.",
       },
-    ],
-    stats: [
-      { value: "45", label: "Canchas" },
-      { value: "12", label: "Países" },
-      { value: "+120%", label: "Crecimiento anual" },
-      { value: "25-65", label: "Edad promedio jugadores" },
     ],
     editorial: [
       {

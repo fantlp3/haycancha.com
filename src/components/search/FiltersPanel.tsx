@@ -11,22 +11,6 @@ const sports = [
 
 const surfaces = ["Todos", "Polvo de ladrillo", "Cemento", "Césped sintético", "Multipiso", "Madera"];
 
-export const COUNTRIES = [
-  "Todos los países",
-  "Argentina",
-  "México",
-  "Colombia",
-  "Chile",
-  "Perú",
-  "Uruguay",
-  "Venezuela",
-  "Ecuador",
-  "Paraguay",
-  "Bolivia",
-  "Costa Rica",
-  "República Dominicana",
-];
-
 const services = [
   "Iluminación nocturna",
   "Vestuarios",
@@ -55,7 +39,6 @@ interface Props {
 
 export const FiltersPanel = ({ value, onChange, onApply, onClear }: Props) => {
   const [sortOpen, setSortOpen] = useState(false);
-  const [countryOpen, setCountryOpen] = useState(false);
 
   const toggleSport = (id: string) => {
     const next = value.sports.includes(id)
@@ -72,37 +55,26 @@ export const FiltersPanel = ({ value, onChange, onApply, onClear }: Props) => {
 
   return (
     <div className="bg-white border-b border-border p-4 space-y-5">
-      {/* Country */}
+      {/* Country — currently driven by URL (/canchas/:pais), so this dropdown
+          isn't wired up yet. Disabled with a "Próximamente" hint until we
+          decide how it should interact with the path-based filter. */}
       <div className="space-y-2">
-        <p className="label-meta uppercase text-gray">País</p>
-        <div className="relative">
-          <button
-            onClick={() => setCountryOpen((o) => !o)}
-            className="w-full flex items-center justify-between bg-light border border-border rounded-md px-3 h-10 text-[13px] font-medium text-dark hover:border-orange/40"
-          >
-            {value.country}
-            <ChevronDown size={16} className={cn("transition", countryOpen && "rotate-180")} />
-          </button>
-          {countryOpen && (
-            <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-md shadow-card-hover overflow-hidden max-h-64 overflow-y-auto">
-              {COUNTRIES.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => {
-                    onChange({ ...value, country: c });
-                    setCountryOpen(false);
-                  }}
-                  className={cn(
-                    "w-full text-left px-3 py-2 text-[13px] hover:bg-light",
-                    value.country === c && "text-orange font-semibold"
-                  )}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="flex items-baseline justify-between">
+          <p className="label-meta uppercase text-gray">País</p>
+          <span className="text-[10px] uppercase tracking-wider text-gray/70 font-semibold">
+            Próximamente
+          </span>
         </div>
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          title="Próximamente"
+          className="w-full flex items-center justify-between bg-light/60 border border-border rounded-md px-3 h-10 text-[13px] font-medium text-gray/60 cursor-not-allowed"
+        >
+          {value.country}
+          <ChevronDown size={16} />
+        </button>
       </div>
 
       {/* Sports */}
@@ -127,27 +99,27 @@ export const FiltersPanel = ({ value, onChange, onApply, onClear }: Props) => {
         </div>
       </div>
 
-      {/* Surface */}
+      {/* Surface — needs per-club superficie (clubes_deportes.superficie),
+          not yet projected through the list queries. Disabled with a
+          "Próximamente" hint to make the no-op state explicit. */}
       <div className="space-y-2">
-        <p className="label-meta uppercase text-gray">Superficie</p>
-        <div className="flex flex-wrap gap-1.5">
-          {surfaces.map((s) => {
-            const isActive = value.surface === s;
-            return (
-              <button
-                key={s}
-                onClick={() => onChange({ ...value, surface: s })}
-                className={cn(
-                  "px-2.5 py-1 rounded-md text-[12px] font-medium border transition",
-                  isActive
-                    ? "bg-dark border-dark text-white"
-                    : "bg-light border-border text-dark hover:border-orange/40"
-                )}
-              >
-                {s}
-              </button>
-            );
-          })}
+        <div className="flex items-baseline justify-between">
+          <p className="label-meta uppercase text-gray">Superficie</p>
+          <span className="text-[10px] uppercase tracking-wider text-gray/70 font-semibold">
+            Próximamente
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-1.5" aria-disabled="true" title="Próximamente">
+          {surfaces.map((s) => (
+            <button
+              key={s}
+              type="button"
+              disabled
+              className="px-2.5 py-1 rounded-md text-[12px] font-medium border bg-light/60 border-border text-gray/60 cursor-not-allowed"
+            >
+              {s}
+            </button>
+          ))}
         </div>
       </div>
 

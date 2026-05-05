@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { COUNTRIES, type FiltersState } from "./FiltersPanel";
+import type { FiltersState } from "./FiltersPanel";
 
 const SPORTS = [
   { id: "tenis", label: "🎾 Tenis" },
   { id: "padel", label: "🏓 Pádel" },
   { id: "pickleball", label: "🏸 Pickleball" },
 ];
-const SURFACES = ["Polvo de ladrillo", "Cemento", "Césped sintético", "Multipiso", "Madera"];
 const SORTS = ["Relevancia", "Más cercano", "Nombre A-Z", "Más canchas"];
 
 interface Props {
@@ -20,7 +19,7 @@ interface Props {
 
 /** Horizontal chip filter bar used in Grid + List views. */
 export const FiltersChipBar = ({ value, onChange, onClear, resultsLabel }: Props) => {
-  const [openMenu, setOpenMenu] = useState<"country" | "surface" | "sort" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"sort" | null>(null);
 
   const toggleSport = (id: string) => {
     const next = value.sports.includes(id)
@@ -29,11 +28,7 @@ export const FiltersChipBar = ({ value, onChange, onClear, resultsLabel }: Props
     onChange({ ...value, sports: next });
   };
 
-  const activeCount =
-    value.sports.length +
-    value.services.length +
-    (value.surface !== "Todos" ? 1 : 0) +
-    (value.country !== "Todos los países" ? 1 : 0);
+  const activeCount = value.sports.length + value.services.length;
 
   return (
     <div className="space-y-3">
@@ -60,28 +55,8 @@ export const FiltersChipBar = ({ value, onChange, onClear, resultsLabel }: Props
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {/* Country */}
-        <DropdownChip
-          label={value.country === "Todos los países" ? "País" : value.country}
-          active={value.country !== "Todos los países"}
-          open={openMenu === "country"}
-          onToggle={() => setOpenMenu(openMenu === "country" ? null : "country")}
-        >
-          <div className="max-h-64 overflow-y-auto">
-            {COUNTRIES.map((c) => (
-              <MenuItem
-                key={c}
-                active={value.country === c}
-                onClick={() => {
-                  onChange({ ...value, country: c });
-                  setOpenMenu(null);
-                }}
-              >
-                {c}
-              </MenuItem>
-            ))}
-          </div>
-        </DropdownChip>
+        {/* Country (próximamente — driven by URL today) */}
+        <DisabledChip label="País · Próximamente" />
 
         {/* Sports */}
         {SPORTS.map((s) => (
@@ -94,35 +69,8 @@ export const FiltersChipBar = ({ value, onChange, onClear, resultsLabel }: Props
           </Chip>
         ))}
 
-        {/* Surface */}
-        <DropdownChip
-          label={value.surface === "Todos" ? "Superficie" : value.surface}
-          active={value.surface !== "Todos"}
-          open={openMenu === "surface"}
-          onToggle={() => setOpenMenu(openMenu === "surface" ? null : "surface")}
-        >
-          <MenuItem
-            active={value.surface === "Todos"}
-            onClick={() => {
-              onChange({ ...value, surface: "Todos" });
-              setOpenMenu(null);
-            }}
-          >
-            Todas
-          </MenuItem>
-          {SURFACES.map((s) => (
-            <MenuItem
-              key={s}
-              active={value.surface === s}
-              onClick={() => {
-                onChange({ ...value, surface: s });
-                setOpenMenu(null);
-              }}
-            >
-              {s}
-            </MenuItem>
-          ))}
-        </DropdownChip>
+        {/* Surface (próximamente — needs per-club superficie projection) */}
+        <DisabledChip label="Superficie · Próximamente" />
 
         {activeCount > 0 && (
           <button
@@ -157,6 +105,16 @@ const Chip = ({
   >
     {children}
   </button>
+);
+
+const DisabledChip = ({ label }: { label: string }) => (
+  <span
+    aria-disabled="true"
+    title="Próximamente"
+    className="shrink-0 inline-flex items-center gap-1 h-9 px-3 rounded-full border bg-light/60 border-border text-gray/60 text-[13px] font-medium whitespace-nowrap cursor-not-allowed"
+  >
+    {label}
+  </span>
 );
 
 const DropdownChip = ({

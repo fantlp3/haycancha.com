@@ -1,17 +1,19 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, MapPin, Phone, Star } from "lucide-react";
+import { ArrowRight, MapPin, Star } from "lucide-react";
+import { ClubPhoto } from "@/components/ClubPhoto";
 import { SportBadge } from "@/components/brand/SportBadge";
 import { cn } from "@/lib/utils";
-import type { SearchCourt } from "@/data/courts";
-import { toSlug } from "@/lib/geo";
+import { getPrimarySportSlug } from "@/lib/queries";
+import { buildClubHref, clubSports } from "@/lib/club-display";
+import type { ClubCard } from "@/lib/directus-types";
 
 interface Props {
-  courts: SearchCourt[];
+  clubs: ClubCard[];
   loading?: boolean;
   onLoadMore?: () => void;
 }
 
-export const ListView = ({ courts, loading, onLoadMore }: Props) => {
+export const ListView = ({ clubs, loading, onLoadMore }: Props) => {
   if (loading) {
     return (
       <div className="bg-white rounded-lg border border-border overflow-hidden">
@@ -25,8 +27,8 @@ export const ListView = ({ courts, loading, onLoadMore }: Props) => {
   return (
     <>
       <div className="bg-white rounded-lg border border-border overflow-hidden">
-        {courts.map((c, i) => (
-          <ListRow key={c.id} court={c} last={i === courts.length - 1} />
+        {clubs.map((c, i) => (
+          <ListRow key={c.id} club={c} last={i === clubs.length - 1} />
         ))}
       </div>
       <div className="flex justify-center mt-10">
@@ -41,28 +43,41 @@ export const ListView = ({ courts, loading, onLoadMore }: Props) => {
   );
 };
 
-const ListRow = ({ court, last }: { court: SearchCourt; last: boolean }) => {
-  const href = `/canchas/argentina/${toSlug(court.city)}/${toSlug(court.neighborhood)}/${toSlug(court.name)}`;
+const ListRow = ({ club, last }: { club: ClubCard; last: boolean }) => {
+  const sports = clubSports(club.clubes_deportes);
+  const primary = getPrimarySportSlug(club.clubes_deportes ?? []);
+  const location = club.barrio?.nombre
+    ? `${club.barrio.nombre} · ${club.ciudad.nombre}`
+    : club.ciudad.nombre;
+
   return (
     <Link
-      to={href}
+      to={buildClubHref(club)}
       className={cn(
         "group flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 transition-colors relative",
         !last && "border-b border-border",
-        court.premium
+        club.es_premium
           ? "bg-[rgba(232,99,42,0.04)] border-l-[3px] border-l-orange pl-[13px]"
           : "hover:bg-light hover:border-l-[3px] hover:border-l-orange hover:pl-[13px]"
       )}
     >
-      {/* Row 1 (mobile) / Left+Center (desktop) */}
       <div className="flex gap-3 md:gap-4 flex-1 min-w-0">
         <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-muted">
-          <img src={court.thumb} alt={court.name} className="w-full h-full object-cover" loading="lazy" />
+          <ClubPhoto
+            clubName={club.nombre}
+            fileId={club.foto_portada?.id ?? null}
+            primarySportSlug={primary}
+            width={160}
+            height={160}
+            className="w-full h-full object-cover"
+          />
         </div>
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-[16px] text-dark leading-tight truncate">{court.name}</h3>
-            {court.premium && (
+            <h3 className="font-bold text-[16px] text-dark leading-tight truncate">
+              {club.nombre}
+            </h3>
+            {club.es_premium && (
               <span className="inline-flex items-center gap-1 bg-orange text-white px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase leading-none shrink-0">
                 <Star size={10} fill="currentColor" strokeWidth={0} /> Premium
               </span>
@@ -70,42 +85,20 @@ const ListRow = ({ court, last }: { court: SearchCourt; last: boolean }) => {
           </div>
           <p className="flex items-center gap-1 text-[13px] text-gray">
             <MapPin size={12} className="text-orange shrink-0" />
-            {court.neighborhood} · {court.city}
+            {location}
           </p>
           <div className="flex flex-wrap gap-1 pt-0.5">
-            {court.sports.map((s) => (
+            {sports.map((s) => (
               <SportBadge key={s} sport={s} />
             ))}
           </div>
-          <p className="text-[12px] text-gray pt-0.5">
-            {court.surface} · Iluminación · 4 canchas
-          </p>
         </div>
       </div>
 
-      {/* Right column */}
       <div className="flex items-center justify-between md:justify-end md:flex-col md:items-end gap-2 md:w-[200px] md:text-right shrink-0 pl-[92px] md:pl-0">
-        {court.distanceKm !== undefined && (
-          <span className="text-orange font-semibold text-[13px]">
-            {court.distanceKm.toFixed(1)} km
-          </span>
-        )}
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-3 h-8 rounded-md border border-orange text-orange text-[12px] font-semibold uppercase tracking-wider hover:bg-orange hover:text-white transition">
-            Ver ficha <ArrowRight size={12} />
-          </span>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              window.location.href = "tel:+5491100000000";
-            }}
-            aria-label="Llamar al club"
-            className="w-8 h-8 inline-flex items-center justify-center rounded-md border border-border text-dark hover:border-orange hover:text-orange transition"
-          >
-            <Phone size={14} />
-          </button>
-        </div>
+        <span className="inline-flex items-center gap-1 px-3 h-8 rounded-md border border-orange text-orange text-[12px] font-semibold uppercase tracking-wider hover:bg-orange hover:text-white transition">
+          Ver ficha <ArrowRight size={12} />
+        </span>
       </div>
     </Link>
   );

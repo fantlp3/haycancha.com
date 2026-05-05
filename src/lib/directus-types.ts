@@ -203,6 +203,7 @@ export type ClubFull = Omit<Club, "pais" | "ciudad" | "barrio" | "foto_portada">
 
 export type ClubCard = Pick<Club, "id" | "nombre" | "slug" | "tipo" | "es_premium"> & {
   foto_portada: Pick<DirectusFile, "id" | "filename_download"> | null;
+  pais: Pick<Pais, "nombre" | "slug">;
   barrio: Pick<Barrio, "nombre" | "slug"> | null;
   ciudad: Pick<Ciudad, "nombre" | "slug">;
   clubes_deportes?: Array<{

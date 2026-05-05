@@ -61,7 +61,7 @@ export const SportHero = ({ sport }: Props) => {
               </div>
               <button
                 type="submit"
-                className="hidden sm:inline-flex h-10 md:h-11 px-5 bg-orange text-white font-semibold text-[13px] uppercase tracking-[1px] rounded-md hover:brightness-90 transition shrink-0"
+                className="hidden sm:inline-flex items-center justify-center h-10 md:h-11 px-5 bg-orange text-white font-semibold text-[13px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition shrink-0"
               >
                 Buscar
               </button>

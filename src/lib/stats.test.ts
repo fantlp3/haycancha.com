@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { deriveHomeStats } from "./stats";
 
 const EMPTY_BUCKETS = { tenis: 0, padel: 0, pickleball: 0 };
+const EMPTY_SPORT_COUNTRY_BUCKETS = { tenis: [], padel: [], pickleball: [] };
 
 describe("deriveHomeStats", () => {
   it("returns zeros for empty input", () => {
@@ -11,6 +12,7 @@ describe("deriveHomeStats", () => {
       totalCiudades: 0,
       countsBySport: EMPTY_BUCKETS,
       countsByCountry: [],
+      countsBySportByCountry: EMPTY_SPORT_COUNTRY_BUCKETS,
     });
   });
 
@@ -25,6 +27,7 @@ describe("deriveHomeStats", () => {
       totalCiudades: 1,
       countsBySport: EMPTY_BUCKETS,
       countsByCountry: [],
+      countsBySportByCountry: EMPTY_SPORT_COUNTRY_BUCKETS,
     });
   });
 
@@ -184,6 +187,80 @@ describe("deriveHomeStats", () => {
         },
       ]);
       expect(stats.countsByCountry[0].paisBandera).toBeNull();
+    });
+  });
+
+  describe("countsBySportByCountry", () => {
+    const ar = { id: "ar-id", slug: "argentina", nombre: "Argentina", bandera_emoji: "🇦🇷" };
+    const mx = { id: "mx-id", slug: "mexico", nombre: "México", bandera_emoji: "🇲🇽" };
+
+    it("buckets a club into every sport's country map", () => {
+      const stats = deriveHomeStats([
+        {
+          ciudad: { id: "caba", pais: ar },
+          clubes_deportes: [
+            { deporte: { slug: "tenis" } },
+            { deporte: { slug: "padel" } },
+          ],
+        },
+      ]);
+      expect(stats.countsBySportByCountry.tenis).toEqual([
+        { paisSlug: "argentina", paisNombre: "Argentina", paisBandera: "🇦🇷", totalClubes: 1 },
+      ]);
+      expect(stats.countsBySportByCountry.padel).toEqual([
+        { paisSlug: "argentina", paisNombre: "Argentina", paisBandera: "🇦🇷", totalClubes: 1 },
+      ]);
+      expect(stats.countsBySportByCountry.pickleball).toEqual([]);
+    });
+
+    it("sums multiple clubs in the same country and sport", () => {
+      const stats = deriveHomeStats([
+        { ciudad: { id: "caba", pais: ar }, clubes_deportes: [{ deporte: { slug: "tenis" } }] },
+        { ciudad: { id: "rosario", pais: ar }, clubes_deportes: [{ deporte: { slug: "tenis" } }] },
+      ]);
+      expect(stats.countsBySportByCountry.tenis).toEqual([
+        { paisSlug: "argentina", paisNombre: "Argentina", paisBandera: "🇦🇷", totalClubes: 2 },
+      ]);
+    });
+
+    it("counts a club only once per (sport, country) even with duplicate junction rows", () => {
+      const stats = deriveHomeStats([
+        {
+          ciudad: { id: "caba", pais: ar },
+          clubes_deportes: [
+            { deporte: { slug: "tenis" } },
+            { deporte: { slug: "tenis" } },
+          ],
+        },
+      ]);
+      expect(stats.countsBySportByCountry.tenis[0].totalClubes).toBe(1);
+    });
+
+    it("sorts desc by totalClubes with alphabetical tiebreak", () => {
+      const stats = deriveHomeStats([
+        { ciudad: { id: "caba", pais: ar }, clubes_deportes: [{ deporte: { slug: "padel" } }] },
+        { ciudad: { id: "cdmx", pais: mx }, clubes_deportes: [{ deporte: { slug: "padel" } }] },
+        { ciudad: { id: "rosario", pais: ar }, clubes_deportes: [{ deporte: { slug: "padel" } }] },
+      ]);
+      expect(stats.countsBySportByCountry.padel.map((c) => c.paisSlug)).toEqual([
+        "argentina",
+        "mexico",
+      ]);
+    });
+
+    it("does not include countries with 0 clubs for that sport", () => {
+      const stats = deriveHomeStats([
+        { ciudad: { id: "caba", pais: ar }, clubes_deportes: [{ deporte: { slug: "tenis" } }] },
+      ]);
+      expect(stats.countsBySportByCountry.padel).toEqual([]);
+      expect(stats.countsBySportByCountry.pickleball).toEqual([]);
+    });
+
+    it("ignores clubs without an expanded pais", () => {
+      const stats = deriveHomeStats([
+        { ciudad: "caba", clubes_deportes: [{ deporte: { slug: "tenis" } }] },
+      ]);
+      expect(stats.countsBySportByCountry.tenis).toEqual([]);
     });
   });
 });

@@ -33,13 +33,34 @@ export interface HomeStats {
   totalCiudades: number;
   countsBySport: { tenis: number; padel: number; pickleball: number };
   countsByCountry: CountryCount[];
+  countsBySportByCountry: {
+    tenis: CountryCount[];
+    padel: CountryCount[];
+    pickleball: CountryCount[];
+  };
 }
+
+type SportSlug = "tenis" | "padel" | "pickleball";
+
+const sortCounts = (m: Map<string, CountryCount>): CountryCount[] =>
+  Array.from(m.values())
+    .filter((c) => c.totalClubes > 0)
+    .sort(
+      (a, b) =>
+        b.totalClubes - a.totalClubes ||
+        a.paisNombre.localeCompare(b.paisNombre, "es", { sensitivity: "base" })
+    );
 
 export function deriveHomeStats(clubs: HomeStatsClubInput[]): HomeStats {
   let totalCanchas = 0;
   const ciudades = new Set<string>();
   const countsBySport = { tenis: 0, padel: 0, pickleball: 0 };
   const countryMap = new Map<string, CountryCount>();
+  const sportCountryMaps: Record<SportSlug, Map<string, CountryCount>> = {
+    tenis: new Map(),
+    padel: new Map(),
+    pickleball: new Map(),
+  };
 
   for (const club of clubs) {
     const ciudad =
@@ -64,7 +85,7 @@ export function deriveHomeStats(clubs: HomeStatsClubInput[]): HomeStats {
       }
     }
 
-    const seenSports = new Set<"tenis" | "padel" | "pickleball">();
+    const seenSports = new Set<SportSlug>();
     for (const cd of club.clubes_deportes ?? []) {
       totalCanchas += cd.cantidad_canchas ?? 0;
       const slug =
@@ -75,22 +96,33 @@ export function deriveHomeStats(clubs: HomeStatsClubInput[]): HomeStats {
     }
     for (const slug of seenSports) {
       countsBySport[slug] += 1;
+      if (pais?.slug) {
+        const m = sportCountryMaps[slug];
+        const existing = m.get(pais.slug);
+        if (existing) {
+          existing.totalClubes += 1;
+        } else {
+          m.set(pais.slug, {
+            paisSlug: pais.slug,
+            paisNombre: pais.nombre ?? pais.slug,
+            paisBandera: pais.bandera_emoji ?? null,
+            totalClubes: 1,
+          });
+        }
+      }
     }
   }
-
-  const countsByCountry = Array.from(countryMap.values())
-    .filter((c) => c.totalClubes > 0)
-    .sort(
-      (a, b) =>
-        b.totalClubes - a.totalClubes ||
-        a.paisNombre.localeCompare(b.paisNombre, "es", { sensitivity: "base" })
-    );
 
   return {
     totalClubes: clubs.length,
     totalCanchas,
     totalCiudades: ciudades.size,
     countsBySport,
-    countsByCountry,
+    countsByCountry: sortCounts(countryMap),
+    countsBySportByCountry: {
+      tenis: sortCounts(sportCountryMaps.tenis),
+      padel: sortCounts(sportCountryMaps.padel),
+      pickleball: sortCounts(sportCountryMaps.pickleball),
+    },
   };
 }

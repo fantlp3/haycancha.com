@@ -12,10 +12,16 @@ import { ViewToggle, type ViewMode } from "@/components/search/ViewToggle";
 import { GridView } from "@/components/search/GridView";
 import { ListView } from "@/components/search/ListView";
 import { FiltersChipBar } from "@/components/search/FiltersChipBar";
-import { SAMPLE_COURTS } from "@/data/courts";
 import { cn } from "@/lib/utils";
 import { AdSlot } from "@/components/brand/AdSlot";
 import { countrySlugToName } from "@/lib/geo";
+import {
+  useAllClubes,
+  useClubesByPais,
+  useClubesByCiudad,
+  useClubesByBarrio,
+  useHomeStats,
+} from "@/hooks/useClubes";
 
 const DEFAULT_FILTERS: FiltersState = {
   sports: [],
@@ -34,6 +40,8 @@ const VIEW_LABELS: Record<ViewMode, string> = {
 
 const titleCase = (s: string) =>
   s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+const nfAR = new Intl.NumberFormat("es-AR");
 
 const isViewMode = (v: string | null): v is ViewMode =>
   v === "map" || v === "grid" || v === "list";
@@ -67,7 +75,6 @@ const SearchPage = () => {
     country: initialCountry,
   }));
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [loading] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -97,14 +104,38 @@ const SearchPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Pick the correct data hook based on the deepest URL segment present.
+  // Each hook gates itself with `enabled` so only one fetches.
+  const barrioQuery = useClubesByBarrio(barrio);
+  const ciudadQuery = useClubesByCiudad(!barrio ? ciudad : undefined);
+  const paisQuery = useClubesByPais(!ciudad && !barrio ? pais : undefined);
+  const allQuery = useAllClubes(!pais && !ciudad && !barrio);
+  const clubsQuery = barrio
+    ? barrioQuery
+    : ciudad
+    ? ciudadQuery
+    : pais
+    ? paisQuery
+    : allQuery;
+  const clubsData = clubsQuery.data;
+  const dataLoading = clubsQuery.isLoading;
+
   const filtered = useMemo(() => {
-    return SAMPLE_COURTS.filter((c) => {
-      if (filters.sports.length && !c.sports.some((s) => filters.sports.includes(s))) return false;
-      if (filters.surface !== "Todos" && c.surface !== filters.surface) return false;
-      if (query && !`${c.name} ${c.neighborhood} ${c.city}`.toLowerCase().includes(query.toLowerCase())) return false;
+    const q = query.trim().toLowerCase();
+    return (clubsData ?? []).filter((c) => {
+      if (filters.sports.length) {
+        const has = (c.clubes_deportes ?? []).some((cd) =>
+          filters.sports.includes(cd.deporte.slug)
+        );
+        if (!has) return false;
+      }
+      if (q) {
+        const haystack = `${c.nombre} ${c.barrio?.nombre ?? ""} ${c.ciudad.nombre}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       return true;
     });
-  }, [filters, query]);
+  }, [clubsData, filters, query]);
 
   const locationLabel = barrio
     ? titleCase(barrio)
@@ -133,7 +164,21 @@ const SearchPage = () => {
     setQuery("");
   };
 
-  const resultsLabel = `${filtered.length} canchas en ${locationLabel}`;
+  // Real club-count for the results header. Top-level → totalClubes; country
+  // level → per-country bucket. Below country (ciudad/barrio) we don't have a
+  // count in useHomeStats, so we omit the number rather than fabricate one.
+  const { totalClubes, countsByCountry, isLoading: statsLoading } = useHomeStats();
+  const clubCount: number | undefined =
+    !pais && !ciudad && !barrio
+      ? totalClubes
+      : pais && !ciudad && !barrio
+      ? countsByCountry?.find((c) => c.paisSlug === pais)?.totalClubes ?? 0
+      : undefined;
+
+  const resultsLabel =
+    clubCount !== undefined || statsLoading
+      ? `${statsLoading || clubCount === undefined ? "—" : nfAR.format(clubCount)} clubes en ${locationLabel}`
+      : `Clubes en ${locationLabel}`;
 
   return (
     <div className="min-h-screen flex flex-col bg-light">
@@ -198,7 +243,7 @@ const SearchPage = () => {
             </button>
 
             <div className="flex-1 overflow-y-auto" id="results-top">
-              {loading ? (
+              {dataLoading ? (
                 Array.from({ length: 5 }).map((_, i) => <ResultCardSkeleton key={i} />)
               ) : filtered.length === 0 ? (
                 <EmptyState onClear={clearFilters} />
@@ -207,7 +252,7 @@ const SearchPage = () => {
                   {filtered.map((c, i) => (
                     <div key={c.id}>
                       <ResultCard
-                        court={c}
+                        club={c}
                         active={activeId === c.id}
                         onClick={() => setActiveId(c.id)}
                         onHover={() => setActiveId(c.id)}
@@ -235,7 +280,7 @@ const SearchPage = () => {
           </aside>
 
           <div className={cn("flex-1 relative", mobileView === "map" ? "block" : "hidden md:block")}>
-            <MapView courts={filtered} activeId={activeId} onSelect={setActiveId} />
+            <MapView />
             <button
               onClick={() => setMobileView(mobileView === "map" ? "list" : "map")}
               className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 bg-orange text-white px-5 py-3 rounded-full shadow-card-hover text-[13px] font-semibold uppercase tracking-wider hover:brightness-90 transition"
@@ -297,9 +342,9 @@ const SearchPage = () => {
                     <EmptyState onClear={clearFilters} />
                   </div>
                 ) : view === "grid" ? (
-                  <GridView courts={filtered} loading={loading} />
+                  <GridView clubs={filtered} loading={dataLoading} />
                 ) : (
-                  <ListView courts={filtered} loading={loading} />
+                  <ListView clubs={filtered} loading={dataLoading} />
                 )}
               </div>
             </div>

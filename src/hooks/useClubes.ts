@@ -10,6 +10,7 @@ import {
   fetchClubStats,
   fetchStatsByPais,
   fetchClubesInBBox,
+  fetchHomeStats,
   type BBox,
 } from "@/lib/queries";
 
@@ -89,6 +90,21 @@ export function useStatsByPais() {
     queryFn: fetchStatsByPais,
     staleTime: 5 * 60 * 1000,
   });
+}
+
+export function useHomeStats() {
+  const query = useQuery({
+    queryKey: ["home-stats"],
+    queryFn: fetchHomeStats,
+    staleTime: 5 * 60 * 1000,
+  });
+  return {
+    totalClubes: query.data?.totalClubes,
+    totalCanchas: query.data?.totalCanchas,
+    totalCiudades: query.data?.totalCiudades,
+    isLoading: query.isLoading,
+    isError: query.isError,
+  };
 }
 
 export function useClubesInBBox(bbox: BBox | null) {

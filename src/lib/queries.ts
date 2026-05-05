@@ -1,6 +1,7 @@
 import { directus } from "./directus";
 import { readItems as _readItems, aggregate as _aggregate } from "@directus/sdk";
 import type { ClubCard, ClubFull, ClubTipo, Pais } from "./directus-types";
+import { deriveHomeStats, type HomeStats } from "./stats";
 
 // The SDK's generated field-types are too strict for nested file/relation expansion
 // (e.g. it doesn't know `foto_portada` accepts subfields). We cast the options arg
@@ -297,6 +298,20 @@ export async function fetchClubesInBBox(bbox: BBox): Promise<ClubCard[]> {
     })
   );
   return result as unknown as ClubCard[];
+}
+
+// ============================================
+// HOME STATS: active clubs, total courts, distinct cities
+// ============================================
+export async function fetchHomeStats(): Promise<HomeStats> {
+  const result = await directus.request(
+    readItems("clubes", {
+      fields: ["id", "ciudad", { clubes_deportes: ["cantidad_canchas"] }],
+      filter: { activo: { _eq: true } },
+      limit: -1,
+    })
+  );
+  return deriveHomeStats(result as any[]);
 }
 
 /**

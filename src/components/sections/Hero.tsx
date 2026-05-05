@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Search, MapPin } from "lucide-react";
 import argentinaMap from "@/assets/argentina-map.jpg";
-import { useClubStats, useStatsByPais } from "@/hooks/useClubes";
+import { useClubStats } from "@/hooks/useClubes";
+import { StatsStrip } from "./StatsStrip";
 
 const nfAR = new Intl.NumberFormat("es-AR");
 
@@ -15,26 +16,18 @@ const quickChips: { label: string; href: string }[] = [
 
 export const Hero = () => {
   const { data: stats, isLoading: statsLoading, isError: statsError, error: statsErr } = useClubStats();
-  const { data: paises, isLoading: paisesLoading, isError: paisesError, error: paisesErr } = useStatsByPais();
 
   useEffect(() => {
     if (statsError) console.error("[Hero] stats error:", statsErr, (statsErr as any)?.errors, (statsErr as any)?.response);
-    if (paisesError) console.error("[Hero] pais error:", paisesErr, (paisesErr as any)?.errors, (paisesErr as any)?.response);
-  }, [statsError, paisesError, statsErr, paisesErr]);
+  }, [statsError, statsErr]);
 
   const totalCanchas = stats?.total ?? 0;
-  const totalPaises = paises?.length ?? 0;
 
   const totalDisplay = statsError
     ? "1.500+"
     : statsLoading
     ? "…"
     : nfAR.format(totalCanchas);
-  const paisesDisplay = paisesError
-    ? "15"
-    : paisesLoading
-    ? "…"
-    : nfAR.format(totalPaises);
 
   return (
     <section className="relative bg-dark overflow-hidden">
@@ -119,23 +112,7 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Stats strip */}
-      <div className="relative bg-dark-2 border-t border-white/5">
-        <div className="max-w-container mx-auto px-6 lg:px-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
-          {[
-            { n: totalDisplay, l: "Clubes y canchas en toda Latinoamérica" },
-            { n: paisesDisplay, l: "Países" },
-            { n: "Gratis", l: "Para usuarios" },
-          ].map((s) => (
-            <div key={s.l} className="py-6 md:py-8 px-4 text-center">
-              <div className="font-display text-orange text-[36px] md:text-[42px] leading-none">
-                {s.n}
-              </div>
-              <div className="text-white/60 text-[13px] md:text-[14px] mt-2">{s.l}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <StatsStrip />
     </section>
   );
 };

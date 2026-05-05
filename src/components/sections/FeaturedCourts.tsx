@@ -63,8 +63,6 @@ const PremiumCard = ({ club }: { club: ClubCard }) => {
 
 export const FeaturedCourts = () => {
   const { data: clubs, isLoading, isError, error } = useClubesPremium(6);
-  // eslint-disable-next-line no-console
-  console.log("[FeaturedCourts raw API response]", clubs);
 
   if (isError) {
     console.warn("[FeaturedCourts] failed to load premium clubs:", error);

@@ -18,13 +18,6 @@ const SkeletonCard = () => (
 );
 
 const PremiumCard = ({ club }: { club: ClubCard }) => {
-  // eslint-disable-next-line no-console
-  console.log("[FeaturedCourts debug]", {
-    clubName: club?.nombre,
-    rawClubesDeportes: club?.clubes_deportes,
-    primarySportSlugComputed: getPrimarySportSlug(club as any),
-    fullClubKeys: Object.keys(club ?? {}),
-  });
   const fileId = club.foto_portada?.id ?? null;
   const primarySportSlug = getPrimarySportSlug((club.clubes_deportes ?? []) as any);
   const location = club.barrio?.nombre

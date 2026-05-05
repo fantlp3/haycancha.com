@@ -37,6 +37,8 @@ export function ClubPhoto({
   className = "",
   loading = "lazy",
 }: ClubPhotoProps) {
+  // eslint-disable-next-line no-console
+  console.log("[ClubPhoto debug]", { clubName, fileId, primarySportSlug });
   if (fileId) {
     const url = assetUrl(fileId, { width, height, fit: "cover", quality: 80 });
     return (

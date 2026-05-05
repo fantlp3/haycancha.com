@@ -28,6 +28,12 @@ const SportLandingPage = ({ sportKey }: Props) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-light">
+      <SeoMeta
+        title={sport.meta.title}
+        description={sport.meta.description}
+        canonicalPath={`/${sport.key}`}
+        ogImage={sport.meta.ogImage}
+      />
       <Navbar />
       <main>
         <SportHero sport={sport} />

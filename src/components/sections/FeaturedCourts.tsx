@@ -18,6 +18,13 @@ const SkeletonCard = () => (
 );
 
 const PremiumCard = ({ club }: { club: ClubCard }) => {
+  // eslint-disable-next-line no-console
+  console.log("[FeaturedCourts debug]", {
+    clubName: club?.nombre,
+    rawClubesDeportes: club?.clubes_deportes,
+    primarySportSlugComputed: getPrimarySportSlug(club as any),
+    fullClubKeys: Object.keys(club ?? {}),
+  });
   const fileId = club.foto_portada?.id ?? null;
   const primarySportSlug = getPrimarySportSlug((club.clubes_deportes ?? []) as any);
   const location = club.barrio?.nombre
@@ -63,6 +70,8 @@ const PremiumCard = ({ club }: { club: ClubCard }) => {
 
 export const FeaturedCourts = () => {
   const { data: clubs, isLoading, isError, error } = useClubesPremium(6);
+  // eslint-disable-next-line no-console
+  console.log("[FeaturedCourts raw API response]", clubs);
 
   if (isError) {
     console.warn("[FeaturedCourts] failed to load premium clubs:", error);

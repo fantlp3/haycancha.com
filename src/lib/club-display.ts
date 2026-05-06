@@ -4,10 +4,10 @@ import type { Sport } from "@/components/brand/SportBadge";
 const KNOWN_SPORTS: Sport[] = ["tenis", "padel", "pickleball"];
 
 /**
- * Builds the canonical detail URL for a club: /canchas/:pais/:ciudad/:barrio/:slug.
- * The route requires four segments — when a club has no barrio, ciudad.slug is
- * reused as the 4th segment so the URL stays valid (the detail page only uses
- * `:slug` for lookup).
+ * Builds the canonical detail URL for a club.
+ *   With barrio:    /canchas/:pais/:ciudad/:barrio/:slug  → ClubDetailPage
+ *   Without barrio: /canchas/:pais/:ciudad/:slug          → GeoRouterPage
+ * GeoRouterPage disambiguates the 3-seg form between a club and a barrio.
  */
 export const buildClubHref = (
   c: Pick<ClubCard, "slug"> & {
@@ -16,7 +16,9 @@ export const buildClubHref = (
     barrio?: { slug: string } | null;
   }
 ): string =>
-  `/canchas/${c.pais.slug}/${c.ciudad.slug}/${c.barrio?.slug ?? c.ciudad.slug}/${c.slug}`;
+  c.barrio
+    ? `/canchas/${c.pais.slug}/${c.ciudad.slug}/${c.barrio.slug}/${c.slug}`
+    : `/canchas/${c.pais.slug}/${c.ciudad.slug}/${c.slug}`;
 
 /** Filters a club's clubes_deportes to the three sports we render badges for. */
 export const clubSports = (

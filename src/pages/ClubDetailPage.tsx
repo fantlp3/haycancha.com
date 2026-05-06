@@ -28,9 +28,11 @@ import { ClubPhoto } from "@/components/ClubPhoto";
 import { SeoMeta } from "@/components/SeoMeta";
 import { SchemaOrgClub } from "@/components/SchemaOrgClub";
 import { useClubBySlug, useClubesByBarrio, useClubesByCiudad } from "@/hooks/useClubes";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { getPrimarySportSlug } from "@/lib/queries";
 import { buildClubHref } from "@/lib/club-display";
 import { assetUrl } from "@/lib/directus";
+import { haversineKm } from "@/lib/geo";
 import { cn } from "@/lib/utils";
 import type { ClubFull, Superficie } from "@/lib/directus-types";
 
@@ -51,7 +53,47 @@ const SURFACE_LABELS: Record<Superficie, string> = {
 
 const SECTION_PAD = "max-w-container mx-auto px-6 lg:px-10";
 
-// Mocked schedule (TODO: wire to club.horario_apertura/cierre/texto when DB has data)
+/**
+ * Returns true/false if we can decide from horario_apertura/cierre, or null
+ * when we lack data (caller should hide the badge in that case).
+ * Handles overnight ranges (e.g. 22:00 — 02:00).
+ */
+function computeIsOpenNow(
+  apertura: string | null | undefined,
+  cierre: string | null | undefined
+): boolean | null {
+  if (!apertura || !cierre) return null;
+  const [openH, openM] = apertura.split(":").map(Number);
+  const [closeH, closeM] = cierre.split(":").map(Number);
+  if ([openH, openM, closeH, closeM].some(Number.isNaN)) return null;
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const openMinutes = openH * 60 + (openM || 0);
+  const closeMinutes = closeH * 60 + (closeM || 0);
+  if (closeMinutes < openMinutes) {
+    return nowMinutes >= openMinutes || nowMinutes < closeMinutes;
+  }
+  return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
+}
+
+/**
+ * Single-line "today" label used by the floating cards.
+ *   apertura+cierre → "08:00 — 22:00"
+ *   horario_texto   → first line, truncated to 30 chars
+ *   neither         → null (caller hides the row)
+ */
+function buildTodayLabel(
+  apertura: string | null | undefined,
+  cierre: string | null | undefined,
+  horarioTexto: string | null | undefined
+): string | null {
+  if (apertura && cierre) return `${apertura} — ${cierre}`;
+  if (horarioTexto) return horarioTexto.split("\n")[0].slice(0, 30);
+  return null;
+}
+
+// Mocked schedule list (kept until horario_apertura/cierre data is exhaustive enough
+// to render real per-day rows; computeIsOpenNow above already uses real data).
 const MOCK_SCHEDULE = [
   { day: "Lun – Vie", hours: "8:00 — 22:00" },
   { day: "Sábado", hours: "8:00 — 20:00" },
@@ -205,6 +247,10 @@ const ClubDetailPage = () => {
   const nearbyByBarrio = useClubesByBarrio(club?.barrio?.slug);
   const nearbyByCiudad = useClubesByCiudad(club?.barrio ? undefined : club?.ciudad.slug);
 
+  // Called unconditionally; the prompt is deferred until `club` is loaded
+  // so we don't ask for location on a soon-to-404 page.
+  const geo = useGeolocation(!!club);
+
   if (isLoading) return <LoadingSkeleton />;
   if (!club) return <NotFoundState />;
 
@@ -313,19 +359,29 @@ const ClubDetailPage = () => {
   const googleMapsDirUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   const wazeUrl = `https://www.waze.com/ul?ll=${lat}%2C${lng}&navigate=yes`;
 
-  // Open status (mocked — TODO: derive from club.horario_apertura/cierre)
-  const isOpenNow = true;
+  // Distance from user. Hidden entirely if permission isn't granted.
+  const distanceKm =
+    geo.status === "granted" ? haversineKm(geo.coords, { lat, lng }) : null;
+  const distanceLabel =
+    distanceKm != null
+      ? `${distanceKm.toFixed(1).replace(".", ",")} km de tu ubicación`
+      : null;
+
+  const isOpenNow = computeIsOpenNow(club.horario_apertura, club.horario_cierre);
+  const todayLabel = buildTodayLabel(
+    club.horario_apertura,
+    club.horario_cierre,
+    club.horario_texto
+  );
 
   // Nearby clubs: prefer barrio, fall back to ciudad. Filter out current,
-  // require a foto_portada (CourtCard takes a string URL with no placeholder),
-  // and cap at 3.
-  // TODO: support placeholder images in CourtCard so we can include
-  // photo-less clubs here.
+  // and cap at 6 (CourtCard now renders a sport-color placeholder when there's
+  // no photo, so we no longer drop photo-less clubs).
   const nearbyRaw = club.barrio ? nearbyByBarrio.data : nearbyByCiudad.data;
   const nearby =
     (nearbyRaw ?? [])
-      .filter((c) => c.slug !== club.slug && c.foto_portada?.id)
-      .slice(0, 3);
+      .filter((c) => c.slug !== club.slug)
+      .slice(0, 6);
   const nearbyTitle = club.barrio
     ? `CANCHAS CERCANAS EN ${club.barrio.nombre.toUpperCase()}`
     : `MÁS CANCHAS EN ${club.ciudad.nombre.toUpperCase()}`;
@@ -364,6 +420,12 @@ const ClubDetailPage = () => {
         </div>
       </div>
 
+      {/* Slot 5 — club-after-gallery (placed ABOVE the hero so the ad density
+          expectation is set early; slot ID kept for AdSense continuity). */}
+      <div className={SECTION_PAD}>
+        <AdSlot slot="club-after-gallery" format="in-article" />
+      </div>
+
       {/* Gallery — single hero photo or placeholder */}
       <section className="bg-light">
         <div className={`${SECTION_PAD} pt-6`}>
@@ -381,12 +443,7 @@ const ClubDetailPage = () => {
         </div>
       </section>
 
-      {/* Slot 5 — club-after-gallery */}
-      <div className={SECTION_PAD}>
-        <AdSlot slot="club-after-gallery" format="in-article" />
-      </div>
-
-      <section className={`${SECTION_PAD} mt-8`}>
+      <section className={`${SECTION_PAD} mt-4 lg:mt-6`}>
         <div className="grid lg:grid-cols-[1fr_320px] gap-8 lg:gap-12 items-start">
           <div>
             <div className="flex flex-wrap gap-2 mb-3">
@@ -446,16 +503,22 @@ const ClubDetailPage = () => {
                 </a>
               )}
 
-              {/* TODO: wire schedule to club.horario_apertura/cierre and distance to user geolocation */}
-              <div className="border-t border-border pt-3 space-y-1.5">
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-gray">Hoy</span>
-                  <span className="font-semibold text-dark">8:00 — 22:00</span>
+              {(todayLabel || distanceLabel) && (
+                <div className="border-t border-border pt-3 space-y-1.5">
+                  {todayLabel && (
+                    <div className="flex items-center justify-between text-[12px]">
+                      <span className="text-gray">Hoy</span>
+                      <span className="font-semibold text-dark">{todayLabel}</span>
+                    </div>
+                  )}
+                  {/* Distance shown only if user granted geolocation permission */}
+                  {distanceLabel && (
+                    <div className="flex items-center gap-1.5 text-[12px] text-orange font-semibold">
+                      <MapPin size={12} /> {distanceLabel}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-1.5 text-[12px] text-orange font-semibold">
-                  <MapPin size={12} /> 3,2 km de tu ubicación
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Secondary actions block — kept separate so the card above stays clean */}
@@ -531,36 +594,46 @@ const ClubDetailPage = () => {
             )}
           </div>
 
-          {/* Horarios — TODO: wire to club.horario_apertura/cierre/texto when DB has data */}
+          {/* Horarios */}
           <div>
             <SectionLabel>Horarios</SectionLabel>
-            <div className="flex items-center gap-2 mb-3">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-bold uppercase tracking-wider",
-                  isOpenNow
-                    ? "bg-sport-gratis-bg text-sport-gratis-fg"
-                    : "bg-red-100 text-red-700"
-                )}
-              >
+            {isOpenNow !== null && (
+              <div className="flex items-center gap-2 mb-3">
                 <span
                   className={cn(
-                    "w-1.5 h-1.5 rounded-full",
-                    isOpenNow ? "bg-sport-gratis-fg" : "bg-red-700"
+                    "inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-bold uppercase tracking-wider",
+                    isOpenNow
+                      ? "bg-sport-gratis-bg text-sport-gratis-fg"
+                      : "bg-red-100 text-red-700"
                   )}
-                />
-                {isOpenNow ? "Abierto ahora" : "Cerrado"}
-              </span>
-              <Clock size={14} className="text-gray" />
-            </div>
-            <ul className="space-y-1.5 text-[14px] text-dark">
-              {MOCK_SCHEDULE.map((s) => (
-                <li key={s.day} className="flex justify-between gap-3">
-                  <span className="text-gray">{s.day}</span>
-                  <span className="font-semibold">{s.hours}</span>
-                </li>
-              ))}
-            </ul>
+                >
+                  <span
+                    className={cn(
+                      "w-1.5 h-1.5 rounded-full",
+                      isOpenNow ? "bg-sport-gratis-fg" : "bg-red-700"
+                    )}
+                  />
+                  {isOpenNow ? "Abierto ahora" : "Cerrado"}
+                </span>
+                <Clock size={14} className="text-gray" />
+              </div>
+            )}
+            {club.horario_texto ? (
+              <p className="text-[14px] text-dark whitespace-pre-line">
+                {club.horario_texto}
+              </p>
+            ) : club.horario_apertura && club.horario_cierre ? (
+              <ul className="space-y-1.5 text-[14px] text-dark">
+                {MOCK_SCHEDULE.map((s) => (
+                  <li key={s.day} className="flex justify-between gap-3">
+                    <span className="text-gray">{s.day}</span>
+                    <span className="font-semibold">{s.hours}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray text-[14px]">Horarios no disponibles</p>
+            )}
           </div>
         </div>
       </section>
@@ -639,12 +712,6 @@ const ClubDetailPage = () => {
               const cSports: Sport[] = (c.clubes_deportes ?? [])
                 .map((cd) => cd.deporte.slug)
                 .filter((s): s is Sport => KNOWN_SPORTS.includes(s as Sport));
-              const image = assetUrl(c.foto_portada!.id, {
-                width: 400,
-                height: 250,
-                fit: "cover",
-                quality: 80,
-              });
               return (
                 <Link
                   key={c.id}
@@ -655,7 +722,8 @@ const ClubDetailPage = () => {
                     name={c.nombre}
                     neighborhood={c.barrio?.nombre ?? c.ciudad.nombre}
                     city={c.ciudad.nombre}
-                    image={image}
+                    fileId={c.foto_portada?.id ?? null}
+                    primarySportSlug={getPrimarySportSlug(c.clubes_deportes ?? [])}
                     sports={cSports}
                     premium={c.es_premium}
                   />
@@ -733,16 +801,22 @@ const ClubDetailPage = () => {
               </a>
             )}
 
-            {/* TODO: wire schedule to club.horario_apertura/cierre and distance to user geolocation */}
-            <div className="border-t border-border pt-2 space-y-1">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-gray">Hoy</span>
-                <span className="font-semibold text-dark">8:00 — 22:00</span>
+            {(todayLabel || distanceLabel) && (
+              <div className="border-t border-border pt-2 space-y-1">
+                {todayLabel && (
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-gray">Hoy</span>
+                    <span className="font-semibold text-dark">{todayLabel}</span>
+                  </div>
+                )}
+                {/* Distance shown only if user granted geolocation permission */}
+                {distanceLabel && (
+                  <div className="flex items-center gap-1 text-[11px] text-orange font-semibold">
+                    <MapPin size={10} /> {distanceLabel}
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-1 text-[11px] text-orange font-semibold">
-                <MapPin size={10} /> 3,2 km de tu ubicación
-              </div>
-            </div>
+            )}
           </div>
         </aside>
       )}

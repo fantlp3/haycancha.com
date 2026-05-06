@@ -1,12 +1,14 @@
 import { MapPin, Star } from "lucide-react";
 import { SportBadge, type Sport } from "./SportBadge";
+import { ClubPhoto } from "@/components/ClubPhoto";
 import { cn } from "@/lib/utils";
 
 export interface CourtCardProps {
   name: string;
   neighborhood: string;
   city: string;
-  image: string;
+  fileId: string | null;
+  primarySportSlug?: "tenis" | "padel" | "pickleball" | null;
   sports: Sport[];
   premium?: boolean;
   pricePerHour?: string;
@@ -16,7 +18,8 @@ export const CourtCard = ({
   name,
   neighborhood,
   city,
-  image,
+  fileId,
+  primarySportSlug,
   sports,
   premium,
   pricePerHour,
@@ -30,8 +33,13 @@ export const CourtCard = ({
     )}
   >
     <div className="relative aspect-[16/10] overflow-hidden rounded-t-lg">
-      <img
-        src={image}
+      <ClubPhoto
+        clubName={name}
+        fileId={fileId}
+        primarySportSlug={primarySportSlug}
+        width={400}
+        height={250}
+        size="md"
         alt={name}
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />

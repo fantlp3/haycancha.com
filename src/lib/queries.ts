@@ -1,6 +1,6 @@
 import { directus } from "./directus";
 import { readItems as _readItems, aggregate as _aggregate } from "@directus/sdk";
-import type { ClubCard, ClubFull, ClubTipo, Pais } from "./directus-types";
+import type { Barrio, ClubCard, ClubFull, ClubTipo, Pais } from "./directus-types";
 import { deriveHomeStats, type HomeStats } from "./stats";
 
 // The SDK's generated field-types are too strict for nested file/relation expansion
@@ -116,6 +116,26 @@ export async function fetchAllClubes(limit = 200): Promise<ClubCard[]> {
     })
   );
   return result as unknown as ClubCard[];
+}
+
+// ============================================
+// DETAIL: barrio by slug (scoped to ciudad)
+// ============================================
+export async function fetchBarrioBySlug(
+  slug: string,
+  ciudadSlug: string
+): Promise<Barrio | null> {
+  const res = await directus.request(
+    readItems("barrios", {
+      filter: {
+        slug: { _eq: slug },
+        ciudad: { slug: { _eq: ciudadSlug } },
+      },
+      fields: ["id", "nombre", "slug"],
+      limit: 1,
+    })
+  );
+  return ((res?.[0] as unknown) as Barrio) ?? null;
 }
 
 // ============================================

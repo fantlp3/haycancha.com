@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { toast } from "sonner";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
@@ -8,6 +9,7 @@ import {
   Mail,
   Globe,
   Instagram,
+  MessageCircle,
   Share2,
   Navigation,
   Clock,
@@ -117,6 +119,15 @@ const buildContactHref = (club: ClubFull): string | null => {
   }
   if (club.telefono) return `tel:${club.telefono}`;
   if (club.email) return `mailto:${club.email}`;
+  return null;
+};
+
+// Leading icon for the CONTACTAR button — anticipates which channel will fire.
+// Priority cascade matches buildContactHref.
+const getContactIcon = (club: ClubFull) => {
+  if (club.whatsapp) return MessageCircle;
+  if (club.telefono) return Phone;
+  if (club.email) return Mail;
   return null;
 };
 
@@ -268,10 +279,38 @@ const ClubDetailPage = () => {
 
   const contactHref = buildContactHref(club);
   const onContactClick = handleContactClick(contactHref);
+  const ContactIcon = getContactIcon(club);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: club.nombre,
+      text: `${club.nombre} en ${club.ciudad.nombre}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name === "AbortError") return;
+        // fall through to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copiado al portapapeles");
+    } catch {
+      toast.error("No se pudo copiar el link");
+    }
+  };
 
   // PostGIS GeoJSON: [lng, lat]. Leaflet wants [lat, lng].
   const [lng, lat] = club.ubicacion.coordinates;
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  // search → "show me where it is"; dir → "navigate me there".
+  const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  const googleMapsDirUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   const wazeUrl = `https://www.waze.com/ul?ll=${lat}%2C${lng}&navigate=yes`;
 
   // Open status (mocked — TODO: derive from club.horario_apertura/cierre)
@@ -367,24 +406,72 @@ const ClubDetailPage = () => {
           </div>
 
           {/* Action card sticky on desktop */}
-          <aside className="lg:sticky lg:top-20">
+          <aside className="lg:sticky lg:top-20 space-y-3">
             <div className="bg-white rounded-xl border border-border shadow-card p-5 space-y-3">
+              {/* Header: avatar + name */}
+              <div className="flex items-center gap-3">
+                <ClubPhoto
+                  clubName={club.nombre}
+                  fileId={club.foto_portada?.id ?? null}
+                  primarySportSlug={primarySportSlug}
+                  size="sm"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                  alt={`Logo de ${club.nombre}`}
+                />
+                <div className="font-semibold text-[15px] text-dark min-w-0 truncate">
+                  {club.nombre}
+                </div>
+              </div>
+
+              {/* CONTACTAR — leading icon adapts to which channel will fire */}
               <CtaButton
                 className="w-full"
                 onClick={onContactClick}
                 disabled={!contactHref}
               >
+                {ContactIcon && <ContactIcon size={16} />}
                 {contactHref ? "Contactar" : "Sin contacto disponible"}
               </CtaButton>
+
+              {/* Phone row */}
+              {club.telefono && (
+                <a
+                  href={`tel:${club.telefono}`}
+                  className="flex items-center gap-2 text-[13px] text-dark hover:text-orange transition border-t border-border pt-3"
+                >
+                  <Phone size={14} className="text-orange shrink-0" />
+                  <span>{club.telefono}</span>
+                </a>
+              )}
+
+              {/* TODO: wire schedule to club.horario_apertura/cierre and distance to user geolocation */}
+              <div className="border-t border-border pt-3 space-y-1.5">
+                <div className="flex items-center justify-between text-[12px]">
+                  <span className="text-gray">Hoy</span>
+                  <span className="font-semibold text-dark">8:00 — 22:00</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[12px] text-orange font-semibold">
+                  <MapPin size={12} /> 3,2 km de tu ubicación
+                </div>
+              </div>
+            </div>
+
+            {/* Secondary actions block — kept separate so the card above stays clean */}
+            <div className="bg-white rounded-xl border border-border shadow-card p-2">
               <a
-                href={googleMapsUrl}
+                href={googleMapsDirUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full inline-flex items-center justify-center gap-2 py-2.5 text-[13px] font-medium text-dark hover:text-orange transition"
               >
                 <Navigation size={15} /> Cómo llegar
               </a>
-              <button className="w-full inline-flex items-center justify-center gap-2 py-2.5 text-[13px] font-medium text-dark hover:text-orange transition">
+              <button
+                onClick={handleShare}
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 text-[13px] font-medium text-dark hover:text-orange transition"
+              >
                 <Share2 size={15} /> Compartir
               </button>
             </div>
@@ -488,7 +575,7 @@ const ClubDetailPage = () => {
           <p className="text-[14px] text-dark">{club.direccion}</p>
           <div className="flex gap-4">
             <a
-              href={googleMapsUrl}
+              href={googleMapsSearchUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-[13px] text-gray hover:text-orange transition"
@@ -599,25 +686,63 @@ const ClubDetailPage = () => {
         </div>
       </section>
 
-      {/* Floating sticky sidebar (desktop) — name, sport badges, CONTACTAR */}
+      {/* Floating sticky sidebar (desktop) — compact mirror of the in-article card */}
       {scrolled && (
         <aside className="hidden lg:block fixed top-24 right-6 w-[300px] z-40 animate-in fade-in slide-in-from-right-4">
-          <div className="bg-white rounded-xl border border-border shadow-card-hover p-4 space-y-3">
-            <div className="font-semibold text-[14px] text-dark">{club.nombre}</div>
-            {sportSlugs.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {sportSlugs.map((s) => (
-                  <SportBadge key={s} sport={s} />
-                ))}
+          <div className="bg-white rounded-xl border border-border shadow-card-hover p-3 space-y-2.5">
+            {/* Header: avatar + nombre + ciudad */}
+            <div className="flex items-center gap-2.5">
+              <ClubPhoto
+                clubName={club.nombre}
+                fileId={club.foto_portada?.id ?? null}
+                primarySportSlug={primarySportSlug}
+                size="sm"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full object-cover shrink-0"
+                alt={`Logo de ${club.nombre}`}
+              />
+              <div className="min-w-0">
+                <div className="font-semibold text-[13px] text-dark truncate">
+                  {club.nombre}
+                </div>
+                <div className="text-[11px] text-gray truncate">
+                  {club.barrio
+                    ? `${club.barrio.nombre} · ${club.ciudad.nombre}`
+                    : club.ciudad.nombre}
+                </div>
               </div>
-            )}
+            </div>
+
             <CtaButton
-              className="w-full !py-2.5 !text-[12px]"
+              className="w-full !py-2 !text-[12px]"
               onClick={onContactClick}
               disabled={!contactHref}
             >
+              {ContactIcon && <ContactIcon size={14} />}
               {contactHref ? "Contactar" : "Sin contacto"}
             </CtaButton>
+
+            {club.telefono && (
+              <a
+                href={`tel:${club.telefono}`}
+                className="flex items-center gap-2 text-[12px] text-dark hover:text-orange transition border-t border-border pt-2"
+              >
+                <Phone size={12} className="text-orange shrink-0" />
+                <span className="truncate">{club.telefono}</span>
+              </a>
+            )}
+
+            {/* TODO: wire schedule to club.horario_apertura/cierre and distance to user geolocation */}
+            <div className="border-t border-border pt-2 space-y-1">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-gray">Hoy</span>
+                <span className="font-semibold text-dark">8:00 — 22:00</span>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] text-orange font-semibold">
+                <MapPin size={10} /> 3,2 km de tu ubicación
+              </div>
+            </div>
           </div>
         </aside>
       )}
@@ -625,7 +750,7 @@ const ClubDetailPage = () => {
       {/* Mobile sticky CTA bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border shadow-[0_-4px_12px_rgba(0,0,0,0.06)] p-3 flex gap-2">
         <a
-          href={googleMapsUrl}
+          href={googleMapsDirUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1 inline-flex items-center justify-center gap-2 h-12 border-2 border-orange text-orange font-semibold text-[13px] uppercase tracking-wider rounded-md"
@@ -637,7 +762,8 @@ const ClubDetailPage = () => {
           disabled={!contactHref}
           className="flex-[1.2] inline-flex items-center justify-center gap-2 h-12 bg-orange text-white font-semibold text-[13px] uppercase tracking-wider rounded-md disabled:opacity-50 disabled:pointer-events-none"
         >
-          <Phone size={15} /> {contactHref ? "Contactar" : "Sin contacto"}
+          {ContactIcon && <ContactIcon size={15} />}{" "}
+          {contactHref ? "Contactar" : "Sin contacto"}
         </button>
       </div>
       {/* Spacer so footer not hidden behind sticky bar on mobile */}

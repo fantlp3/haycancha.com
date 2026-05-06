@@ -47,7 +47,10 @@ const isViewMode = (v: string | null): v is ViewMode =>
   v === "map" || v === "grid" || v === "list";
 
 const SearchPage = () => {
-  const { pais, ciudad, barrio } = useParams();
+  // 4-seg URLs use :barrio; 3-seg URLs proxied via GeoRouterPage use :slug.
+  // Treat either as the barrio filter.
+  const { pais, ciudad, barrio: barrioParam, slug } = useParams();
+  const barrio = barrioParam ?? slug;
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const sportParam = params.get("deporte");

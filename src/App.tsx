@@ -6,6 +6,7 @@ import { CookieConsent } from "@/components/legal/CookieConsent";
 import Index from "./pages/Index.tsx";
 import SearchPage from "./pages/SearchPage.tsx";
 import ClubDetailPage from "./pages/ClubDetailPage.tsx";
+import GeoRouterPage from "./pages/GeoRouterPage.tsx";
 import AgregarCanchaPage from "./pages/AgregarCanchaPage.tsx";
 import SportLandingPage from "./pages/SportLandingPage.tsx";
 import PrivacidadPage from "./pages/PrivacidadPage.tsx";
@@ -35,7 +36,9 @@ const App = () => (
           <Route path="/canchas" element={<SearchPage />} />
           <Route path="/canchas/:pais" element={<SearchPage />} />
           <Route path="/canchas/:pais/:ciudad" element={<SearchPage />} />
-          <Route path="/canchas/:pais/:ciudad/:barrio" element={<SearchPage />} />
+          {/* 3-seg slug is ambiguous (could be a barrio or a club). GeoRouterPage
+              disambiguates with parallel club + barrio lookups. */}
+          <Route path="/canchas/:pais/:ciudad/:slug" element={<GeoRouterPage />} />
           <Route path="/canchas/:pais/:ciudad/:barrio/:slug" element={<ClubDetailPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

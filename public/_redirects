@@ -1,0 +1,4 @@
+# SPA fallback — toda ruta desconocida se sirve por index.html
+# para que React Router pueda manejar el routing client-side.
+# Excepción: /sitemap.xml lo maneja Pages Function (functions/sitemap.xml.ts).
+/*    /index.html   200

@@ -50,3 +50,4 @@ function xmlResponse(xml: string, maxAgeSeconds: number): Response {
     },
   });
 }
+

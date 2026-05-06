@@ -6,91 +6,38 @@
  *   /canchas/:pais/:ciudad/:barrio
  *   /canchas/:pais/:ciudad/:barrio/:slug
  *
+ * Pulls live data from Directus (VITE_DIRECTUS_URL).
+ *
  * Run with: bun run scripts/generate-sitemap.ts
  * Writes to: public/sitemap.xml
+ *
+ * Note: the production sitemap is served by `functions/sitemap.xml.ts`
+ * (Pages Function). This script is here for local debugging and to
+ * leave a fallback sitemap at build time in case the Pages Function
+ * ever gets shadowed by static-file routing. The build/deploy does NOT
+ * require this script to run.
  */
 import { writeFileSync } from "node:fs";
-import { LATAM_COUNTRIES, toSlug } from "../src/lib/geo";
+import { resolve } from "node:path";
+import { buildSitemapXml, fetchClubsForSitemap } from "../src/lib/sitemap";
 
-const SITE_URL = "https://haycancha.com";
+const DIRECTUS_URL = process.env.VITE_DIRECTUS_URL ?? "https://api.haycancha.com";
 
-// In production, fetch from DB. Demo dataset for now.
-const GEO: Record<
-  string,
-  { slug: string; cities: { slug: string; barrios: string[]; clubs: { barrio: string; slug: string }[] }[] }
-> = {
-  argentina: {
-    slug: "argentina",
-    cities: [
-      {
-        slug: "buenos-aires",
-        barrios: ["palermo", "belgrano", "recoleta", "caballito"],
-        clubs: [
-          { barrio: "palermo", slug: "club-atletico-palermo" },
-          { barrio: "belgrano", slug: "asociacion-tenis-belgrano" },
-        ],
-      },
-    ],
-  },
-  mexico: {
-    slug: "mexico",
-    cities: [
-      {
-        slug: "ciudad-de-mexico",
-        barrios: ["polanco", "condesa", "roma"],
-        clubs: [{ barrio: "polanco", slug: "club-deportivo-polanco" }],
-      },
-    ],
-  },
-  colombia: {
-    slug: "colombia",
-    cities: [
-      {
-        slug: "bogota",
-        barrios: ["chapinero", "usaquen"],
-        clubs: [{ barrio: "chapinero", slug: "club-tenis-chapinero" }],
-      },
-    ],
-  },
-  chile: {
-    slug: "chile",
-    cities: [
-      {
-        slug: "santiago",
-        barrios: ["providencia", "las-condes"],
-        clubs: [{ barrio: "providencia", slug: "club-providencia-tenis" }],
-      },
-    ],
-  },
-};
+async function main() {
+  console.log(`Fetching active clubs from ${DIRECTUS_URL}…`);
+  const clubs = await fetchClubsForSitemap(DIRECTUS_URL);
+  console.log(`  → ${clubs.length} active clubs found`);
 
-const urls: string[] = ["/", "/canchas"];
+  const xml = buildSitemapXml(clubs);
+  const outPath = resolve(process.cwd(), "public/sitemap.xml");
+  writeFileSync(outPath, xml, "utf-8");
 
-for (const country of LATAM_COUNTRIES) {
-  urls.push(`/canchas/${country.slug}`);
-  const data = GEO[country.slug];
-  if (!data) continue;
-  for (const city of data.cities) {
-    urls.push(`/canchas/${country.slug}/${city.slug}`);
-    for (const barrio of city.barrios) {
-      urls.push(`/canchas/${country.slug}/${city.slug}/${toSlug(barrio)}`);
-    }
-    for (const club of city.clubs) {
-      urls.push(`/canchas/${country.slug}/${city.slug}/${toSlug(club.barrio)}/${club.slug}`);
-    }
-  }
+  const sizeKb = (xml.length / 1024).toFixed(1);
+  const lineCount = xml.split("\n").length;
+  console.log(`Wrote ${outPath} (${sizeKb} KB, ${lineCount} lines)`);
 }
 
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls
-  .map(
-    (u) =>
-      `  <url><loc>${SITE_URL}${u}</loc><changefreq>weekly</changefreq><priority>${u === "/" ? "1.0" : "0.7"}</priority></url>`
-  )
-  .join("\n")}
-</urlset>
-`;
-
-writeFileSync("public/sitemap.xml", xml);
-console.log(`Wrote public/sitemap.xml — ${urls.length} URLs`);
+main().catch((err) => {
+  console.error("Sitemap generation failed:", err);
+  process.exit(1);
+});

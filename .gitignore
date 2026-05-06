@@ -23,5 +23,15 @@ dist-ssr
 *.sln
 *.sw?
 
+# Env files (keep .env.example committed for documentation, ignore the rest)
+.env
+.env.local
+.env.*.local
+
 # Import pipeline secrets
 scripts/import/.env
+
+# Sitemap dinámico generado por Pages Function — el script local
+# scripts/generate-sitemap.ts puede regenerarlo para debug, pero
+# nunca debe committearse.
+public/sitemap.xml

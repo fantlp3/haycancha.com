@@ -130,6 +130,16 @@ export async function fetchClubBySlug(slug: string): Promise<ClubFull | null> {
         { ciudad: ["*"] },
         { barrio: ["*", { ciudad: ["*", { pais: ["*"] }] }] },
         { foto_portada: ["*"] },
+        {
+          clubes_deportes: [
+            "es_primario",
+            "cantidad_canchas",
+            "superficie",
+            "indoor",
+            "iluminacion",
+            { deporte: ["slug", "nombre"] },
+          ],
+        },
       ],
       filter: {
         slug: { _eq: slug },

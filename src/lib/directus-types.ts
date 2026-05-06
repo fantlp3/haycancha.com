@@ -199,6 +199,14 @@ export type ClubFull = Omit<Club, "pais" | "ciudad" | "barrio" | "foto_portada">
   ciudad: Ciudad;
   barrio: (Barrio & { ciudad: Ciudad & { pais: Pais } }) | null;
   foto_portada: DirectusFile | null;
+  clubes_deportes: Array<{
+    es_primario: boolean | null;
+    cantidad_canchas: number | null;
+    superficie: Superficie | null;
+    indoor: boolean | null;
+    iluminacion: boolean | null;
+    deporte: { slug: string; nombre: string };
+  }>;
 };
 
 export type ClubCard = Pick<

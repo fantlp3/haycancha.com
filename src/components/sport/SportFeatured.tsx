@@ -27,14 +27,19 @@ export const SportFeatured = ({ sport }: Props) => {
   const borderL = `border-l-${sport.color}`;
   const { data, isLoading, isError } = useClubesByDeporte(sport.key);
 
-  const clubs: ClubCard[] = (data ?? [])
+  const sortedClubs: ClubCard[] = (data ?? [])
     .slice()
     .sort((a, b) => {
       // premium first, then alphabetical (es)
       if (a.es_premium !== b.es_premium) return a.es_premium ? -1 : 1;
       return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
-    })
-    .slice(0, 6);
+    });
+  const totalCount = sortedClubs.length;
+  const clubs: ClubCard[] = sortedClubs.slice(0, 6);
+  const countLabel =
+    totalCount === 1
+      ? `1 cancha de ${sport.ofName} encontrada`
+      : `${totalCount} canchas de ${sport.ofName} encontradas`;
 
   return (
     <section className="bg-white py-16">
@@ -47,6 +52,10 @@ export const SportFeatured = ({ sport }: Props) => {
           <span>Canchas destacadas de {sport.ofName}</span>
           <span className="flex-1 h-px" style={{ backgroundColor: sport.hex, opacity: 0.5 }} />
         </div>
+
+        {!isLoading && !isError && totalCount > 0 && (
+          <p className="-mt-6 text-center text-[13px] text-gray">{countLabel}</p>
+        )}
 
         {isError ? (
           <p className="text-center text-gray py-12">

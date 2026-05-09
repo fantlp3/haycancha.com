@@ -53,6 +53,10 @@ export const SportFeatured = ({ sport }: Props) => {
           <span className="flex-1 h-px" style={{ backgroundColor: sport.hex, opacity: 0.5 }} />
         </div>
 
+        {!isLoading && !isError && totalCount > 0 && (
+          <p className="-mt-6 text-center text-[13px] text-gray">{countLabel}</p>
+        )}
+
         {isError ? (
           <p className="text-center text-gray py-12">
             No pudimos cargar las canchas en este momento.

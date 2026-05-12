@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { Search, MapPin } from "lucide-react";
-import argentinaMap from "@/assets/argentina-map.jpg";
 import { useClubStats } from "@/hooks/useClubes";
 import { SportIcon } from "@/components/ui/SportIcon";
+import { HeroRotator } from "@/components/hero/HeroRotator";
 import { StatsStrip } from "./StatsStrip";
 
 const nfAR = new Intl.NumberFormat("es-AR");
@@ -31,20 +31,10 @@ export const Hero = () => {
     : nfAR.format(totalCanchas);
 
   return (
-    <section className="relative bg-dark overflow-hidden">
-      {/* Diagonal lines pattern */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 1px, transparent 12px)",
-        }}
-      />
-      <div className="relative max-w-container mx-auto px-6 lg:px-10 py-16 lg:py-0 lg:min-h-[85vh] flex items-center">
-        <div className="grid lg:grid-cols-[60fr_40fr] gap-12 lg:gap-16 items-center w-full">
-          {/* Left */}
-          <div className="space-y-6 lg:space-y-8">
+    <>
+      <HeroRotator overlayGradient="left">
+        <div className="max-w-container mx-auto px-6 lg:px-10 py-16 lg:py-0 lg:min-h-[85vh] flex items-center">
+          <div className="space-y-6 lg:space-y-8 max-w-2xl">
             <p className="label-meta uppercase text-orange tracking-[3px] inline-flex items-center gap-2">
               <SportIcon sport="tenis" size={26} />
               El directorio de tenis de Latinoamérica
@@ -54,7 +44,7 @@ export const Hero = () => {
               TU CANCHA<br />
               <span className="text-orange">PERFECTA.</span>
             </h1>
-            <p className="text-white/70 text-[16px] md:text-[18px] max-w-xl leading-relaxed">
+            <p className="text-white/85 text-[16px] md:text-[18px] max-w-xl leading-relaxed">
               Más de {totalDisplay} clubes y canchas de tenis, pádel y pickleball en toda Latinoamérica. Gratis.
             </p>
 
@@ -82,7 +72,7 @@ export const Hero = () => {
                 <a
                   key={c.label}
                   href={c.href}
-                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-[13px] font-medium border border-transparent hover:opacity-100 hover:border-orange hover:text-white transition whitespace-nowrap"
+                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 text-white/90 text-[13px] font-medium border border-transparent hover:opacity-100 hover:border-orange hover:text-white transition whitespace-nowrap"
                 >
                   <MapPin size={13} className="text-orange" />
                   {c.label}
@@ -90,31 +80,9 @@ export const Hero = () => {
               ))}
             </div>
           </div>
-
-          {/* Right */}
-          <div className="relative">
-            <div className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-card-hover">
-              <img
-                src={argentinaMap}
-                alt="Mapa de canchas en Latinoamérica"
-                width={1024}
-                height={1024}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-tr from-dark/60 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white/80 text-[11px] font-semibold uppercase tracking-[2px]">
-                <span>Cobertura nacional</span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-orange animate-pulse" />
-                  En vivo
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-
+      </HeroRotator>
       <StatsStrip />
-    </section>
+    </>
   );
 };

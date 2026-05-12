@@ -5,6 +5,7 @@ import { SportBadge } from "@/components/brand/SportBadge";
 import { ClubPhoto } from "@/components/ClubPhoto";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClubesByDeporte } from "@/hooks/useClubes";
+import { buildClubHref } from "@/lib/club-display";
 import type { SportConfig } from "@/lib/sports";
 import type { ClubCard } from "@/lib/directus-types";
 
@@ -87,7 +88,7 @@ export const SportFeatured = ({ sport }: Props) => {
               return (
                 <Link
                   key={c.id}
-                  to={`/clubes/${c.slug}`}
+                  to={buildClubHref(c)}
                   className={cn(
                     "group block bg-card rounded-xl border border-border overflow-hidden transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-card-hover",
                     c.es_premium && cn("border-l-[3px] shadow-[0_6px_20px_rgba(0,0,0,0.10)]", borderL)

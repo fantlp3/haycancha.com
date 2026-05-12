@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ClubPhoto } from "@/components/ClubPhoto";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClubesPremium } from "@/hooks/useClubes";
+import { buildClubHref } from "@/lib/club-display";
 import { getPrimarySportSlug } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import type { ClubCard } from "@/lib/directus-types";
@@ -26,7 +27,7 @@ const PremiumCard = ({ club }: { club: ClubCard }) => {
 
   return (
     <Link
-      to={`/clubes/${club.slug}`}
+      to={buildClubHref(club)}
       className={cn(
         "group block bg-card rounded-xl border border-border overflow-hidden transition-all duration-200 ease-out hover:-translate-y-1",
         club.es_premium

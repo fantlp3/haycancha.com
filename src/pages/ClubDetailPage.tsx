@@ -25,6 +25,7 @@ import { SportBadge, type Sport } from "@/components/brand/SportBadge";
 import { CourtCard } from "@/components/brand/CourtCard";
 import { AdSlot } from "@/components/brand/AdSlot";
 import { ClubPhoto } from "@/components/ClubPhoto";
+import { ClubFeedbackSection } from "@/components/club-detail/ClubFeedbackSection";
 import { SeoMeta } from "@/components/SeoMeta";
 import { SchemaOrgClub } from "@/components/SchemaOrgClub";
 import { useClubBySlug, useClubesByBarrio, useClubesByCiudad } from "@/hooks/useClubes";
@@ -87,18 +88,10 @@ function buildTodayLabel(
   cierre: string | null | undefined,
   horarioTexto: string | null | undefined
 ): string | null {
-  if (apertura && cierre) return `${apertura} — ${cierre}`;
   if (horarioTexto) return horarioTexto.split("\n")[0].slice(0, 30);
+  if (apertura && cierre) return `${apertura.slice(0, 5)} — ${cierre.slice(0, 5)}`;
   return null;
 }
-
-// Mocked schedule list (kept until horario_apertura/cierre data is exhaustive enough
-// to render real per-day rows; computeIsOpenNow above already uses real data).
-const MOCK_SCHEDULE = [
-  { day: "Lun – Vie", hours: "8:00 — 22:00" },
-  { day: "Sábado", hours: "8:00 — 20:00" },
-  { day: "Domingo", hours: "9:00 — 18:00" },
-];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <p className="label-meta uppercase text-orange tracking-[3px] mb-3">{children}</p>
@@ -230,6 +223,25 @@ const NotFoundState = () => (
   </PageShell>
 );
 
+const ErrorState = () => (
+  <PageShell>
+    <div className={`${SECTION_PAD} py-24 text-center`}>
+      <h1 className="font-display text-dark text-[40px] md:text-[56px] leading-[0.95]">
+        ALGO SALIÓ MAL
+      </h1>
+      <p className="mt-4 text-gray text-[15px]">
+        No pudimos cargar la información del club. Probá de nuevo en un momento.
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="inline-flex items-center justify-center gap-2 mt-8 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] rounded-md px-7 py-3 hover:brightness-90 transition"
+      >
+        Reintentar
+      </button>
+    </div>
+  </PageShell>
+);
+
 const ClubDetailPage = () => {
   const { slug } = useParams();
   const [scrolled, setScrolled] = useState(false);
@@ -240,7 +252,7 @@ const ClubDetailPage = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const { data: club, isLoading } = useClubBySlug(slug);
+  const { data: club, isLoading, isError } = useClubBySlug(slug);
 
   // Both nearby hooks are called unconditionally to keep hook order stable.
   // Each is `enabled`-gated by its own slug; only one fires.
@@ -252,6 +264,7 @@ const ClubDetailPage = () => {
   const geo = useGeolocation(!!club);
 
   if (isLoading) return <LoadingSkeleton />;
+  if (isError) return <ErrorState />;
   if (!club) return <NotFoundState />;
 
   const sportSlugs: Sport[] = club.clubes_deportes
@@ -386,7 +399,7 @@ const ClubDetailPage = () => {
     ? `CANCHAS CERCANAS EN ${club.barrio.nombre.toUpperCase()}`
     : `MÁS CANCHAS EN ${club.ciudad.nombre.toUpperCase()}`;
 
-  // Bottom "Más canchas en…" chips: counts deferred (TODO: real counts).
+  // Bottom "Más canchas en…" chips.
   const bottomChips = [
     club.barrio && {
       label: club.barrio.nombre,
@@ -426,40 +439,129 @@ const ClubDetailPage = () => {
         <AdSlot slot="club-after-gallery" format="in-article" />
       </div>
 
-      {/* Gallery — single hero photo or placeholder */}
-      <section className="bg-light">
-        <div className={`${SECTION_PAD} pt-6`}>
-          <ClubPhoto
-            clubName={club.nombre}
-            fileId={heroFileId}
-            primarySportSlug={primarySportSlug}
-            width={1200}
-            height={400}
-            size="lg"
-            loading="eager"
-            className="w-full h-[280px] md:h-[400px] object-cover rounded-xl"
-            alt={`Foto principal de ${club.nombre}`}
-          />
-        </div>
-      </section>
-
       <section className={`${SECTION_PAD} mt-4 lg:mt-6`}>
         <div className="grid lg:grid-cols-[1fr_320px] gap-8 lg:gap-12 items-start">
-          <div>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {sportSlugs.map((s) => (
-                <SportBadge key={s} sport={s} />
-              ))}
-              {club.es_premium && <SportBadge sport="premium" />}
+          <div className="space-y-8 lg:space-y-10">
+            <div className="flex gap-4 md:gap-6 items-start">
+              <ClubPhoto
+                clubName={club.nombre}
+                fileId={heroFileId}
+                primarySportSlug={primarySportSlug}
+                width={120}
+                height={120}
+                size="md"
+                loading="eager"
+                className="w-20 h-20 md:w-[120px] md:h-[120px] rounded-xl object-cover shrink-0"
+                alt={`Foto de ${club.nombre}`}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {sportSlugs.map((s) => (
+                    <SportBadge key={s} sport={s} />
+                  ))}
+                  {club.es_premium && <SportBadge sport="premium" />}
+                </div>
+                <h1 className="font-display text-dark text-[36px] md:text-[56px] leading-[0.95]">
+                  {club.nombre.toUpperCase()}
+                </h1>
+                <p className="mt-3 flex items-start gap-2 text-gray text-[15px]">
+                  <MapPin size={16} className="text-orange shrink-0 mt-0.5" />
+                  {club.direccion}
+                  {club.barrio ? `, ${club.barrio.nombre}` : ""}, {club.ciudad.nombre}
+                </p>
+              </div>
             </div>
-            <h1 className="font-display text-dark text-[36px] md:text-[56px] leading-[0.95]">
-              {club.nombre.toUpperCase()}
-            </h1>
-            <p className="mt-3 flex items-start gap-2 text-gray text-[15px]">
-              <MapPin size={16} className="text-orange shrink-0 mt-0.5" />
-              {club.direccion}
-              {club.barrio ? `, ${club.barrio.nombre}` : ""}, {club.ciudad.nombre}
-            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10">
+              {/* Canchas */}
+              <div>
+                <SectionLabel>Canchas</SectionLabel>
+                {club.clubes_deportes.length > 0 ? (
+                  <ul className="space-y-4 text-[14px] text-dark">
+                    {club.clubes_deportes.map((cd, i) => {
+                      const detailParts: string[] = [];
+                      if (cd.superficie) detailParts.push(SURFACE_LABELS[cd.superficie]);
+                      if (cd.indoor) detailParts.push("Indoor");
+                      if (cd.iluminacion) detailParts.push("Con iluminación");
+                      return (
+                        <li key={`${cd.deporte.slug}-${i}`}>
+                          <div className="font-semibold">
+                            {cd.cantidad_canchas ?? "—"} canchas de {cd.deporte.nombre}
+                          </div>
+                          {detailParts.length > 0 && (
+                            <p className="text-gray text-[13px] mt-1">
+                              {detailParts.join(" · ")}
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="text-gray text-[14px]">Sin información de canchas</p>
+                )}
+              </div>
+
+              {/* Servicios */}
+              <div>
+                <SectionLabel>Servicios</SectionLabel>
+                {activeServices.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {activeServices.map((s) => (
+                      <span
+                        key={s.key as string}
+                        className="inline-flex items-center gap-1.5 bg-light border border-border rounded text-[12px] font-medium text-dark px-2.5 py-1.5"
+                      >
+                        <Check size={12} className="text-orange" strokeWidth={3} />
+                        {s.label}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray text-[14px]">Sin información de servicios</p>
+                )}
+              </div>
+
+              {/* Horarios */}
+              <div>
+                <SectionLabel>Horarios</SectionLabel>
+                {isOpenNow !== null && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-bold uppercase tracking-wider",
+                        isOpenNow
+                          ? "bg-sport-gratis-bg text-sport-gratis-fg"
+                          : "bg-red-100 text-red-700"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          isOpenNow ? "bg-sport-gratis-fg" : "bg-red-700"
+                        )}
+                      />
+                      {isOpenNow ? "Abierto ahora" : "Cerrado"}
+                    </span>
+                    <Clock size={14} className="text-gray" />
+                  </div>
+                )}
+                {club.horario_texto ? (
+                  <p className="text-[14px] text-dark whitespace-pre-line">
+                    {club.horario_texto}
+                  </p>
+                ) : club.horario_apertura && club.horario_cierre ? (
+                  <div className="flex justify-between gap-3 text-[14px] text-dark">
+                    <span className="text-gray">Todos los días</span>
+                    <span className="font-semibold">
+                      {club.horario_apertura.slice(0, 5)} — {club.horario_cierre.slice(0, 5)}
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-gray text-[14px]">Horarios no disponibles</p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Action card sticky on desktop */}
@@ -542,101 +644,22 @@ const ClubDetailPage = () => {
         </div>
       </section>
 
-      {/* Info 3-cols */}
-      <section className={`${SECTION_PAD} mt-12 lg:mt-16`}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10">
-          {/* Canchas */}
-          <div>
-            <SectionLabel>Canchas</SectionLabel>
-            {club.clubes_deportes.length > 0 ? (
-              <ul className="space-y-4 text-[14px] text-dark">
-                {club.clubes_deportes.map((cd, i) => {
-                  const detailParts: string[] = [];
-                  if (cd.superficie) detailParts.push(SURFACE_LABELS[cd.superficie]);
-                  if (cd.indoor) detailParts.push("Indoor");
-                  if (cd.iluminacion) detailParts.push("Con iluminación");
-                  return (
-                    <li key={`${cd.deporte.slug}-${i}`}>
-                      <div className="font-semibold">
-                        {cd.cantidad_canchas ?? "—"} canchas de {cd.deporte.nombre}
-                      </div>
-                      {detailParts.length > 0 && (
-                        <p className="text-gray text-[13px] mt-1">
-                          {detailParts.join(" · ")}
-                        </p>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <p className="text-gray text-[14px]">Sin información de canchas</p>
-            )}
-          </div>
-
-          {/* Servicios */}
-          <div>
-            <SectionLabel>Servicios</SectionLabel>
-            {activeServices.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {activeServices.map((s) => (
-                  <span
-                    key={s.key as string}
-                    className="inline-flex items-center gap-1.5 bg-light border border-border rounded text-[12px] font-medium text-dark px-2.5 py-1.5"
-                  >
-                    <Check size={12} className="text-orange" strokeWidth={3} />
-                    {s.label}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray text-[14px]">Sin información de servicios</p>
-            )}
-          </div>
-
-          {/* Horarios */}
-          <div>
-            <SectionLabel>Horarios</SectionLabel>
-            {isOpenNow !== null && (
-              <div className="flex items-center gap-2 mb-3">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-bold uppercase tracking-wider",
-                    isOpenNow
-                      ? "bg-sport-gratis-bg text-sport-gratis-fg"
-                      : "bg-red-100 text-red-700"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "w-1.5 h-1.5 rounded-full",
-                      isOpenNow ? "bg-sport-gratis-fg" : "bg-red-700"
-                    )}
-                  />
-                  {isOpenNow ? "Abierto ahora" : "Cerrado"}
-                </span>
-                <Clock size={14} className="text-gray" />
-              </div>
-            )}
-            {club.horario_texto ? (
-              <p className="text-[14px] text-dark whitespace-pre-line">
-                {club.horario_texto}
-              </p>
-            ) : club.horario_apertura && club.horario_cierre ? (
-              <ul className="space-y-1.5 text-[14px] text-dark">
-                {MOCK_SCHEDULE.map((s) => (
-                  <li key={s.day} className="flex justify-between gap-3">
-                    <span className="text-gray">{s.day}</span>
-                    <span className="font-semibold">{s.hours}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray text-[14px]">Horarios no disponibles</p>
-            )}
-          </div>
-        </div>
-      </section>
+      {heroFileId && (
+        <section className={`${SECTION_PAD} mt-12 lg:mt-16`}>
+          <SectionLabel>Fotos</SectionLabel>
+          <ClubPhoto
+            clubName={club.nombre}
+            fileId={heroFileId}
+            primarySportSlug={primarySportSlug}
+            width={1200}
+            height={500}
+            size="lg"
+            loading="lazy"
+            className="w-full h-[280px] md:h-[400px] object-cover rounded-xl"
+            alt={`Foto de ${club.nombre}`}
+          />
+        </section>
+      )}
 
       {/* Map */}
       <section className={`${SECTION_PAD} mt-12 lg:mt-16`}>
@@ -734,7 +757,10 @@ const ClubDetailPage = () => {
         </section>
       )}
 
-      {/* SEO breadcrumb chips — counts deferred (TODO: real counts) */}
+      {/* Club feedback */}
+      <ClubFeedbackSection clubId={club.id} clubName={club.nombre} />
+
+      {/* SEO breadcrumb chips */}
       <section className="bg-light mt-16">
         <div className={`${SECTION_PAD} py-10`}>
           <p className="label-meta uppercase text-gray mb-3">Más canchas en</p>
@@ -746,7 +772,6 @@ const ClubDetailPage = () => {
                 className="inline-flex items-center gap-2 bg-white border border-border rounded-md px-4 py-2 text-[13px] text-dark hover:border-orange hover:text-orange transition"
               >
                 <span className="font-semibold">{l.label}</span>
-                <span className="text-gray">(... canchas)</span>
                 <ArrowRight size={12} />
               </Link>
             ))}

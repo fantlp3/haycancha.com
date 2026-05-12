@@ -10,25 +10,26 @@ import {
 } from "@/components/legal/LegalPageLayout";
 
 const TOC = [
-  { id: "quienes-somos", label: "1. Quiénes somos" },
-  { id: "que-recolectamos", label: "2. Qué información recolectamos" },
-  { id: "para-que-usamos", label: "3. Para qué usamos tu información" },
-  { id: "con-quien-compartimos", label: "4. Con quién compartimos" },
-  { id: "cookies", label: "5. Cookies y tecnologías similares" },
-  { id: "tus-derechos", label: "6. Tus derechos" },
-  { id: "retencion", label: "7. Retención de datos" },
-  { id: "menores", label: "8. Menores de edad" },
-  { id: "transferencia", label: "9. Transferencia internacional" },
-  { id: "cambios", label: "10. Cambios a esta política" },
-  { id: "contacto", label: "11. Contacto" },
+  { id: "responsable", label: "1. Responsable del tratamiento" },
+  { id: "marco-legal", label: "2. Marco legal aplicable" },
+  { id: "datos-recolectamos", label: "3. Datos que recopilamos" },
+  { id: "finalidad", label: "4. Finalidad del tratamiento" },
+  { id: "base-legal", label: "5. Base legal del tratamiento" },
+  { id: "cookies", label: "6. Cookies y tecnologías similares" },
+  { id: "terceros", label: "7. Terceros con quienes compartimos" },
+  { id: "derechos", label: "8. Derechos del titular" },
+  { id: "conservacion", label: "9. Plazo de conservación" },
+  { id: "seguridad", label: "10. Seguridad de los datos" },
+  { id: "modificaciones", label: "11. Modificaciones a esta política" },
+  { id: "contacto", label: "12. Contacto" },
 ];
 
 const PrivacidadPage = () => {
   useEffect(() => {
     document.title = "Política de Privacidad — HayCancha";
-    const meta = document.querySelector('meta[name="description"]');
     const desc =
-      "Cómo HayCancha.com recolecta, usa y protege tus datos personales. Cookies, analítica, publicidad y derechos del usuario.";
+      "Cómo HayCancha.com recolecta, usa y protege tus datos personales. Política de privacidad de P3GROUP S.A. conforme a la Ley 25.326 de Argentina.";
+    const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", desc);
     else {
       const m = document.createElement("meta");
@@ -42,258 +43,362 @@ const PrivacidadPage = () => {
     <LegalPageLayout
       title="POLÍTICA DE PRIVACIDAD"
       breadcrumb={[{ label: "Inicio", href: "/" }, { label: "Política de Privacidad" }]}
-      lastUpdated="[FECHA_A_COMPLETAR]"
+      lastUpdated="12 de mayo de 2026"
       toc={TOC}
     >
       <LegalP>
-        En HayCancha.com nos tomamos en serio la privacidad de las personas que visitan nuestro
-        sitio. Esta Política explica qué información recolectamos, cómo la usamos, con quién la
-        compartimos y qué derechos tenés sobre tus datos.
+        Esta Política de Privacidad explica cómo HayCancha.com recolecta, usa, comparte y protege
+        los datos personales de quienes visitan o interactúan con el Sitio.
       </LegalP>
 
-      <LegalH2 id="quienes-somos">1. Quiénes somos</LegalH2>
+      <LegalH2 id="responsable">1. Responsable del tratamiento de datos</LegalH2>
       <LegalP>
-        HayCancha.com (en adelante, "HayCancha", "el sitio" o "nosotros") es un directorio digital
-        de canchas de tenis, pádel y pickleball en Latinoamérica.
+        El responsable del tratamiento de los datos personales recolectados a través de{" "}
+        <LegalStrong>HayCancha.com</LegalStrong> (en adelante, "el Sitio") es:
+      </LegalP>
+      <LegalUl>
+        <li>
+          <LegalStrong>Razón social:</LegalStrong> P3GROUP S.A.
+        </li>
+        <li>
+          <LegalStrong>CUIT:</LegalStrong> 30-70972578-1
+        </li>
+        <li>
+          <LegalStrong>Domicilio legal:</LegalStrong> Basavilbaso 1350, Ciudad Autónoma de Buenos
+          Aires, Argentina
+        </li>
+        <li>
+          <LegalStrong>Email de contacto:</LegalStrong>{" "}
+          <LegalA href="mailto:legales@p3design.com">legales@p3design.com</LegalA>
+        </li>
+      </LegalUl>
+
+      <LegalH2 id="marco-legal">2. Marco legal aplicable</LegalH2>
+      <LegalP>Esta política se rige por:</LegalP>
+      <LegalUl>
+        <li>
+          <LegalStrong>Ley N° 25.326</LegalStrong> de Protección de los Datos Personales de la
+          República Argentina
+        </li>
+        <li>
+          <LegalStrong>Decreto 1558/2001</LegalStrong>, reglamentario de la Ley 25.326
+        </li>
+        <li>
+          Disposiciones de la <LegalStrong>Agencia de Acceso a la Información Pública (AAIP)</LegalStrong>,
+          autoridad de aplicación
+        </li>
+      </LegalUl>
+      <LegalP>
+        Para usuarios residentes en otros países de Latinoamérica, esta política respeta los
+        principios comunes de protección de datos: licitud, finalidad, proporcionalidad, calidad y
+        seguridad de los datos tratados.
+      </LegalP>
+
+      <LegalH2 id="datos-recolectamos">3. Datos que recopilamos</LegalH2>
+      <LegalH3>3.1. Datos que el usuario nos proporciona voluntariamente</LegalH3>
+      <LegalP>
+        Cuando el usuario interactúa con el Sitio (por ejemplo, al enviar un formulario para sugerir
+        un nuevo club, contactarnos o suscribirse a actualizaciones), recolectamos:
+      </LegalP>
+      <LegalUl>
+        <li>Nombre completo</li>
+        <li>Dirección de correo electrónico</li>
+        <li>Datos del club que desea sumar al directorio (nombre, dirección, teléfono, deportes, etc.)</li>
+        <li>Mensajes o comentarios enviados a través de formularios de contacto</li>
+      </LegalUl>
+      <LegalH3>3.2. Datos recolectados automáticamente</LegalH3>
+      <LegalP>Al navegar por el Sitio, recolectamos automáticamente:</LegalP>
+      <LegalUl>
+        <li>Dirección IP</li>
+        <li>Tipo y versión del navegador</li>
+        <li>Sistema operativo</li>
+        <li>Páginas visitadas dentro del Sitio</li>
+        <li>Tiempo de permanencia en cada página</li>
+        <li>Fuente de referencia (sitio desde el cual el usuario llegó al nuestro)</li>
+        <li>Datos de geolocalización aproximada (a nivel ciudad, derivada de la IP)</li>
+      </LegalUl>
+      <LegalP>
+        Estos datos se obtienen mediante cookies y tecnologías similares (ver sección 6).
+      </LegalP>
+      <LegalH3>3.3. Datos de menores de edad</LegalH3>
+      <LegalP>
+        El Sitio está destinado a personas mayores de <LegalStrong>13 años</LegalStrong>. No
+        recolectamos conscientemente datos personales de menores de 13 años. Si tomamos conocimiento
+        de que hemos recibido datos de un menor de 13 años sin consentimiento parental verificable,
+        procederemos a eliminarlos.
       </LegalP>
       <LegalP>
-        Responsable del tratamiento de datos: [NOMBRE_LEGAL_O_RAZON_SOCIAL]
-        <br />
-        Domicilio: [DOMICILIO_LEGAL]
-        <br />
-        Email de contacto para temas de privacidad:{" "}
-        <LegalA href="mailto:privacidad@haycancha.com">privacidad@haycancha.com</LegalA>
+        Si sos padre, madre o tutor legal y creés que un menor a tu cargo nos ha proporcionado
+        datos, escribinos a{" "}
+        <LegalA href="mailto:legales@p3design.com">legales@p3design.com</LegalA>.
       </LegalP>
 
-      <LegalH2 id="que-recolectamos">2. Qué información recolectamos</LegalH2>
-      <LegalH3>Información que nos proporcionás directamente:</LegalH3>
+      <LegalH2 id="finalidad">4. Finalidad del tratamiento</LegalH2>
+      <LegalP>Utilizamos los datos personales recolectados para:</LegalP>
       <LegalUl>
-        <li>
-          Cuando completás el formulario "Agregá tu cancha": nombre del complejo, dirección, datos
-          de contacto (teléfono, email, WhatsApp, sitio web, redes sociales), fotos del complejo,
-          nombre y apellido de la persona de contacto.
-        </li>
-        <li>
-          Cuando nos escribís a cualquier email del sitio: el contenido del mensaje y los datos que
-          nos compartas en él.
-        </li>
+        <li>Operar y mantener el Sitio</li>
+        <li>Procesar las sugerencias de nuevos clubes enviadas por los usuarios</li>
+        <li>Responder consultas y comunicaciones</li>
+        <li>Mejorar la experiencia de usuario y el contenido del Sitio</li>
+        <li>Analizar el uso del Sitio mediante herramientas estadísticas</li>
+        <li>Mostrar publicidad relevante a través de Google AdSense</li>
+        <li>Cumplir con obligaciones legales</li>
       </LegalUl>
-      <LegalH3>Información que se recolecta automáticamente:</LegalH3>
+
+      <LegalH2 id="base-legal">5. Base legal del tratamiento</LegalH2>
+      <LegalP>El tratamiento de los datos se basa en:</LegalP>
       <LegalUl>
         <li>
-          Datos técnicos: dirección IP, tipo de dispositivo, navegador, sistema operativo, idioma,
-          país aproximado (a nivel ciudad).
+          <LegalStrong>Consentimiento del usuario</LegalStrong>, prestado al enviar formularios o
+          aceptar el uso de cookies
         </li>
         <li>
-          Datos de navegación: páginas visitadas, tiempo en cada página, origen del tráfico
-          (buscador, link directo, redes), búsquedas realizadas dentro del sitio.
-        </li>
-        <li>Cookies: ver sección 5.</li>
-      </LegalUl>
-      <LegalH3>Información que NO recolectamos:</LegalH3>
-      <LegalUl>
-        <li>
-          No solicitamos ni almacenamos contraseñas de jugadores (el sitio no requiere registro).
+          <LegalStrong>Interés legítimo</LegalStrong> del responsable en mantener un directorio de
+          canchas funcional, seguro y útil
         </li>
         <li>
-          No solicitamos datos de tarjetas de crédito ni información financiera (no procesamos
-          pagos).
-        </li>
-        <li>
-          No recolectamos datos sensibles como salud, religión, orientación sexual, ideología
-          política o afiliación sindical.
+          <LegalStrong>Cumplimiento de obligaciones legales</LegalStrong> aplicables
         </li>
       </LegalUl>
 
-      <LegalH2 id="para-que-usamos">3. Para qué usamos tu información</LegalH2>
-      <LegalUl>
-        <li>
-          <LegalStrong>Operar el directorio:</LegalStrong> publicar y mantener actualizadas las
-          fichas de los clubes y complejos.
-        </li>
-        <li>
-          <LegalStrong>Mejorar el sitio:</LegalStrong> entender qué buscan los usuarios y qué
-          contenido es más útil, en forma agregada y anónima.
-        </li>
-        <li>
-          <LegalStrong>Comunicarnos con vos:</LegalStrong> responder consultas, notificar sobre el
-          estado de una solicitud que enviaste.
-        </li>
-        <li>
-          <LegalStrong>Mostrar publicidad relevante:</LegalStrong> a través de Google AdSense, solo
-          si nos diste consentimiento explícito.
-        </li>
-        <li>
-          <LegalStrong>Cumplir obligaciones legales:</LegalStrong> responder a requerimientos de
-          autoridades cuando corresponda por ley.
-        </li>
-      </LegalUl>
-
-      <LegalH2 id="con-quien-compartimos">4. Con quién compartimos tu información</LegalH2>
+      <LegalH2 id="cookies">6. Cookies y tecnologías similares</LegalH2>
       <LegalP>
-        HayCancha trabaja con proveedores de servicios externos que pueden acceder a parte de tus
-        datos para realizar funciones específicas en nuestro nombre:
+        El Sitio utiliza cookies propias y de terceros. Las cookies son pequeños archivos de texto
+        que se almacenan en el dispositivo del usuario para diversos fines.
+      </LegalP>
+      <LegalH3>6.1. Tipos de cookies utilizadas</LegalH3>
+      <LegalP>
+        <LegalStrong>Cookies técnicas (necesarias):</LegalStrong> indispensables para el
+        funcionamiento del Sitio. No requieren consentimiento del usuario.
+      </LegalP>
+      <LegalP>
+        <LegalStrong>Cookies de análisis (Google Analytics 4):</LegalStrong> nos permiten analizar
+        el comportamiento de los visitantes de manera agregada y anónima. Los datos se procesan en
+        servidores de Google LLC (Estados Unidos).
+      </LegalP>
+      <LegalP>
+        <LegalStrong>Cookies publicitarias (Google AdSense):</LegalStrong> permiten a Google y a
+        sus socios mostrar publicidad personalizada al usuario, tanto dentro como fuera del Sitio,
+        basada en sus visitas previas. Esto incluye el uso de identificadores publicitarios y datos
+        de navegación.
+      </LegalP>
+      <LegalH3>6.2. Gestión de cookies</LegalH3>
+      <LegalP>
+        Al ingresar al Sitio por primera vez, se le presenta al usuario un banner de cookies donde
+        puede aceptar o rechazar el uso de cookies no necesarias. El usuario puede modificar sus
+        preferencias en cualquier momento.
+      </LegalP>
+      <LegalP>
+        Adicionalmente, el usuario puede gestionar y eliminar cookies directamente desde la
+        configuración de su navegador. Para más información:
       </LegalP>
       <LegalUl>
         <li>
-          <LegalStrong>Google LLC (Estados Unidos):</LegalStrong> Google Analytics 4 para análisis
-          de tráfico (datos anonimizados), Google AdSense para publicidad. Política:{" "}
-          <LegalA href="https://policies.google.com/privacy">https://policies.google.com/privacy</LegalA>
-        </li>
-        <li>
-          <LegalStrong>Cloudflare Inc. (Estados Unidos):</LegalStrong> CDN y protección contra
-          ataques. Política:{" "}
-          <LegalA href="https://www.cloudflare.com/privacypolicy/">
-            https://www.cloudflare.com/privacypolicy/
+          <LegalStrong>Google Chrome:</LegalStrong>{" "}
+          <LegalA href="https://support.google.com/chrome/answer/95647">
+            support.google.com/chrome/answer/95647
           </LegalA>
         </li>
         <li>
-          <LegalStrong>OpenStreetMap Foundation (Reino Unido):</LegalStrong> datos de mapas y
-          geocoding. Política:{" "}
-          <LegalA href="https://wiki.osmfoundation.org/wiki/Privacy_Policy">
-            https://wiki.osmfoundation.org/wiki/Privacy_Policy
+          <LegalStrong>Mozilla Firefox:</LegalStrong>{" "}
+          <LegalA href="https://support.mozilla.org/es/kb/cookies-informacion-que-los-sitios-web-guardan">
+            support.mozilla.org/es/kb/cookies-informacion-que-los-sitios-web-guardan
           </LegalA>
         </li>
         <li>
-          <LegalStrong>Resend (Estados Unidos):</LegalStrong> envío de emails transaccionales
-          (notificaciones a clubes que enviaron una solicitud). Política:{" "}
-          <LegalA href="https://resend.com/legal/privacy-policy">
-            https://resend.com/legal/privacy-policy
+          <LegalStrong>Safari:</LegalStrong>{" "}
+          <LegalA href="https://support.apple.com/es-es/HT201265">
+            support.apple.com/es-es/HT201265
           </LegalA>
         </li>
         <li>
-          <LegalStrong>Servidor propio:</LegalStrong> la información de las fichas de clubes se
-          almacena en nuestra base de datos PostgreSQL alojada en infraestructura propia ubicada en
-          [PAÍS_DEL_VPS].
+          <LegalStrong>Microsoft Edge:</LegalStrong>{" "}
+          <LegalA href="https://support.microsoft.com/es-es/microsoft-edge">
+            support.microsoft.com/es-es/microsoft-edge
+          </LegalA>
         </li>
       </LegalUl>
       <LegalP>
-        NO vendemos, alquilamos ni cedemos tus datos personales a terceros con fines comerciales.
-        NO compartimos información con redes sociales más allá de los botones de "compartir" que
-        actuás voluntariamente.
+        Para optar por no recibir publicidad personalizada de Google, el usuario puede visitar:{" "}
+        <LegalA href="https://adssettings.google.com">adssettings.google.com</LegalA>.
       </LegalP>
 
-      <LegalH2 id="cookies">5. Cookies y tecnologías similares</LegalH2>
-      <LegalP>Usamos cookies y almacenamiento local del navegador para:</LegalP>
-      <LegalH3>Cookies esenciales (no se pueden desactivar):</LegalH3>
-      <LegalUl>
-        <li>Recordar tus preferencias de visualización (vista mapa, grilla o lista).</li>
-        <li>Recordar tu decisión sobre el banner de cookies.</li>
-        <li>Mantener el funcionamiento del formulario "Agregá tu cancha".</li>
-      </LegalUl>
-      <LegalH3>Cookies de analítica (opcionales, requieren tu consentimiento):</LegalH3>
-      <LegalUl>
-        <li>Google Analytics 4: medir uso del sitio en forma anónima y agregada.</li>
-      </LegalUl>
-      <LegalH3>Cookies de publicidad (opcionales, requieren tu consentimiento):</LegalH3>
-      <LegalUl>
-        <li>
-          Google AdSense: mostrar anuncios y medir su efectividad. Si no consentís, igual podés ver
-          el sitio completo — solo no verás publicidad personalizada.
-        </li>
-      </LegalUl>
+      <LegalH2 id="terceros">7. Terceros con quienes compartimos datos</LegalH2>
       <LegalP>
-        Podés cambiar tus preferencias de cookies en cualquier momento desde el link "Configurar
-        cookies" en el footer.
+        Para operar el Sitio, compartimos datos con los siguientes proveedores:
+      </LegalP>
+      <div className="overflow-x-auto mb-4">
+        <table className="w-full text-[14px] border-collapse">
+          <thead>
+            <tr className="bg-light">
+              <th className="text-left font-bold text-dark border border-border px-3 py-2">
+                Proveedor
+              </th>
+              <th className="text-left font-bold text-dark border border-border px-3 py-2">
+                Finalidad
+              </th>
+              <th className="text-left font-bold text-dark border border-border px-3 py-2">
+                Ubicación de servidores
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-border px-3 py-2 font-semibold text-dark">
+                Contabo GmbH
+              </td>
+              <td className="border border-border px-3 py-2 text-dark">
+                Hosting del Sitio (servidor principal)
+              </td>
+              <td className="border border-border px-3 py-2 text-dark">
+                Alemania (Unión Europea)
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-border px-3 py-2 font-semibold text-dark">
+                Cloudflare, Inc.
+              </td>
+              <td className="border border-border px-3 py-2 text-dark">
+                CDN, seguridad y protección DDoS
+              </td>
+              <td className="border border-border px-3 py-2 text-dark">
+                Datacenters globales
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-border px-3 py-2 font-semibold text-dark">
+                Google LLC
+              </td>
+              <td className="border border-border px-3 py-2 text-dark">
+                Analytics (GA4) y publicidad (AdSense)
+              </td>
+              <td className="border border-border px-3 py-2 text-dark">Estados Unidos</td>
+            </tr>
+            <tr>
+              <td className="border border-border px-3 py-2 font-semibold text-dark">
+                OpenStreetMap Foundation
+              </td>
+              <td className="border border-border px-3 py-2 text-dark">Datos de mapas</td>
+              <td className="border border-border px-3 py-2 text-dark">Reino Unido</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <LegalP>
+        Cada uno de estos proveedores cuenta con sus propias políticas de privacidad. No
+        transferimos datos personales a terceros con fines comerciales fuera de los listados
+        anteriormente.
+      </LegalP>
+      <LegalH3>7.1. Transferencias internacionales de datos</LegalH3>
+      <LegalP>
+        Algunos de los proveedores mencionados procesan datos fuera de Argentina. P3GROUP S.A.
+        utiliza únicamente proveedores que ofrecen un nivel adecuado de protección de datos,
+        conforme a los estándares internacionales y a la normativa argentina aplicable.
       </LegalP>
 
-      <LegalH2 id="tus-derechos">6. Tus derechos</LegalH2>
+      <LegalH2 id="derechos">8. Derechos del titular de los datos</LegalH2>
       <LegalP>
-        Independientemente del país donde residas, tenés los siguientes derechos sobre tus datos
-        personales:
-      </LegalP>
-      <LegalUl>
-        <li>
-          <LegalStrong>Acceso:</LegalStrong> saber qué información tenemos sobre vos.
-        </li>
-        <li>
-          <LegalStrong>Rectificación:</LegalStrong> corregir información inexacta o incompleta.
-        </li>
-        <li>
-          <LegalStrong>Eliminación:</LegalStrong> pedir que eliminemos tus datos (sujeto a
-          obligaciones legales de retención).
-        </li>
-        <li>
-          <LegalStrong>Oposición:</LegalStrong> oponerte al tratamiento de tus datos para fines
-          específicos.
-        </li>
-        <li>
-          <LegalStrong>Portabilidad:</LegalStrong> recibir una copia de tus datos en formato
-          estructurado.
-        </li>
-        <li>
-          <LegalStrong>Revocar consentimiento:</LegalStrong> retirar el consentimiento que hayas
-          dado, en cualquier momento.
-        </li>
-      </LegalUl>
-      <LegalP>
-        Para ejercer cualquiera de estos derechos, escribinos a{" "}
-        <LegalA href="mailto:privacidad@haycancha.com">privacidad@haycancha.com</LegalA> con tu
-        solicitud. Respondemos dentro de los 10 días hábiles.
-      </LegalP>
-
-      <LegalH2 id="retencion">7. Retención de datos</LegalH2>
-      <LegalUl>
-        <li>
-          <LegalStrong>Información del formulario "Agregá tu cancha"</LegalStrong> (datos del
-          club): se mantiene mientras el club esté publicado en el directorio. Si el club nos
-          solicita ser dado de baja, eliminamos la ficha en un plazo de 30 días hábiles.
-        </li>
-        <li>
-          <LegalStrong>Datos de contacto del solicitante</LegalStrong> (nombre, email del
-          responsable que cargó el club): se mantienen por 24 meses desde el último contacto, a
-          fines de soporte.
-        </li>
-        <li>
-          <LegalStrong>Datos de analítica anónimos:</LegalStrong> retenidos por 14 meses (estándar
-          de Google Analytics).
-        </li>
-        <li>
-          <LegalStrong>Logs técnicos del servidor:</LegalStrong> rotados cada 90 días.
-        </li>
-      </LegalUl>
-
-      <LegalH2 id="menores">8. Menores de edad</LegalH2>
-      <LegalP>
-        HayCancha no está dirigido a menores de 16 años. No recolectamos a sabiendas datos
-        personales de menores. Si sos padre/madre/tutor y creés que tu hijo/a nos proporcionó
-        información, escribinos y la eliminaremos.
-      </LegalP>
-
-      <LegalH2 id="transferencia">9. Transferencia internacional de datos</LegalH2>
-      <LegalP>
-        Algunos de nuestros proveedores (Google, Cloudflare, Resend) están ubicados fuera de
-        Latinoamérica, principalmente en Estados Unidos. Estas empresas se adhieren a marcos de
-        transferencia internacional de datos reconocidos (Cláusulas Contractuales Estándar,
-        certificación Data Privacy Framework de la UE, etc.).
-      </LegalP>
-
-      <LegalH2 id="cambios">10. Cambios a esta política</LegalH2>
-      <LegalP>
-        Podemos actualizar esta política periódicamente. Cuando hagamos cambios significativos, te
-        avisaremos:
+        Como titular de los datos personales, el usuario tiene derecho a:
       </LegalP>
       <LegalUl>
-        <li>Publicando un aviso en la home del sitio durante al menos 14 días.</li>
-        <li>Actualizando la fecha de "Última actualización" arriba.</li>
+        <li>
+          <LegalStrong>Acceso:</LegalStrong> conocer qué datos personales suyos tratamos
+        </li>
+        <li>
+          <LegalStrong>Rectificación:</LegalStrong> solicitar la corrección de datos inexactos o
+          incompletos
+        </li>
+        <li>
+          <LegalStrong>Supresión:</LegalStrong> solicitar la eliminación de sus datos cuando ya no
+          sean necesarios
+        </li>
+        <li>
+          <LegalStrong>Oposición:</LegalStrong> oponerse al tratamiento de sus datos por motivos
+          legítimos
+        </li>
+        <li>
+          <LegalStrong>Portabilidad:</LegalStrong> recibir sus datos en un formato estructurado y
+          reutilizable
+        </li>
+        <li>
+          <LegalStrong>Retiro del consentimiento:</LegalStrong> revocar el consentimiento prestado
+          en cualquier momento, sin efecto retroactivo
+        </li>
       </LegalUl>
-
-      <LegalH2 id="contacto">11. Contacto</LegalH2>
       <LegalP>
-        Si tenés preguntas sobre esta política o sobre cómo manejamos tus datos:
+        Para ejercer cualquiera de estos derechos, el usuario puede contactarnos a{" "}
+        <LegalA href="mailto:legales@p3design.com">legales@p3design.com</LegalA>. Responderemos en
+        un plazo máximo de <LegalStrong>10 días hábiles</LegalStrong> desde la recepción de la
+        solicitud.
       </LegalP>
       <LegalP>
-        Email: <LegalA href="mailto:privacidad@haycancha.com">privacidad@haycancha.com</LegalA>
+        Asimismo, el usuario tiene derecho a presentar denuncias ante la{" "}
+        <LegalStrong>Agencia de Acceso a la Información Pública (AAIP)</LegalStrong>, autoridad de
+        control en materia de protección de datos personales en Argentina. Más información:{" "}
+        <LegalA href="https://www.argentina.gob.ar/aaip">www.argentina.gob.ar/aaip</LegalA>.
+      </LegalP>
+
+      <LegalH2 id="conservacion">9. Plazo de conservación</LegalH2>
+      <LegalP>
+        Conservamos los datos personales durante el tiempo necesario para cumplir con las
+        finalidades para las que fueron recolectados, y por los plazos legales aplicables.
+      </LegalP>
+      <LegalUl>
+        <li>
+          <LegalStrong>Datos de formularios de contacto:</LegalStrong> hasta 24 meses desde el
+          último contacto
+        </li>
+        <li>
+          <LegalStrong>Datos de sugerencias de clubes:</LegalStrong> mientras el club permanezca en
+          el directorio
+        </li>
+        <li>
+          <LegalStrong>Datos de análisis (GA4):</LegalStrong> conforme a la configuración por
+          defecto de Google Analytics 4 (hasta 14 meses)
+        </li>
+        <li>
+          <LegalStrong>Logs del servidor:</LegalStrong> hasta 30 días
+        </li>
+      </LegalUl>
+
+      <LegalH2 id="seguridad">10. Seguridad de los datos</LegalH2>
+      <LegalP>
+        Implementamos medidas técnicas y organizativas razonables para proteger los datos personales
+        contra accesos no autorizados, pérdida, alteración o divulgación. Estas medidas incluyen:
+      </LegalP>
+      <LegalUl>
+        <li>Conexiones cifradas (HTTPS/TLS)</li>
+        <li>Tokens de autenticación para acceso administrativo</li>
+        <li>Backups periódicos</li>
+        <li>Acceso restringido al panel de administración por roles</li>
+        <li>Monitoreo de actividad sospechosa a través de Cloudflare</li>
+      </LegalUl>
+      <LegalP>
+        Sin embargo, ningún sistema informático es 100% seguro. En caso de incidente de seguridad
+        que afecte los datos personales del usuario, notificaremos al usuario y a la AAIP conforme
+        a la normativa aplicable.
+      </LegalP>
+
+      <LegalH2 id="modificaciones">11. Modificaciones a esta política</LegalH2>
+      <LegalP>
+        Nos reservamos el derecho de modificar esta Política de Privacidad en cualquier momento.
+        Cuando hagamos cambios significativos, lo notificaremos mediante un aviso en el Sitio o por
+        email a los usuarios registrados.
+      </LegalP>
+      <LegalP>
+        La fecha de "Última actualización" al inicio del documento refleja la versión vigente.
+      </LegalP>
+
+      <LegalH2 id="contacto">12. Contacto</LegalH2>
+      <LegalP>
+        Para consultas, solicitudes o reclamos relacionados con esta Política de Privacidad o con
+        el tratamiento de tus datos personales, contactanos a:
+      </LegalP>
+      <LegalP>
+        <LegalStrong>Email:</LegalStrong>{" "}
+        <LegalA href="mailto:legales@p3design.com">legales@p3design.com</LegalA>
         <br />
-        Domicilio: [DOMICILIO_LEGAL]
-      </LegalP>
-      <LegalP>
-        Si estás en Argentina, tenés derecho a presentar reclamos ante la Agencia de Acceso a la
-        Información Pública (AAIP) —{" "}
-        <LegalA href="https://www.argentina.gob.ar/aaip">www.argentina.gob.ar/aaip</LegalA>
-        <br />
-        Si estás en otros países LATAM, podés acudir a la autoridad de protección de datos
-        correspondiente de tu jurisdicción.
+        <LegalStrong>Domicilio postal:</LegalStrong> P3GROUP S.A., Basavilbaso 1350, CABA, Argentina
       </LegalP>
     </LegalPageLayout>
   );

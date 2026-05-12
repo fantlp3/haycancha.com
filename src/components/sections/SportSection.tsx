@@ -1,17 +1,17 @@
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHomeStats } from "@/hooks/useClubes";
+import { SportIcon } from "@/components/ui/SportIcon";
 
 const nfAR = new Intl.NumberFormat("es-AR");
 
 interface SportCardProps {
-  emoji: string;
   title: string;
   count: string;
   variant: "tenis" | "padel" | "pickleball";
 }
 
-const SportCard = ({ emoji, title, count, variant }: SportCardProps) => {
+const SportCard = ({ title, count, variant }: SportCardProps) => {
   const dark = variant === "tenis";
   const accent =
     variant === "tenis" ? "border-l-yellow" : variant === "padel" ? "border-l-celeste" : "border-l-lime";
@@ -28,7 +28,10 @@ const SportCard = ({ emoji, title, count, variant }: SportCardProps) => {
         dark ? "bg-dark text-white" : "bg-white border border-border text-dark hover:shadow-card-hover"
       )}
     >
-      <div className="text-5xl leading-none mb-6">{emoji}</div>
+      {/* TODO: revisar size si se ve chico */}
+      <div className="mb-6">
+        <SportIcon sport={variant} size={20} />
+      </div>
       <h3 className={cn("font-display text-[36px] leading-none", dark ? "text-white" : "text-dark")}>
         {title}
       </h3>
@@ -59,9 +62,9 @@ export const SportSection = () => {
       <div className="max-w-container mx-auto px-6 lg:px-10 space-y-10">
         <div className="section-divider">Encontrá por deporte</div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <SportCard emoji="🎾" title="TENIS" count={fmt(countsBySport?.tenis)} variant="tenis" />
-          <SportCard emoji="🏓" title="PÁDEL" count={fmt(countsBySport?.padel)} variant="padel" />
-          <SportCard emoji="🏸" title="PICKLEBALL" count={fmt(countsBySport?.pickleball)} variant="pickleball" />
+          <SportCard title="TENIS" count={fmt(countsBySport?.tenis)} variant="tenis" />
+          <SportCard title="PÁDEL" count={fmt(countsBySport?.padel)} variant="padel" />
+          <SportCard title="PICKLEBALL" count={fmt(countsBySport?.pickleball)} variant="pickleball" />
         </div>
       </div>
     </section>

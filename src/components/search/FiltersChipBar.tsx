@@ -1,14 +1,15 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, X } from "lucide-react";
+import { SportIcon } from "@/components/ui/SportIcon";
 import { cn } from "@/lib/utils";
 import { LATAM_COUNTRIES, countrySlugToName } from "@/lib/geo";
 import type { FiltersState } from "./FiltersPanel";
 
-const SPORTS = [
-  { id: "tenis", label: "🎾 Tenis" },
-  { id: "padel", label: "🏓 Pádel" },
-  { id: "pickleball", label: "🏸 Pickleball" },
+const SPORTS: { id: "tenis" | "padel" | "pickleball"; icon?: ReactNode; label: string }[] = [
+  { id: "tenis", icon: <SportIcon sport="tenis" size={18} />, label: "Tenis" },
+  { id: "padel", icon: <SportIcon sport="padel" size={18} />, label: "Pádel" },
+  { id: "pickleball", icon: <SportIcon sport="pickleball" size={18} />, label: "Pickleball" },
 ];
 const SORTS = ["Relevancia", "Más cercano", "Nombre A-Z", "Más canchas"];
 
@@ -143,6 +144,7 @@ export const FiltersChipBar = ({
             active={value.sports.includes(s.id)}
             onClick={() => toggleSport(s.id)}
           >
+            {s.icon}
             {s.label}
           </Chip>
         ))}

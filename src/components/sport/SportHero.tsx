@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { SportIcon } from "@/components/ui/SportIcon";
 import { cn } from "@/lib/utils";
 import type { SportConfig } from "@/lib/sports";
 
@@ -21,7 +22,8 @@ export const SportHero = ({ sport }: Props) => {
         <div className="grid lg:grid-cols-[60fr_40fr] gap-10 lg:gap-16 items-center">
           {/* Left */}
           <div className="space-y-6 lg:space-y-7">
-            <p className={cn("text-[11px] font-semibold uppercase tracking-[3px]", text)}>
+            <p className={cn("text-[11px] font-semibold uppercase tracking-[3px] inline-flex items-center gap-2", text)}>
+              <SportIcon sport={sport.key} size={26} />
               {sport.eyebrow}
             </p>
             <h1 className="font-display text-white leading-[0.85] text-[72px] md:text-[96px] lg:text-[120px]">
@@ -48,7 +50,7 @@ export const SportHero = ({ sport }: Props) => {
                 )}
                 aria-label={`Filtrando por ${sport.ofName}`}
               >
-                {sport.emoji} {sport.name}
+                <SportIcon sport={sport.key} size={14} /> {sport.name}
               </span>
               <div className="flex-1 flex items-center gap-2 min-w-0">
                 <Search size={18} className="text-orange shrink-0" />
@@ -76,8 +78,8 @@ export const SportHero = ({ sport }: Props) => {
                 background: `linear-gradient(135deg, ${sport.hex}22 0%, transparent 70%), hsl(var(--dark-2))`,
               }}
             >
+              {/* TODO Y2: reemplazar placeholder por foto real */}
               <div className="text-center">
-                <div className="text-[120px] leading-none mb-4">{sport.emoji}</div>
                 <div className={cn("text-[11px] font-semibold uppercase tracking-[3px]", text)}>
                   [{sport.ofName} image]
                 </div>

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Search, MapPin } from "lucide-react";
 import argentinaMap from "@/assets/argentina-map.jpg";
 import { useClubStats } from "@/hooks/useClubes";
+import { SportIcon } from "@/components/ui/SportIcon";
 import { StatsStrip } from "./StatsStrip";
 
 const nfAR = new Intl.NumberFormat("es-AR");
@@ -44,8 +45,9 @@ export const Hero = () => {
         <div className="grid lg:grid-cols-[60fr_40fr] gap-12 lg:gap-16 items-center w-full">
           {/* Left */}
           <div className="space-y-6 lg:space-y-8">
-            <p className="label-meta uppercase text-orange tracking-[3px]">
-              🎾 El directorio de tenis de Latinoamérica
+            <p className="label-meta uppercase text-orange tracking-[3px] inline-flex items-center gap-2">
+              <SportIcon sport="tenis" size={26} />
+              El directorio de tenis de Latinoamérica
             </p>
             <h1 className="font-display text-white text-[56px] md:text-[72px] lg:text-[80px] leading-[0.9]">
               ENCONTRÁ<br />

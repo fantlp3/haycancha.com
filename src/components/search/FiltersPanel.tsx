@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { CtaButton } from "@/components/brand/CtaButton";
+import { SportIcon } from "@/components/ui/SportIcon";
 import { cn } from "@/lib/utils";
 import { LATAM_COUNTRIES } from "@/lib/geo";
 
-const sports = [
-  { id: "tenis", emoji: "🎾", label: "Tenis", active: "bg-yellow border-yellow text-dark" },
-  { id: "padel", emoji: "🏓", label: "Pádel", active: "bg-celeste border-celeste text-dark" },
-  { id: "pickleball", emoji: "🏸", label: "Pickleball", active: "bg-lime border-lime text-white" },
+const sports: { id: "tenis" | "padel" | "pickleball"; label: string; active: string }[] = [
+  { id: "tenis", label: "Tenis", active: "bg-yellow border-yellow text-dark" },
+  { id: "padel", label: "Pádel", active: "bg-celeste border-celeste text-dark" },
+  { id: "pickleball", label: "Pickleball", active: "bg-lime border-lime text-white" },
 ];
 
 // TODO: surface options are hardcoded. Move to a config or a Directus enum
@@ -147,7 +148,7 @@ export const FiltersPanel = ({
                   isActive ? s.active : "bg-light border-border text-dark hover:border-orange/40"
                 )}
               >
-                <span>{s.emoji}</span> {s.label}
+                <SportIcon sport={s.id} size={18} /> {s.label}
               </button>
             );
           })}

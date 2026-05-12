@@ -22,7 +22,6 @@ export interface SportConfig {
   name: string;
   /** Genitive form for "canchas de X". */
   ofName: string;
-  emoji: string;
   /** Tailwind color name from theme (orange|yellow|celeste|lime). */
   color: "yellow" | "celeste" | "lime";
   /** Hex equivalent — used for inline tinted backgrounds (rgba over light). */
@@ -45,13 +44,12 @@ export const SPORTS: Record<SportKey, SportConfig> = {
     key: "tenis",
     name: "TENIS",
     ofName: "tenis",
-    emoji: "🎾",
     color: "yellow",
     hex: "#E7E242",
     taglineWord: "perfecta",
     subtitle:
       "Encontrá clubes de tenis en toda Latinoamérica. Polvo de ladrillo, cemento, sintético, indoor y outdoor — sin intermediarios.",
-    eyebrow: "🎾 EL DIRECTORIO DE TENIS DE LATINOAMÉRICA",
+    eyebrow: "EL DIRECTORIO DE TENIS DE LATINOAMÉRICA",
     meta: {
       title: "Canchas de tenis en Latinoamérica · HayCancha",
       description:
@@ -104,13 +102,12 @@ export const SPORTS: Record<SportKey, SportConfig> = {
     key: "padel",
     name: "PÁDEL",
     ofName: "pádel",
-    emoji: "🏓",
     color: "celeste",
     hex: "#5DB8D4",
     taglineWord: "indoor",
     subtitle:
       "Encontrá clubes de pádel en toda Latinoamérica. Indoor y outdoor, cristal panorámico, redes reglamentarias.",
-    eyebrow: "🏓 EL DIRECTORIO DE PÁDEL DE LATINOAMÉRICA",
+    eyebrow: "EL DIRECTORIO DE PÁDEL DE LATINOAMÉRICA",
     meta: {
       title: "Canchas de pádel en Latinoamérica · HayCancha",
       description:
@@ -163,13 +160,12 @@ export const SPORTS: Record<SportKey, SportConfig> = {
     key: "pickleball",
     name: "PICKLEBALL",
     ofName: "pickleball",
-    emoji: "🏸",
     color: "lime",
     hex: "#84CC16",
     taglineWord: "amateur",
     subtitle:
       "Encontrá clubes de pickleball en toda Latinoamérica — el deporte amateur de mayor crecimiento en la región.",
-    eyebrow: "🏸 EL DIRECTORIO DE PICKLEBALL DE LATINOAMÉRICA",
+    eyebrow: "EL DIRECTORIO DE PICKLEBALL DE LATINOAMÉRICA",
     meta: {
       title: "Canchas de pickleball en Latinoamérica · HayCancha",
       description:

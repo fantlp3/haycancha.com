@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { LocationPicker } from "@/components/agregar/LocationPicker";
 import { PhotoUploader, type UploadedPhoto } from "@/components/agregar/PhotoUploader";
 import { Combobox } from "@/components/agregar/Combobox";
+import { SportIcon } from "@/components/ui/SportIcon";
 import {
   COUNTRIES_FORM,
   provinceLabel,
@@ -405,8 +406,9 @@ const AgregarCanchaPage = () => {
           }}
         />
         <div className="relative max-w-container mx-auto px-6 lg:px-10 py-16 lg:py-20">
-          <p className="font-semibold text-[11px] uppercase tracking-[3px] text-orange mb-4">
-            🎾 Sumá tu complejo al directorio
+          <p className="font-semibold text-[11px] uppercase tracking-[3px] text-orange mb-4 inline-flex items-center gap-2">
+            <SportIcon sport="tenis" size={26} />
+            Sumá tu complejo al directorio
           </p>
           <h1 className="font-display text-white text-[44px] md:text-[64px] leading-[0.95]">
             AGREGÁ TU CANCHA
@@ -542,11 +544,11 @@ const AgregarCanchaPage = () => {
                     Deportes ofrecidos <span className="text-orange">*</span>
                   </legend>
                   <div className="flex flex-wrap gap-2">
-                    {[
-                      { k: "tenis", emoji: "🎾", l: "Tenis" },
-                      { k: "padel", emoji: "🏓", l: "Pádel" },
-                      { k: "pickleball", emoji: "🏸", l: "Pickleball" },
-                    ].map((s) => {
+                    {([
+                      { k: "tenis", l: "Tenis" },
+                      { k: "padel", l: "Pádel" },
+                      { k: "pickleball", l: "Pickleball" },
+                    ] as const).map((s) => {
                       const checked = data.deportes[s.k as keyof FormData["deportes"]];
                       return (
                         <label
@@ -566,7 +568,7 @@ const AgregarCanchaPage = () => {
                             }
                             className="sr-only"
                           />
-                          <span>{s.emoji}</span> {s.l}
+                          <SportIcon sport={s.k} size={14} /> {s.l}
                         </label>
                       );
                     })}

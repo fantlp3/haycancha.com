@@ -1,0 +1,33 @@
+{
+  "name": "HayCancha.com",
+  "short_name": "HayCancha",
+  "description": "El directorio de canchas de tenis, pádel y pickleball de Latinoamérica.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F97316",
+  "theme_color": "#F97316",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "lang": "es",
+  "categories": ["sports", "lifestyle"]
+}

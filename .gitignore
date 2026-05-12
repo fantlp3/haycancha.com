@@ -25,3 +25,4 @@ dist-ssr
 
 # Import pipeline secrets
 scripts/import/.env
+scripts/import/

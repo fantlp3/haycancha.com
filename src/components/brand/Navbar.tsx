@@ -1,6 +1,8 @@
+import { useMemo } from "react";
+import { withDefaultView } from "@/lib/view-mode";
 import { Logo } from "./Logo";
 
-const links = [
+const baseLinks = [
   { label: "Buscar canchas", href: "/canchas", hover: "hover:text-orange" },
   { label: "Mapa", href: "/canchas?view=map", hover: "hover:text-orange" },
   { label: "Tenis", href: "/tenis", hover: "hover:text-yellow" },
@@ -9,6 +11,16 @@ const links = [
 ];
 
 export const Navbar = () => {
+  // "Buscar canchas" gets its default view (grid/list) injected once at mount.
+  // "Mapa" already pins view=map, so withDefaultView leaves it alone.
+  const links = useMemo(
+    () =>
+      baseLinks.map((l) =>
+        l.href.startsWith("/canchas") ? { ...l, href: withDefaultView(l.href) } : l
+      ),
+    []
+  );
+
   return (
     <header className="sticky top-0 z-[1000] bg-dark border-b border-white/10">
       <div className="max-w-container mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between">

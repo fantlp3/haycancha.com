@@ -1,9 +1,10 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin } from "lucide-react";
 import { useClubStats } from "@/hooks/useClubes";
 import { SportIcon } from "@/components/ui/SportIcon";
 import { HeroRotator } from "@/components/hero/HeroRotator";
+import { getDefaultView, withDefaultView } from "@/lib/view-mode";
 import { StatsStrip } from "./StatsStrip";
 
 const nfAR = new Intl.NumberFormat("es-AR");
@@ -29,8 +30,16 @@ export const Hero = () => {
     e.preventDefault();
     const v = searchValue.trim();
     if (!v) return;
-    navigate(`/canchas?q=${encodeURIComponent(v)}`);
+    navigate(`/canchas?q=${encodeURIComponent(v)}&view=${getDefaultView()}`);
   };
+
+  // Resolved once at mount so chip hrefs are device-appropriate without
+  // recomputing on every re-render. Re-mounting on viewport rotation is rare
+  // enough that we don't subscribe to matchMedia changes here.
+  const chipsWithView = useMemo(
+    () => quickChips.map((c) => ({ ...c, href: withDefaultView(c.href) })),
+    []
+  );
 
   const totalCanchas = stats?.total ?? 0;
 
@@ -91,7 +100,7 @@ export const Hero = () => {
 
             {/* Chips — horizontal scroll on mobile, wrap on desktop */}
             <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-visible flex-nowrap -mx-6 px-6 md:mx-0 md:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-              {quickChips.map((c) => (
+              {chipsWithView.map((c) => (
                 <a
                   key={c.label}
                   href={c.href}

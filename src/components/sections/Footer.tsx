@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { openCookiePreferences } from "@/lib/cookie-consent";
+import { withDefaultView } from "@/lib/view-mode";
 
 interface FooterLink {
   label: string;
@@ -49,8 +51,21 @@ const cols: FooterCol[] = [
   },
 ];
 
-export const Footer = () => (
-  <footer style={{ backgroundColor: "#1A1B22" }} className="text-white/60">
+export const Footer = () => {
+  // Inject device-default view into any /canchas href once at mount.
+  const resolvedCols = useMemo(
+    () =>
+      cols.map((col) => ({
+        ...col,
+        links: col.links.map((l) =>
+          l.href && l.href.startsWith("/canchas") ? { ...l, href: withDefaultView(l.href) } : l
+        ),
+      })),
+    []
+  );
+
+  return (
+    <footer style={{ backgroundColor: "#1A1B22" }} className="text-white/60">
     <div className="max-w-container mx-auto px-6 lg:px-10 py-12 md:py-14">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-10">
         <div className="col-span-2 md:col-span-1 space-y-3">
@@ -59,7 +74,7 @@ export const Footer = () => (
             El directorio de tenis de Latinoamérica.
           </p>
         </div>
-        {cols.map((col) => (
+        {resolvedCols.map((col) => (
           <div key={col.title}>
             <div className="label-meta uppercase text-orange mb-4">{col.title}</div>
             <ul className="space-y-2.5">
@@ -108,4 +123,5 @@ export const Footer = () => (
       </div>
     </div>
   </footer>
-);
+  );
+};

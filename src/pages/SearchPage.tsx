@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { AdSlot } from "@/components/brand/AdSlot";
 import { countrySlugToName, countryNameToSlug } from "@/lib/geo";
 import { filterClubs } from "@/lib/filter";
+import { getDefaultView } from "@/lib/view-mode";
 import {
   useAllClubes,
   useClubesByPais,
@@ -33,7 +34,6 @@ const DEFAULT_FILTERS: FiltersState = {
   country: "Todos los países",
 };
 
-const VIEW_STORAGE_KEY = "haycancha:search:view";
 const VIEW_LABELS: Record<ViewMode, string> = {
   map: "mapa",
   grid: "grilla",
@@ -59,15 +59,13 @@ const SearchPage = () => {
 
   const initialCountry = pais ? countrySlugToName(pais) : "Todos los países";
 
-  // View mode: URL > localStorage > "map"
+  // View mode: URL > device default (grid on md+, list otherwise).
+  // No localStorage — the URL is the single source of truth so links are
+  // shareable and the back/forward buttons restore the prior view.
   const initialView: ViewMode = useMemo(() => {
     const fromUrl = params.get("view");
     if (isViewMode(fromUrl)) return fromUrl;
-    if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
-      if (isViewMode(stored)) return stored;
-    }
-    return "map";
+    return getDefaultView();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -85,15 +83,14 @@ const SearchPage = () => {
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Persist view to URL + localStorage
+  // Persist view to URL only. All three modes carry an explicit ?view= so
+  // /canchas with no param falls back to the device default (grid/list).
   const handleViewChange = (next: ViewMode) => {
     if (next === view) return;
     setTransitioning(true);
     setView(next);
-    window.localStorage.setItem(VIEW_STORAGE_KEY, next);
     const sp = new URLSearchParams(params);
-    if (next === "map") sp.delete("view");
-    else sp.set("view", next);
+    sp.set("view", next);
     setParams(sp, { replace: true });
     // Reset scroll to top of results area
     requestAnimationFrame(() => {

@@ -1,7 +1,10 @@
+import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { SportIcon } from "@/components/ui/SportIcon";
 import { HeroRotator } from "@/components/hero/HeroRotator";
 import { cn } from "@/lib/utils";
+import { getDefaultView } from "@/lib/view-mode";
 import type { SportConfig } from "@/lib/sports";
 
 interface Props {
@@ -10,6 +13,20 @@ interface Props {
 
 export const SportHero = ({ sport }: Props) => {
   const text = `text-${sport.color}`;
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const params = new URLSearchParams({
+      deporte: sport.key,
+      view: getDefaultView(),
+    });
+    const v = searchValue.trim();
+    if (v) params.set("q", v);
+    navigate(`/canchas?${params.toString()}`);
+  };
+
   return (
     <HeroRotator deporte={sport.key} overlayGradient="left">
       <div className="max-w-container mx-auto px-6 lg:px-10 py-16 md:py-20 lg:py-24">
@@ -30,11 +47,9 @@ export const SportHero = ({ sport }: Props) => {
           {/* Search bar with locked sport chip */}
           <form
             id="sport-hero-search"
-            action="/canchas"
-            method="get"
+            onSubmit={handleSubmit}
             className="bg-white rounded-lg p-2 flex items-center gap-2 max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
           >
-            <input type="hidden" name="deporte" value={sport.key} />
             <span
               className={cn(
                 "shrink-0 inline-flex items-center gap-1 h-9 px-3 rounded-md text-[12px] font-semibold uppercase tracking-wider text-dark",
@@ -47,8 +62,9 @@ export const SportHero = ({ sport }: Props) => {
             <div className="flex-1 flex items-center gap-2 min-w-0">
               <Search size={18} className="text-orange shrink-0" />
               <input
-                name="q"
                 type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="Barrio, ciudad o nombre del club..."
                 className="w-full h-10 md:h-11 bg-transparent border-0 outline-none text-dark placeholder:text-gray text-[14px] font-medium min-w-0"
               />

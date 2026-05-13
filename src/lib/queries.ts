@@ -96,7 +96,7 @@ export async function fetchClubesByPais(paisSlug: string): Promise<ClubCard[]> {
 // ============================================
 // LIST: all active clubes (top-level /canchas)
 // ============================================
-export async function fetchAllClubes(limit = 200): Promise<ClubCard[]> {
+export async function fetchAllClubes(limit = -1): Promise<ClubCard[]> {
   const result = await directus.request(
     readItems("clubes", {
       fields: [

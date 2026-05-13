@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, MapPin } from "lucide-react";
 import { useClubStats } from "@/hooks/useClubes";
 import { SportIcon } from "@/components/ui/SportIcon";
@@ -17,10 +18,19 @@ const quickChips: { label: string; href: string }[] = [
 
 export const Hero = () => {
   const { data: stats, isLoading: statsLoading, isError: statsError, error: statsErr } = useClubStats();
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     if (statsError) console.error("[Hero] stats error:", statsErr, (statsErr as any)?.errors, (statsErr as any)?.response);
   }, [statsError, statsErr]);
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const v = searchValue.trim();
+    if (!v) return;
+    navigate(`/canchas?q=${encodeURIComponent(v)}`);
+  };
 
   const totalCanchas = stats?.total ?? 0;
 
@@ -49,30 +59,43 @@ export const Hero = () => {
             </p>
 
             {/* Search */}
-            <div className="bg-white rounded-lg p-2 flex items-center gap-2 max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow">
+            <form
+              id="home-search"
+              onSubmit={handleSubmit}
+              className="bg-white rounded-lg p-2 flex items-center gap-2 max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
+            >
               <div className="flex-1 flex items-center gap-3 pl-3">
                 <Search size={20} className="text-orange shrink-0" />
                 <input
                   type="text"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
                   placeholder="Barrio, ciudad o nombre del club..."
                   className="w-full h-10 md:h-12 bg-transparent border-0 outline-none text-dark placeholder:text-gray text-[15px] font-medium"
                 />
               </div>
-              <button className="hidden sm:inline-flex items-center justify-center h-10 md:h-12 px-6 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition">
+              <button
+                type="submit"
+                className="hidden md:inline-flex items-center justify-center h-10 md:h-12 px-6 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition"
+              >
                 Buscar
               </button>
-            </div>
-            <button className="sm:hidden w-full h-[52px] bg-orange text-white font-bold text-[16px] uppercase tracking-[1px] rounded-md hover:brightness-90 transition">
+            </form>
+            <button
+              type="submit"
+              form="home-search"
+              className="md:hidden w-full h-[52px] bg-orange text-white font-bold text-[16px] uppercase tracking-[1px] rounded-md hover:brightness-90 transition"
+            >
               Buscar
             </button>
 
             {/* Chips — horizontal scroll on mobile, wrap on desktop */}
-            <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-visible flex-nowrap -mx-6 px-6 md:mx-0 md:px-0 scrollbar-none">
+            <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-visible flex-nowrap -mx-6 px-6 md:mx-0 md:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {quickChips.map((c) => (
                 <a
                   key={c.label}
                   href={c.href}
-                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 text-white/90 text-[13px] font-medium border border-transparent hover:opacity-100 hover:border-orange hover:text-white transition whitespace-nowrap"
+                  className="shrink-0 inline-flex items-center gap-1.5 px-4 min-h-[44px] md:min-h-0 md:py-1.5 rounded-full bg-white/15 text-white/90 text-[13px] font-medium border border-transparent hover:opacity-100 hover:border-orange hover:text-white transition whitespace-nowrap"
                 >
                   <MapPin size={13} className="text-orange" />
                   {c.label}

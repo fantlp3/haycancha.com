@@ -1,21 +1,31 @@
 import { SearchX, Plus } from "lucide-react";
 
-export const EmptyState = ({ onClear }: { onClear: () => void }) => (
+interface Props {
+  onClear: () => void;
+  /** When set, the empty state is framed as a "no matches for this search" instead of a generic filter-mismatch. */
+  query?: string;
+}
+
+export const EmptyState = ({ onClear, query }: Props) => (
   <div className="p-10 text-center">
     <div className="w-16 h-16 mx-auto rounded-full bg-light flex items-center justify-center text-gray mb-4">
       <SearchX size={28} />
     </div>
     <h3 className="font-semibold text-[15px] text-dark">
-      No encontramos canchas con esos filtros
+      {query
+        ? <>No se encontraron clubes que coincidan con &ldquo;{query}&rdquo;</>
+        : "No encontramos canchas con esos filtros"}
     </h3>
     <p className="text-[13px] text-gray mt-1.5 max-w-xs mx-auto">
-      Intentá ampliar la zona de búsqueda o cambiar los filtros.
+      {query
+        ? "Probá con otra palabra o explorá las ciudades populares."
+        : "Intentá ampliar la zona de búsqueda o cambiar los filtros."}
     </p>
     <button
       onClick={onClear}
       className="mt-5 inline-flex items-center justify-center px-5 py-2 rounded-md bg-orange text-white text-[12px] font-semibold uppercase tracking-wider hover:brightness-90 transition"
     >
-      Limpiar filtros
+      {query ? "Limpiar búsqueda" : "Limpiar filtros"}
     </button>
 
     {/* Permanent UGC banner */}

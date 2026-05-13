@@ -125,7 +125,7 @@ export const HeroRotator = ({
       {/* Unsplash attribution */}
       {current && (
         <div
-          className="absolute bottom-2 right-2 z-20 bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-white/80 text-xs transition-opacity ease-in-out"
+          className="absolute top-2 right-2 md:top-auto md:bottom-2 z-20 bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-white/80 text-xs transition-opacity ease-in-out"
           style={{ transitionDuration: `${FADE_MS}ms` }}
         >
           Foto de{" "}

@@ -7,6 +7,7 @@ import { FiltersPanel, type FiltersState } from "@/components/search/FiltersPane
 import { ResultCard, ResultCardSkeleton } from "@/components/search/ResultCard";
 import { MapView } from "@/components/search/MapView";
 import { EmptyState } from "@/components/search/EmptyState";
+import { SearchQueryChip } from "@/components/search/SearchQueryChip";
 import { Breadcrumb } from "@/components/search/Breadcrumb";
 import { ViewToggle, type ViewMode } from "@/components/search/ViewToggle";
 import { GridView } from "@/components/search/GridView";
@@ -72,7 +73,8 @@ const SearchPage = () => {
   const [view, setView] = useState<ViewMode>(initialView);
   const [transitioning, setTransitioning] = useState(false);
 
-  const [query, setQuery] = useState("");
+  const urlQuery = params.get("q") ?? "";
+  const [query, setQuery] = useState(urlQuery);
   const [filters, setFilters] = useState<FiltersState>(() => ({
     ...DEFAULT_FILTERS,
     sports: sportParam ? [sportParam] : [],
@@ -107,6 +109,18 @@ const SearchPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Re-sync local query state when ?q= changes externally (navigation, X-close).
+  useEffect(() => {
+    setQuery((prev) => (prev === urlQuery ? prev : urlQuery));
+  }, [urlQuery]);
+
+  const clearQuery = () => {
+    setQuery("");
+    const sp = new URLSearchParams(params);
+    sp.delete("q");
+    setParams(sp, { replace: true });
+  };
 
   // Pick the correct data hook based on the deepest URL segment present.
   // Each hook gates itself with `enabled` so only one fetches.
@@ -268,11 +282,20 @@ const SearchPage = () => {
               )}
             </button>
 
+            {query.trim() !== "" && (
+              <div className="shrink-0 px-4 py-2 border-b border-border bg-white">
+                <SearchQueryChip query={query.trim()} onClear={clearQuery} />
+              </div>
+            )}
+
             <div className="flex-1 overflow-y-auto" id="results-top">
               {dataLoading ? (
                 Array.from({ length: 5 }).map((_, i) => <ResultCardSkeleton key={i} />)
               ) : filtered.length === 0 ? (
-                <EmptyState onClear={clearFilters} />
+                <EmptyState
+                  onClear={query.trim() ? clearQuery : clearFilters}
+                  query={query.trim() || undefined}
+                />
               ) : (
                 <>
                   {filtered.map((c, i) => (
@@ -354,6 +377,12 @@ const SearchPage = () => {
                 <ViewToggle value={view} onChange={handleViewChange} stacked />
               </div>
 
+              {query.trim() !== "" && (
+                <div>
+                  <SearchQueryChip query={query.trim()} onClear={clearQuery} />
+                </div>
+              )}
+
               {/* Chip filter bar */}
               <FiltersChipBar
                 value={filters}
@@ -367,7 +396,10 @@ const SearchPage = () => {
               <div className="pt-2">
                 {filtered.length === 0 ? (
                   <div className="bg-white rounded-lg border border-border">
-                    <EmptyState onClear={clearFilters} />
+                    <EmptyState
+                      onClear={query.trim() ? clearQuery : clearFilters}
+                      query={query.trim() || undefined}
+                    />
                   </div>
                 ) : view === "grid" ? (
                   <GridView clubs={filtered} loading={dataLoading} />

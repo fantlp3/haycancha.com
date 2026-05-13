@@ -29,6 +29,7 @@ export const SportHero = ({ sport }: Props) => {
 
           {/* Search bar with locked sport chip */}
           <form
+            id="sport-hero-search"
             action="/canchas"
             method="get"
             className="bg-white rounded-lg p-2 flex items-center gap-2 max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
@@ -54,11 +55,18 @@ export const SportHero = ({ sport }: Props) => {
             </div>
             <button
               type="submit"
-              className="hidden sm:inline-flex items-center justify-center h-10 md:h-11 px-5 bg-orange text-white font-semibold text-[13px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition shrink-0"
+              className="hidden md:inline-flex items-center justify-center h-10 md:h-11 px-5 bg-orange text-white font-semibold text-[13px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition shrink-0"
             >
               Buscar
             </button>
           </form>
+          <button
+            type="submit"
+            form="sport-hero-search"
+            className="md:hidden w-full h-[52px] bg-orange text-white font-bold text-[16px] uppercase tracking-[1px] rounded-md hover:brightness-90 transition"
+          >
+            Buscar
+          </button>
         </div>
       </div>
     </HeroRotator>

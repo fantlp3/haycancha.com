@@ -13,7 +13,17 @@ import { Breadcrumb } from "@/components/search/Breadcrumb";
 import { ViewToggle, type ViewMode } from "@/components/search/ViewToggle";
 import { GridView } from "@/components/search/GridView";
 import { ListView } from "@/components/search/ListView";
-import { FiltersChipBar } from "@/components/search/FiltersChipBar";
+import { ActiveFiltersChips } from "@/components/search/ActiveFiltersChips";
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdSlot } from "@/components/brand/AdSlot";
 import { countrySlugToName, countryNameToSlug } from "@/lib/geo";
@@ -82,6 +92,7 @@ const SearchPage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
 
   // Persist view to URL only. All three modes carry an explicit ?view= so
   // /canchas with no param falls back to the device default (grid/list).
@@ -217,14 +228,7 @@ const SearchPage = () => {
     : `${nfAR.format(n)} ${n === 1 ? "club" : "clubes"} en ${scopeLabel}`;
 
   return (
-    <div
-      className={cn(
-        "flex flex-col bg-light",
-        // Map view fills the viewport exactly; the sidebar handles its own
-        // internal scroll. Other views grow naturally with content.
-        view === "map" ? "h-screen overflow-hidden" : "min-h-screen"
-      )}
-    >
+    <div className="min-h-screen flex flex-col bg-light">
       <Navbar />
 
       {/* SR-only live region announcing view changes */}
@@ -234,9 +238,11 @@ const SearchPage = () => {
 
       {view === "map" ? (
         // ===== MAP VIEW =====
-        // Uses 100dvh so the dynamic viewport on mobile (URL bar collapsing)
-        // doesn't leak page scroll. Navbar is 60px sticky.
-        <div className="flex flex-1 min-h-0" style={{ height: "calc(100dvh - 60px)" }}>
+        // Uses `fixed` to pull the map+sidebar out of the document flow so
+        // no ancestor's height/overflow can leak page scroll. Navbar is 60px
+        // sticky, so we start the fixed layer at top-[60px] and stretch to
+        // bottom-0 — browser computes height, no vh/dvh/calc needed.
+        <div className="fixed inset-x-0 top-[60px] bottom-0 flex">
           {/* Left column */}
           <aside
             className={cn(
@@ -369,8 +375,8 @@ const SearchPage = () => {
             <div className="space-y-4" id="results-top">
               <Breadcrumb items={crumbs} />
 
-              {/* Header row: title + view toggle (desktop) */}
-              <div className="flex items-start justify-between gap-4 flex-wrap">
+              {/* Header row: search + filters trigger + view toggle (desktop) */}
+              <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div className="flex-1 min-w-[260px]">
                   <SearchHeader
                     value={query}
@@ -378,8 +384,58 @@ const SearchPage = () => {
                     resultsLabel={resultsLabel}
                   />
                 </div>
-                <div className="hidden md:block pt-1">
-                  <ViewToggle value={view} onChange={handleViewChange} />
+                <div className="flex items-center gap-2 pt-1">
+                  <Sheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10 gap-2 border-border"
+                      >
+                        <SlidersHorizontal size={16} />
+                        Filtros
+                        {activeFiltersCount > 0 && (
+                          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-orange text-white text-[11px] font-bold leading-none">
+                            {activeFiltersCount}
+                          </span>
+                        )}
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
+                      <SheetHeader className="px-6 pt-6 pb-4 border-b border-border">
+                        <SheetTitle>Filtros</SheetTitle>
+                      </SheetHeader>
+                      <div className="flex-1 overflow-y-auto">
+                        <FiltersPanel
+                          value={filters}
+                          onChange={setFilters}
+                          resultsCount={filtered.length}
+                          onClear={clearFilters}
+                          onCountryChange={(name) => {
+                            handleCountryChange(name);
+                            setFiltersSheetOpen(false);
+                          }}
+                        />
+                      </div>
+                      <SheetFooter className="px-6 py-4 border-t border-border flex-row gap-2 sm:gap-2 sm:justify-between">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            clearFilters();
+                          }}
+                          className="text-[13px] font-medium text-gray hover:text-orange transition"
+                        >
+                          Limpiar todo
+                        </button>
+                        <Button onClick={() => setFiltersSheetOpen(false)} className="bg-orange hover:bg-orange/90 text-white">
+                          Ver resultados ({nfAR.format(filtered.length)})
+                        </Button>
+                      </SheetFooter>
+                    </SheetContent>
+                  </Sheet>
+                  <div className="hidden md:block">
+                    <ViewToggle value={view} onChange={handleViewChange} />
+                  </div>
                 </div>
               </div>
               {/* Mobile toggle */}
@@ -393,14 +449,13 @@ const SearchPage = () => {
                 </div>
               )}
 
-              {/* Chip filter bar */}
-              <FiltersChipBar
+              {/* Active filter chips — only renders when at least one facet is active. */}
+              <ActiveFiltersChips
                 value={filters}
                 onChange={setFilters}
-                onClear={clearFilters}
-                resultsLabel={resultsLabel}
                 paisSlug={pais}
-                onCountryChange={handleCountryChange}
+                onCountryClear={() => handleCountryChange("Todos los países")}
+                onClearAll={clearFilters}
               />
 
               {/* Desktop-only — on mobile the promo is intercalated after the

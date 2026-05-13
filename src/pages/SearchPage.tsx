@@ -8,6 +8,7 @@ import { ResultCard, ResultCardSkeleton } from "@/components/search/ResultCard";
 import { MapView } from "@/components/search/MapView";
 import { EmptyState } from "@/components/search/EmptyState";
 import { SearchQueryChip } from "@/components/search/SearchQueryChip";
+import { PromoSlot } from "@/components/promo/PromoSlot";
 import { Breadcrumb } from "@/components/search/Breadcrumb";
 import { ViewToggle, type ViewMode } from "@/components/search/ViewToggle";
 import { GridView } from "@/components/search/GridView";
@@ -318,6 +319,9 @@ const SearchPage = () => {
                       )}
                     </div>
                   ))}
+                  <div className="px-3 pt-3">
+                    <PromoSlot variant="rectangle" />
+                  </div>
                   <div className="p-4">
                     <button className="w-full py-3 border border-border rounded-md text-[13px] font-semibold text-dark hover:border-orange hover:text-orange transition">
                       Cargar más
@@ -392,6 +396,8 @@ const SearchPage = () => {
                 paisSlug={pais}
                 onCountryChange={handleCountryChange}
               />
+
+              <PromoSlot variant="inline" />
 
               <div className="pt-2">
                 {filtered.length === 0 ? (

@@ -1,14 +1,37 @@
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * AdSlot — reusable Google AdSense placeholder.
+ * AdSlot — Google AdSense slot wrapper.
  *
- * Renders a visual placeholder that reserves the exact ad dimensions to
- * guarantee CLS = 0. The real AdSense script is wired in once the
- * publisher account is approved.
+ * Renders an <ins class="adsbygoogle"> and pushes to adsbygoogle on mount.
+ * If AdSense returns `data-ad-status="unfilled"` (or never responds within
+ * UNFILL_TIMEOUT_MS), the whole slot is unmounted — no empty placeholder
+ * is shown in production. While the AdSense account is in review this is
+ * effectively always-hidden, which is the desired behavior.
  *
- * TODO: wire Google AdSense client_id once the account is approved.
+ * Detection technique:
+ *   primary  → MutationObserver on data-ad-status (filled | unfilled)
+ *   fallback → after timeout, check getBoundingClientRect().height < threshold
+ *              (covers blocked scripts, adblockers, script-not-loaded races)
+ *
+ * Note on `slot` prop: AdSense expects a numeric publisher slot id
+ * (e.g. "1234567890"), not a semantic string. Until those ids are created
+ * in the AdSense dashboard and mapped here, the semantic strings cause
+ * AdSense to return unfilled → slot stays hidden, which is fine.
  */
+
+declare global {
+  interface Window {
+    adsbygoogle?: Array<Record<string, unknown>>;
+  }
+}
+
+const ADSENSE_CLIENT = "ca-pub-2602781084435740";
+const UNFILL_TIMEOUT_MS = 4000;
+const FILLED_HEIGHT_PX = 10;
+
+type AdStatus = "loading" | "filled" | "unfilled";
 
 export type AdFormat =
   | "leaderboard"
@@ -20,7 +43,6 @@ export type AdFormat =
 interface AdSlotProps {
   slot: string;
   format: AdFormat;
-  label?: string;
   /** Future premium-subscription toggle. When true, render nothing. */
   hidden?: boolean;
   className?: string;
@@ -28,48 +50,81 @@ interface AdSlotProps {
 
 const FORMAT_META: Record<
   AdFormat,
-  { label: string; minHeightClass: string; wrapperClass: string }
+  { minHeightClass: string; wrapperClass: string }
 > = {
   leaderboard: {
-    label: "728×90 / 320×100",
-    // 90px desktop, 100px mobile
     minHeightClass: "min-h-[100px] md:min-h-[90px]",
     wrapperClass: "w-full max-w-[1000px] mx-auto",
   },
   rectangle: {
-    label: "300×250",
     minHeightClass: "min-h-[250px]",
     wrapperClass: "w-full max-w-[336px] mx-auto",
   },
   infeed: {
-    label: "in-feed responsive",
     minHeightClass: "min-h-[280px]",
     wrapperClass: "w-full",
   },
   "in-article": {
-    label: "in-article responsive",
     minHeightClass: "min-h-[250px]",
     wrapperClass: "w-full max-w-[600px] mx-auto",
   },
   sidebar: {
-    label: "300×600",
-    // On mobile collapses to a rectangle (250px); desktop reserves 600px.
     minHeightClass: "min-h-[250px] md:min-h-[600px]",
     wrapperClass: "w-full max-w-[300px] mx-auto",
   },
 };
 
-export const AdSlot = ({
-  slot,
-  format,
-  label = "PUBLICIDAD",
-  hidden = false,
-  className,
-}: AdSlotProps) => {
+export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps) => {
+  const insRef = useRef<HTMLModElement | null>(null);
+  const [status, setStatus] = useState<AdStatus>("loading");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ins = insRef.current;
+    if (!ins) return;
+
+    try {
+      (window.adsbygoogle = window.adsbygoogle ?? []).push({});
+    } catch (err) {
+      // Push can throw if the script hasn't loaded yet — that's fine,
+      // the script will process the queue once it boots.
+      console.warn("[AdSlot] adsbygoogle.push failed:", err);
+    }
+
+    const readStatus = (): AdStatus | null => {
+      const s = ins.getAttribute("data-ad-status");
+      if (s === "filled") return "filled";
+      if (s === "unfilled") return "unfilled";
+      return null;
+    };
+
+    const observer = new MutationObserver(() => {
+      const next = readStatus();
+      if (next) setStatus(next);
+    });
+    observer.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
+
+    const timer = window.setTimeout(() => {
+      const next = readStatus();
+      if (next) {
+        setStatus(next);
+        return;
+      }
+      // Fallback: AdSense never set the attribute (script blocked / never loaded).
+      const h = ins.getBoundingClientRect().height;
+      setStatus(h >= FILLED_HEIGHT_PX ? "filled" : "unfilled");
+    }, UNFILL_TIMEOUT_MS);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
+  }, []);
+
   if (hidden) return null;
+  if (status === "unfilled") return null;
 
   const meta = FORMAT_META[format];
-  const isInfeed = format === "infeed";
 
   return (
     <aside
@@ -78,33 +133,23 @@ export const AdSlot = ({
       data-ad-slot={slot}
       data-ad-format={format}
       className={cn(
-        "block bg-light rounded-md p-3",
-        // Softer dashed border for in-feed so it differentiates from real cards
-        isInfeed ? "border border-dashed border-border" : "border border-border",
-        // Generous breathing room around the ad
-        "my-6 md:my-8",
+        "block my-6 md:my-8",
         meta.wrapperClass,
+        // Only reserve vertical space while loading — once filled, AdSense
+        // controls the height; once unfilled, the component returns null.
+        status === "loading" ? meta.minHeightClass : null,
         className
       )}
     >
-      <div className="text-center text-gray font-semibold text-[10px] tracking-[3px] mb-2 select-none">
-        {label}
-      </div>
-      <div
-        className={cn(
-          "w-full flex items-center justify-center rounded bg-white/40",
-          meta.minHeightClass
-        )}
-      >
-        {/* TODO: wire Google AdSense client_id once the account is approved */}
-        <span
-          className="text-gray text-[12px] font-normal text-center px-2"
-          // loading hint kept on a real <ins>/<img> when wired up
-          data-loading="lazy"
-        >
-          Ad slot · {format} · {meta.label}
-        </span>
-      </div>
+      <ins
+        ref={insRef}
+        className="adsbygoogle"
+        style={{ display: "block" }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
     </aside>
   );
 };

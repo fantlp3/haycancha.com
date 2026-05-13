@@ -9,6 +9,7 @@ import { SportZones } from "@/components/sport/SportZones";
 import { SportEditorial } from "@/components/sport/SportEditorial";
 import { SportCtaFooter } from "@/components/sport/SportCtaFooter";
 import { SeoMeta } from "@/components/SeoMeta";
+import { PromoSlot } from "@/components/promo/PromoSlot";
 import { SPORTS, type SportKey } from "@/lib/sports";
 import NotFound from "./NotFound";
 
@@ -39,6 +40,9 @@ const SportLandingPage = ({ sportKey }: Props) => {
         <SportHero sport={sport} />
         <SportFeatures sport={sport} />
         <SportStats sport={sport} />
+        <div className="max-w-container mx-auto px-6 lg:px-10 mt-12">
+          <PromoSlot variant="leaderboard" exclude={[sport.key]} />
+        </div>
         <SportFeatured sport={sport} />
         <SportZones sport={sport} />
         <SportEditorial sport={sport} />

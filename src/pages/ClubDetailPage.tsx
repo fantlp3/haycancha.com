@@ -24,6 +24,7 @@ import { CtaButton } from "@/components/brand/CtaButton";
 import { SportBadge, type Sport } from "@/components/brand/SportBadge";
 import { CourtCard } from "@/components/brand/CourtCard";
 import { AdSlot } from "@/components/brand/AdSlot";
+import { PromoSlot } from "@/components/promo/PromoSlot";
 import { ClubPhoto } from "@/components/ClubPhoto";
 import { ClubFeedbackSection } from "@/components/club-detail/ClubFeedbackSection";
 import { SeoMeta } from "@/components/SeoMeta";
@@ -714,7 +715,8 @@ const ClubDetailPage = () => {
       {/* Slot 6 — club-sidebar (300x600). Lives in document flow, not sticky.
           Hidden on tablet/mobile (<lg) per density rules. */}
       <aside className={`hidden lg:block ${SECTION_PAD} mt-12`}>
-        <div className="ml-auto">
+        <div className="ml-auto max-w-[300px] space-y-6">
+          <PromoSlot variant="rectangle" />
           <AdSlot slot="club-sidebar" format="sidebar" />
         </div>
       </aside>

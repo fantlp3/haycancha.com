@@ -7,6 +7,7 @@ import { ZoneSection } from "@/components/sections/ZoneSection";
 import { ClubsCta } from "@/components/sections/ClubsCta";
 import { Footer } from "@/components/sections/Footer";
 import { AdSlot } from "@/components/brand/AdSlot";
+import { PromoSlot } from "@/components/promo/PromoSlot";
 
 const Index = () => {
   return (
@@ -14,6 +15,9 @@ const Index = () => {
       <Navbar />
       <main>
         <Hero />
+        <div className="max-w-container mx-auto px-6 lg:px-10 mt-12">
+          <PromoSlot variant="leaderboard" />
+        </div>
         <SportSection />
         <FeaturedCourts />
         {/* Slot 2 — home-between-sections (in-article, between editorial blocks) */}

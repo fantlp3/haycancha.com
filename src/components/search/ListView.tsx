@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, Star } from "lucide-react";
 import { ClubPhoto } from "@/components/ClubPhoto";
@@ -11,9 +12,16 @@ interface Props {
   clubs: ClubCard[];
   loading?: boolean;
   onLoadMore?: () => void;
+  /**
+   * Optional node rendered between the 6th and 7th row. Caller controls
+   * visibility (e.g. wrap in `md:hidden` for mobile-only).
+   */
+  mobilePromo?: ReactNode;
 }
 
-export const ListView = ({ clubs, loading, onLoadMore }: Props) => {
+const PROMO_AFTER_INDEX = 6;
+
+export const ListView = ({ clubs, loading, onLoadMore, mobilePromo }: Props) => {
   if (loading) {
     return (
       <div className="bg-white rounded-lg border border-border overflow-hidden">
@@ -24,13 +32,27 @@ export const ListView = ({ clubs, loading, onLoadMore }: Props) => {
     );
   }
 
+  const splitPromo = Boolean(mobilePromo) && clubs.length > PROMO_AFTER_INDEX;
+  const before = splitPromo ? clubs.slice(0, PROMO_AFTER_INDEX) : clubs;
+  const after = splitPromo ? clubs.slice(PROMO_AFTER_INDEX) : [];
+
   return (
     <>
       <div className="bg-white rounded-lg border border-border overflow-hidden">
-        {clubs.map((c, i) => (
-          <ListRow key={c.id} club={c} last={i === clubs.length - 1} />
+        {before.map((c, i) => (
+          <ListRow key={c.id} club={c} last={i === before.length - 1} />
         ))}
       </div>
+      {splitPromo && (
+        <>
+          <div className="my-4">{mobilePromo}</div>
+          <div className="bg-white rounded-lg border border-border overflow-hidden">
+            {after.map((c, i) => (
+              <ListRow key={c.id} club={c} last={i === after.length - 1} />
+            ))}
+          </div>
+        </>
+      )}
       <div className="flex justify-center mt-10">
         <button
           onClick={onLoadMore}

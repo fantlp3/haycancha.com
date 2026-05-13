@@ -1,3 +1,4 @@
+import { Fragment, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Star } from "lucide-react";
 import { ClubPhoto } from "@/components/ClubPhoto";
@@ -11,9 +12,15 @@ interface Props {
   clubs: ClubCard[];
   loading?: boolean;
   onLoadMore?: () => void;
+  /**
+   * Optional node inserted after the 6th card. Caller is responsible for
+   * making it mobile-only (e.g. wrap with `md:hidden`); in desktop's 3-col
+   * grid the node still takes a cell otherwise.
+   */
+  mobilePromo?: ReactNode;
 }
 
-export const GridView = ({ clubs, loading, onLoadMore }: Props) => {
+export const GridView = ({ clubs, loading, onLoadMore, mobilePromo }: Props) => {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -27,15 +34,15 @@ export const GridView = ({ clubs, loading, onLoadMore }: Props) => {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {clubs.map((c) => {
+        {clubs.map((c, i) => {
           const sports = clubSports(c.clubes_deportes);
           const primary = getPrimarySportSlug(c.clubes_deportes ?? []);
           const location = c.barrio?.nombre
             ? `${c.barrio.nombre} · ${c.ciudad.nombre}`
             : c.ciudad.nombre;
           return (
+            <Fragment key={c.id}>
             <Link
-              key={c.id}
               to={buildClubHref(c)}
               className={cn(
                 "group block bg-card rounded-xl border border-border overflow-hidden transition-all duration-200 ease-out hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange",
@@ -76,6 +83,8 @@ export const GridView = ({ clubs, loading, onLoadMore }: Props) => {
                 </p>
               </div>
             </Link>
+            {i === 5 && mobilePromo}
+            </Fragment>
           );
         })}
       </div>

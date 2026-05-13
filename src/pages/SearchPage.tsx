@@ -217,7 +217,14 @@ const SearchPage = () => {
     : `${nfAR.format(n)} ${n === 1 ? "club" : "clubes"} en ${scopeLabel}`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-light">
+    <div
+      className={cn(
+        "flex flex-col bg-light",
+        // Map view fills the viewport exactly; the sidebar handles its own
+        // internal scroll. Other views grow naturally with content.
+        view === "map" ? "h-screen overflow-hidden" : "min-h-screen"
+      )}
+    >
       <Navbar />
 
       {/* SR-only live region announcing view changes */}
@@ -226,8 +233,10 @@ const SearchPage = () => {
       </div>
 
       {view === "map" ? (
-        // ===== MAP VIEW (DEFAULT — unchanged behavior) =====
-        <div className="flex flex-1 min-h-0" style={{ height: "calc(100vh - 60px)" }}>
+        // ===== MAP VIEW =====
+        // Uses 100dvh so the dynamic viewport on mobile (URL bar collapsing)
+        // doesn't leak page scroll. Navbar is 60px sticky.
+        <div className="flex flex-1 min-h-0" style={{ height: "calc(100dvh - 60px)" }}>
           {/* Left column */}
           <aside
             className={cn(
@@ -286,7 +295,7 @@ const SearchPage = () => {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto" id="results-top">
+            <div className="flex-1 min-h-0 overflow-y-auto" id="results-top">
               {dataLoading ? (
                 Array.from({ length: 5 }).map((_, i) => <ResultCardSkeleton key={i} />)
               ) : filtered.length === 0 ? (
@@ -394,10 +403,20 @@ const SearchPage = () => {
                 onCountryChange={handleCountryChange}
               />
 
-              <PromoSlot variant="inline" />
+              {/* Desktop-only — on mobile the promo is intercalated after the
+                  6th result (passed as mobilePromo prop below). */}
+              <div className="hidden md:block">
+                <PromoSlot variant="inline" />
+              </div>
 
               <div className="pt-2">
-                {filtered.length === 0 ? (
+                {dataLoading ? (
+                  view === "grid" ? (
+                    <GridView clubs={[]} loading />
+                  ) : (
+                    <ListView clubs={[]} loading />
+                  )
+                ) : filtered.length === 0 ? (
                   <div className="bg-white rounded-lg border border-border">
                     <EmptyState
                       onClear={query.trim() ? clearQuery : clearFilters}
@@ -405,9 +424,25 @@ const SearchPage = () => {
                     />
                   </div>
                 ) : view === "grid" ? (
-                  <GridView clubs={filtered} loading={dataLoading} />
+                  <GridView
+                    clubs={filtered}
+                    loading={dataLoading}
+                    mobilePromo={
+                      <div className="md:hidden">
+                        <PromoSlot variant="inline" />
+                      </div>
+                    }
+                  />
                 ) : (
-                  <ListView clubs={filtered} loading={dataLoading} />
+                  <ListView
+                    clubs={filtered}
+                    loading={dataLoading}
+                    mobilePromo={
+                      <div className="md:hidden">
+                        <PromoSlot variant="inline" />
+                      </div>
+                    }
+                  />
                 )}
               </div>
             </div>

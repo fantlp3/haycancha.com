@@ -26,3 +26,6 @@ dist-ssr
 # Import pipeline secrets
 scripts/import/.env
 scripts/import/
+
+# Sitemap is regenerated from Directus on every build (see scripts/generate-sitemap.ts)
+public/sitemap.xml

@@ -18,26 +18,39 @@ const SURFACE_LABELS: Record<string, string> = {
   parquet: "Parquet",
 };
 
+/** Title-case a kebab-case slug for display (`buenos-aires` → `Buenos Aires`). */
+const slugToLabel = (slug: string) =>
+  slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
 interface Props {
   value: FiltersState;
   onChange: (v: FiltersState) => void;
-  /** Country is URL-driven; if set, we render a country chip whose X navigates away. */
+  /** Geo facets are URL-driven; each, if set, gets a chip whose X navigates up a level. */
   paisSlug?: string;
+  ciudadSlug?: string;
+  barrioSlug?: string;
   onCountryClear?: () => void;
-  /** Wipes every facet (sports + surfaces + services + country). View and q stay. */
+  onCiudadClear?: () => void;
+  onBarrioClear?: () => void;
+  /** Wipes every facet (sports + surfaces + services + geo). View and q stay. */
   onClearAll?: () => void;
   className?: string;
 }
 
 /**
  * Renders one chip per active filter facet. Empty when no filter is active.
- * Country chip lives here too (its X navigates away from /canchas/:pais).
+ * Geo chips (pais/ciudad/barrio) live here too — their X navigates up a level
+ * of the /canchas/:pais/:ciudad/:barrio hierarchy.
  */
 export const ActiveFiltersChips = ({
   value,
   onChange,
   paisSlug,
+  ciudadSlug,
+  barrioSlug,
   onCountryClear,
+  onCiudadClear,
+  onBarrioClear,
   onClearAll,
   className,
 }: Props) => {
@@ -55,6 +68,20 @@ export const ActiveFiltersChips = ({
       key: `country:${paisSlug}`,
       label: countrySlugToName(paisSlug),
       onRemove: onCountryClear,
+    });
+  }
+  if (ciudadSlug && onCiudadClear) {
+    chips.push({
+      key: `ciudad:${ciudadSlug}`,
+      label: slugToLabel(ciudadSlug),
+      onRemove: onCiudadClear,
+    });
+  }
+  if (barrioSlug && onBarrioClear) {
+    chips.push({
+      key: `barrio:${barrioSlug}`,
+      label: slugToLabel(barrioSlug),
+      onRemove: onBarrioClear,
     });
   }
   for (const s of value.sports) {

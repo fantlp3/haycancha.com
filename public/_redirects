@@ -1,0 +1,14 @@
+# Legacy URL redirects from haycancha.com v1 (PHP site)
+# Cloudflare Pages format: source target status
+
+/cancha.php              /canchas         301
+/busqueda.php            /canchas         301
+/cancha_comentarios.php  /                301
+/barrios.php             /canchas         301
+/galeria.php             /                301
+/haycancha.php           /                301
+/form_agregar_complejo.php  /agregar-cancha  301
+/contacto                /sobre           301
+/torneos/*               /                301
+/promociones             /                301
+/*.htm                   /                301

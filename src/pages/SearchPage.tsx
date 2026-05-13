@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { Filter, List, Map as MapIcon } from "lucide-react";
+import { List, Map as MapIcon } from "lucide-react";
 import { Navbar } from "@/components/brand/Navbar";
 import { SearchHeader } from "@/components/search/SearchHeader";
 import { FiltersPanel, type FiltersState } from "@/components/search/FiltersPanel";
@@ -20,7 +20,6 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from "lucide-react";
@@ -91,7 +90,6 @@ const SearchPage = () => {
   }));
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
 
   // Persist view to URL only. All three modes carry an explicit ?view= so
@@ -163,6 +161,17 @@ const SearchPage = () => {
     navigate(`/canchas/${countryNameToSlug(countryName)}`);
   };
 
+  const handleCiudadClear = () => {
+    if (pais) navigate(`/canchas/${pais}`);
+    else navigate("/canchas");
+  };
+
+  const handleBarrioClear = () => {
+    if (pais && ciudad) navigate(`/canchas/${pais}/${ciudad}`);
+    else if (pais) navigate(`/canchas/${pais}`);
+    else navigate("/canchas");
+  };
+
   const filtered = useMemo(
     () =>
       filterClubs(clubsData ?? [], {
@@ -197,7 +206,28 @@ const SearchPage = () => {
     filters.sports.length +
     filters.services.length +
     filters.surfaces.length +
-    (pais ? 1 : 0);
+    (pais ? 1 : 0) +
+    (ciudad ? 1 : 0) +
+    (barrio ? 1 : 0);
+
+  // Same trigger reused from the grid/list header AND the map view sidebar —
+  // both open the single controlled Sheet rendered once at the page root.
+  const filtersTriggerButton = (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => setFiltersSheetOpen(true)}
+      className="h-10 gap-2 border-border"
+    >
+      <SlidersHorizontal size={16} />
+      Filtros
+      {activeFiltersCount > 0 && (
+        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-orange text-white text-[11px] font-bold leading-none">
+          {activeFiltersCount}
+        </span>
+      )}
+    </Button>
+  );
 
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);
@@ -271,35 +301,23 @@ const SearchPage = () => {
               </div>
             </div>
 
-            <div className={cn("shrink-0", "md:block", filtersOpen ? "block" : "hidden md:block")}>
-              <FiltersPanel
+            <div className="shrink-0 px-4 py-3 border-b border-border bg-white space-y-3">
+              {filtersTriggerButton}
+              {query.trim() !== "" && (
+                <SearchQueryChip query={query.trim()} onClear={clearQuery} />
+              )}
+              <ActiveFiltersChips
                 value={filters}
                 onChange={setFilters}
-                onClose={() => setFiltersOpen(false)}
-                resultsCount={filtered.length}
-                onClear={clearFilters}
-                onCountryChange={handleCountryChange}
+                paisSlug={pais}
+                ciudadSlug={ciudad}
+                barrioSlug={barrio}
+                onCountryClear={() => handleCountryChange("Todos los países")}
+                onCiudadClear={handleCiudadClear}
+                onBarrioClear={handleBarrioClear}
+                onClearAll={clearFilters}
               />
             </div>
-
-            <button
-              onClick={() => setFiltersOpen((o) => !o)}
-              className="md:hidden flex items-center justify-center gap-2 py-2.5 text-[13px] font-semibold text-dark border-b border-border bg-light"
-            >
-              <Filter size={14} />
-              {filtersOpen ? "Ocultar filtros" : "Mostrar filtros"}
-              {activeFiltersCount > 0 && (
-                <span className="ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-orange text-white text-[11px] font-bold">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </button>
-
-            {query.trim() !== "" && (
-              <div className="shrink-0 px-4 py-2 border-b border-border bg-white">
-                <SearchQueryChip query={query.trim()} onClear={clearQuery} />
-              </div>
-            )}
 
             <div className="flex-1 min-h-0 overflow-y-auto" id="results-top">
               {dataLoading ? (
@@ -385,54 +403,7 @@ const SearchPage = () => {
                   />
                 </div>
                 <div className="flex items-center gap-2 pt-1">
-                  <Sheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
-                    <SheetTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-10 gap-2 border-border"
-                      >
-                        <SlidersHorizontal size={16} />
-                        Filtros
-                        {activeFiltersCount > 0 && (
-                          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-orange text-white text-[11px] font-bold leading-none">
-                            {activeFiltersCount}
-                          </span>
-                        )}
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-                      <SheetHeader className="px-6 pt-6 pb-4 border-b border-border">
-                        <SheetTitle>Filtros</SheetTitle>
-                      </SheetHeader>
-                      <div className="flex-1 overflow-y-auto">
-                        <FiltersPanel
-                          value={filters}
-                          onChange={setFilters}
-                          resultsCount={filtered.length}
-                          onClear={clearFilters}
-                          onCountryChange={(name) => {
-                            handleCountryChange(name);
-                            setFiltersSheetOpen(false);
-                          }}
-                        />
-                      </div>
-                      <SheetFooter className="px-6 py-4 border-t border-border flex-row gap-2 sm:gap-2 sm:justify-between">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            clearFilters();
-                          }}
-                          className="text-[13px] font-medium text-gray hover:text-orange transition"
-                        >
-                          Limpiar todo
-                        </button>
-                        <Button onClick={() => setFiltersSheetOpen(false)} className="bg-orange hover:bg-orange/90 text-white">
-                          Ver resultados ({nfAR.format(filtered.length)})
-                        </Button>
-                      </SheetFooter>
-                    </SheetContent>
-                  </Sheet>
+                  {filtersTriggerButton}
                   <div className="hidden md:block">
                     <ViewToggle value={view} onChange={handleViewChange} />
                   </div>
@@ -454,7 +425,11 @@ const SearchPage = () => {
                 value={filters}
                 onChange={setFilters}
                 paisSlug={pais}
+                ciudadSlug={ciudad}
+                barrioSlug={barrio}
                 onCountryClear={() => handleCountryChange("Todos los países")}
+                onCiudadClear={handleCiudadClear}
+                onBarrioClear={handleBarrioClear}
                 onClearAll={clearFilters}
               />
 
@@ -504,6 +479,43 @@ const SearchPage = () => {
           </div>
         </div>
       )}
+
+      {/* Controlled single-instance filters Sheet — opened from any
+          `filtersTriggerButton` (grid/list header or map sidebar). */}
+      <Sheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b border-border">
+            <SheetTitle>Filtros</SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto">
+            <FiltersPanel
+              value={filters}
+              onChange={setFilters}
+              resultsCount={filtered.length}
+              onClear={clearFilters}
+              onCountryChange={(name) => {
+                handleCountryChange(name);
+                setFiltersSheetOpen(false);
+              }}
+            />
+          </div>
+          <SheetFooter className="px-6 py-4 border-t border-border flex-row gap-2 sm:gap-2 sm:justify-between">
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-[13px] font-medium text-gray hover:text-orange transition"
+            >
+              Limpiar todo
+            </button>
+            <Button
+              onClick={() => setFiltersSheetOpen(false)}
+              className="bg-orange hover:bg-orange/90 text-white"
+            >
+              Ver resultados ({nfAR.format(filtered.length)})
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

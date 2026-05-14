@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { CtaButton } from "@/components/brand/CtaButton";
 import type { SportConfig } from "@/lib/sports";
@@ -26,19 +27,15 @@ export const SportCtaFooter = ({ sport }: Props) => {
           Mapa interactivo, filtros por superficie, iluminación, ciudad y barrio. Sin cuentas, sin comisiones.
         </p>
         <div className="pt-2 flex flex-col items-center gap-4">
-          <CtaButton
-            type="button"
-            onClick={() => (window.location.href = `/canchas?deporte=${sport.key}`)}
-            className="px-10 py-4 text-[15px]"
-          >
-            Ver mapa y listado
+          <CtaButton asChild className="px-10 py-4 text-[15px]">
+            <Link to={`/canchas?deporte=${sport.key}`}>Ver mapa y listado</Link>
           </CtaButton>
-          <a
-            href="/agregar-cancha"
+          <Link
+            to="/agregar-cancha"
             className={cn("text-[13px] font-semibold uppercase tracking-wider hover:underline", text)}
           >
             ¿Tu cancha no aparece? Sumala →
-          </a>
+          </Link>
         </div>
       </div>
     </section>

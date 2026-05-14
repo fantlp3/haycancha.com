@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CtaButton } from "@/components/brand/CtaButton";
 import mapPreview from "@/assets/map-preview.jpg";
 
@@ -31,7 +32,9 @@ export const MapSection = () => (
           ))}
         </ul>
         <div className="pt-2">
-          <CtaButton>Abrir mapa completo</CtaButton>
+          <CtaButton asChild>
+            <Link to="/canchas?view=map">Abrir mapa completo</Link>
+          </CtaButton>
         </div>
       </div>
       <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-card-hover">

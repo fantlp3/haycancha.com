@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { CtaButton } from "@/components/brand/CtaButton";
 
 const benefits = ["Sin comisiones", "Datos actualizados", "Panel de administración"];
@@ -18,8 +19,14 @@ export const ClubsCta = () => (
         Publicación básica gratuita. Tus clientes te buscan aquí.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-        <CtaButton>Publicar mi cancha gratis</CtaButton>
-        <CtaButton variant="secondary">Ver planes premium</CtaButton>
+        <CtaButton asChild>
+          <Link to="/agregar-cancha">Publicar mi cancha gratis</Link>
+        </CtaButton>
+        <CtaButton asChild variant="secondary">
+          <a href="mailto:contacto@haycancha.com?subject=Quiero%20ser%20Premium">
+            Ver planes premium
+          </a>
+        </CtaButton>
       </div>
       <div className="flex flex-wrap gap-2 justify-center pt-4">
         {benefits.map((b) => (

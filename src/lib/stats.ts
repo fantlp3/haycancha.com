@@ -31,6 +31,8 @@ export interface HomeStats {
   totalClubes: number;
   totalCanchas: number;
   totalCiudades: number;
+  /** Distinct countries with at least one active club. */
+  totalPaises: number;
   countsBySport: { tenis: number; padel: number; pickleball: number };
   countsByCountry: CountryCount[];
   countsBySportByCountry: {
@@ -117,6 +119,7 @@ export function deriveHomeStats(clubs: HomeStatsClubInput[]): HomeStats {
     totalClubes: clubs.length,
     totalCanchas,
     totalCiudades: ciudades.size,
+    totalPaises: countryMap.size,
     countsBySport,
     countsByCountry: sortCounts(countryMap),
     countsBySportByCountry: {

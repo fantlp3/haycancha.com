@@ -10,6 +10,7 @@ describe("deriveHomeStats", () => {
       totalClubes: 0,
       totalCanchas: 0,
       totalCiudades: 0,
+      totalPaises: 0,
       countsBySport: EMPTY_BUCKETS,
       countsByCountry: [],
       countsBySportByCountry: EMPTY_SPORT_COUNTRY_BUCKETS,
@@ -25,6 +26,7 @@ describe("deriveHomeStats", () => {
       totalClubes: 1,
       totalCanchas: 4,
       totalCiudades: 1,
+      totalPaises: 0,
       countsBySport: EMPTY_BUCKETS,
       countsByCountry: [],
       countsBySportByCountry: EMPTY_SPORT_COUNTRY_BUCKETS,
@@ -88,6 +90,24 @@ describe("deriveHomeStats", () => {
         },
       ]);
       expect(stats.countsBySport).toEqual({ tenis: 1, padel: 1, pickleball: 0 });
+    });
+
+    it("totalPaises counts distinct countries across clubs", () => {
+      const stats = deriveHomeStats([
+        {
+          ciudad: { id: "caba", pais: { slug: "argentina", nombre: "Argentina" } },
+          clubes_deportes: [{ cantidad_canchas: 3, deporte: { slug: "tenis" } }],
+        },
+        {
+          ciudad: { id: "rosario", pais: { slug: "argentina", nombre: "Argentina" } },
+          clubes_deportes: [{ cantidad_canchas: 2, deporte: { slug: "padel" } }],
+        },
+        {
+          ciudad: { id: "cdmx", pais: { slug: "mexico", nombre: "México" } },
+          clubes_deportes: [{ cantidad_canchas: 4, deporte: { slug: "padel" } }],
+        },
+      ]);
+      expect(stats.totalPaises).toBe(2);
     });
 
     it("keeps pickleball at 0 when no club has it", () => {

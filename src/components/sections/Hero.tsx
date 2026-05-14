@@ -73,14 +73,14 @@ export const Hero = () => {
               onSubmit={handleSubmit}
               className="bg-white rounded-lg p-2 flex items-center gap-2 max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
             >
-              <div className="flex-1 flex items-center gap-3 pl-3">
+              <div className="flex-1 flex items-center gap-3 pl-3 min-w-0">
                 <Search size={20} className="text-orange shrink-0" />
                 <input
                   type="text"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   placeholder="Barrio, ciudad o nombre del club..."
-                  className="w-full h-10 md:h-12 bg-transparent border-0 outline-none text-dark placeholder:text-gray text-[15px] font-medium"
+                  className="w-full h-10 md:h-12 bg-transparent border-0 outline-none text-dark placeholder:text-gray text-[15px] font-medium min-w-0"
                 />
               </div>
               <button

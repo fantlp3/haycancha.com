@@ -429,6 +429,52 @@ export async function fetchClubesInBBox(bbox: BBox): Promise<ClubCard[]> {
 // ============================================
 // HOME STATS: active clubs, courts, cities + per-sport / per-country counts
 // ============================================
+export interface SportStats {
+  clubes: number;
+  ciudades: number;
+  premium: number;
+}
+
+/**
+ * Per-sport landing-page stats. Three lightweight aggregate queries in parallel
+ * instead of pulling the full club list and counting client-side.
+ */
+export async function fetchSportStats(deporteSlug: string): Promise<SportStats> {
+  const filterActivoSport = {
+    activo: { _eq: true },
+    clubes_deportes: { deporte: { slug: { _eq: deporteSlug } } },
+  };
+
+  const [clubesRes, ciudadesRes, premiumRes] = await Promise.all([
+    directus.request(
+      aggregate("clubes", {
+        aggregate: { count: "*" },
+        query: { filter: filterActivoSport },
+      })
+    ),
+    directus.request(
+      aggregate("clubes", {
+        aggregate: { countDistinct: "ciudad" },
+        query: { filter: filterActivoSport },
+      })
+    ),
+    directus.request(
+      aggregate("clubes", {
+        aggregate: { count: "*" },
+        query: {
+          filter: { ...filterActivoSport, es_premium: { _eq: true } },
+        },
+      })
+    ),
+  ]);
+
+  return {
+    clubes: Number((clubesRes[0] as any).count) || 0,
+    ciudades: Number((ciudadesRes[0] as any).countDistinct?.ciudad ?? (ciudadesRes[0] as any).count) || 0,
+    premium: Number((premiumRes[0] as any).count) || 0,
+  };
+}
+
 export async function fetchHomeStats(): Promise<HomeStats> {
   // Single fetch backs every count on the home page (StatsStrip,
   // SportSection, ZoneSection). Payload is bounded by active-club count

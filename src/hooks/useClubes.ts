@@ -13,6 +13,7 @@ import {
   fetchStatsByPais,
   fetchClubesInBBox,
   fetchHomeStats,
+  fetchSportStats,
   type BBox,
 } from "@/lib/queries";
 
@@ -122,12 +123,21 @@ export function useHomeStats() {
     totalClubes: query.data?.totalClubes,
     totalCanchas: query.data?.totalCanchas,
     totalCiudades: query.data?.totalCiudades,
+    totalPaises: query.data?.totalPaises,
     countsBySport: query.data?.countsBySport,
     countsByCountry: query.data?.countsByCountry,
     countsBySportByCountry: query.data?.countsBySportByCountry,
     isLoading: query.isLoading,
     isError: query.isError,
   };
+}
+
+export function useSportStats(sport: "tenis" | "padel" | "pickleball") {
+  return useQuery({
+    queryKey: ["stats", "sport", sport],
+    queryFn: () => fetchSportStats(sport),
+    staleTime: 5 * 60 * 1000,
+  });
 }
 
 export function useClubesInBBox(bbox: BBox | null) {

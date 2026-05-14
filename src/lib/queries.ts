@@ -433,6 +433,7 @@ export interface SportStats {
   clubes: number;
   ciudades: number;
   premium: number;
+  paises: number;
 }
 
 /**
@@ -445,7 +446,7 @@ export async function fetchSportStats(deporteSlug: string): Promise<SportStats> 
     clubes_deportes: { deporte: { slug: { _eq: deporteSlug } } },
   };
 
-  const [clubesRes, ciudadesRes, premiumRes] = await Promise.all([
+  const [clubesRes, ciudadesRes, premiumRes, paisesRes] = await Promise.all([
     directus.request(
       aggregate("clubes", {
         aggregate: { count: "*" },
@@ -466,12 +467,19 @@ export async function fetchSportStats(deporteSlug: string): Promise<SportStats> 
         },
       })
     ),
+    directus.request(
+      aggregate("clubes", {
+        aggregate: { countDistinct: "pais" },
+        query: { filter: filterActivoSport },
+      })
+    ),
   ]);
 
   return {
     clubes: Number((clubesRes[0] as any).count) || 0,
     ciudades: Number((ciudadesRes[0] as any).countDistinct?.ciudad ?? (ciudadesRes[0] as any).count) || 0,
     premium: Number((premiumRes[0] as any).count) || 0,
+    paises: Number((paisesRes[0] as any).countDistinct?.pais ?? (paisesRes[0] as any).count) || 0,
   };
 }
 

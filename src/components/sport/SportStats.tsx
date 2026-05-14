@@ -22,7 +22,7 @@ export const SportStats = ({ sport }: Props) => {
   const stats = [
     { value: renderValue(data?.clubes), label: `Clubes con ${sport.ofName}` },
     { value: renderValue(data?.ciudades), label: "Ciudades" },
-    { value: renderValue(data?.premium), label: "Clubes Premium" },
+    { value: renderValue(data?.paises), label: "Países" },
   ];
 
   return (

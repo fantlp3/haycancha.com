@@ -37,20 +37,24 @@ export const MapSection = () => (
           </CtaButton>
         </div>
       </div>
-      <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-card-hover">
+      <Link
+        to="/canchas?view=map"
+        aria-label="Abrir mapa completo"
+        className="group relative rounded-xl overflow-hidden border border-white/10 shadow-card-hover block cursor-pointer transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-dark"
+      >
         <img
           src={mapPreview}
           alt="Vista previa del mapa interactivo de canchas"
           width={1280}
           height={800}
           loading="lazy"
-          className="w-full h-auto object-cover aspect-[16/10]"
+          className="w-full h-auto object-cover aspect-[16/10] transition-transform duration-300 group-hover:scale-[1.02]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-dark/40 to-transparent pointer-events-none" />
         <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-md bg-dark/80 backdrop-blur border border-white/10 text-white/80 label-meta uppercase">
           Mapa disponible en la app
         </div>
-      </div>
+      </Link>
     </div>
   </section>
 );

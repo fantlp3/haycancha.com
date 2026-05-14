@@ -14,6 +14,7 @@ import { ViewToggle, type ViewMode } from "@/components/search/ViewToggle";
 import { GridView } from "@/components/search/GridView";
 import { ListView } from "@/components/search/ListView";
 import { ActiveFiltersChips } from "@/components/search/ActiveFiltersChips";
+import { SortDropdown } from "@/components/search/SortDropdown";
 import {
   Sheet,
   SheetContent,
@@ -24,10 +25,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { AdSlot } from "@/components/brand/AdSlot";
 import { countrySlugToName, countryNameToSlug } from "@/lib/geo";
 import { filterClubs } from "@/lib/filter";
 import { getDefaultView } from "@/lib/view-mode";
+import { sortClubs, distanceFromUser, isSortKey, type SortKey } from "@/lib/sort-clubs";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import {
   useAllClubes,
   useClubesByPais,
@@ -91,6 +95,45 @@ const SearchPage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
+
+  // Sort key is URL-driven (shareable, restored on back/forward).
+  const initialSort: SortKey = useMemo(() => {
+    const v = params.get("sort");
+    return isSortKey(v) ? v : "relevancia";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const [sortKey, setSortKey] = useState<SortKey>(initialSort);
+  // Remembered to revert to if the user picks "cercano" and then denies geo.
+  const [previousSort, setPreviousSort] = useState<SortKey>(initialSort);
+  // Only ask for geolocation once the user actively picks "Más cercano".
+  const [needsGeo, setNeedsGeo] = useState(sortKey === "cercano");
+  const geo = useGeolocation(needsGeo);
+
+  const handleSortChange = (next: SortKey) => {
+    if (next === sortKey) return;
+    setPreviousSort(sortKey);
+    setSortKey(next);
+    if (next === "cercano") setNeedsGeo(true);
+    const sp = new URLSearchParams(params);
+    if (next === "relevancia") sp.delete("sort");
+    else sp.set("sort", next);
+    setParams(sp, { replace: true });
+  };
+
+  // If the user denied geo (or it errored out), revert + toast.
+  useEffect(() => {
+    if (sortKey === "cercano" && geo.status === "denied") {
+      toast.error("Para usar 'Más cercano' necesitamos tu ubicación");
+      const revertTo = previousSort === "cercano" ? "relevancia" : previousSort;
+      setSortKey(revertTo);
+      setNeedsGeo(false);
+      const sp = new URLSearchParams(params);
+      if (revertTo === "relevancia") sp.delete("sort");
+      else sp.set("sort", revertTo);
+      setParams(sp, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortKey, geo.status]);
 
   // Persist view to URL only. All three modes carry an explicit ?view= so
   // /canchas with no param falls back to the device default (grid/list).
@@ -182,6 +225,16 @@ const SearchPage = () => {
       }),
     [clubsData, filters.sports, filters.surfaces, filters.services, query]
   );
+
+  const userCoords = geo.status === "granted" ? geo.coords : null;
+  const sorted = useMemo(() => {
+    // While we're still asking for permission, hold the prior order rather
+    // than flicker between sort-keys.
+    if (sortKey === "cercano" && !userCoords && geo.status !== "denied") {
+      return filtered;
+    }
+    return sortClubs(filtered, sortKey, userCoords);
+  }, [filtered, sortKey, userCoords, geo.status]);
 
   const scopeLabel =
     barrio && ciudad
@@ -302,7 +355,10 @@ const SearchPage = () => {
             </div>
 
             <div className="shrink-0 px-4 py-3 border-b border-border bg-white space-y-3">
-              {filtersTriggerButton}
+              <div className="flex items-center gap-2">
+                {filtersTriggerButton}
+                <SortDropdown value={sortKey} onChange={handleSortChange} className="h-10 gap-2 border-border flex-1 min-w-0" />
+              </div>
               {query.trim() !== "" && (
                 <SearchQueryChip query={query.trim()} onClear={clearQuery} />
               )}
@@ -329,20 +385,25 @@ const SearchPage = () => {
                 />
               ) : (
                 <>
-                  {filtered.map((c, i) => (
+                  {sorted.map((c, i) => (
                     <div key={c.id}>
                       <ResultCard
                         club={c}
                         active={activeId === c.id}
                         onClick={() => setActiveId(c.id)}
                         onHover={() => setActiveId(c.id)}
+                        distanceKm={
+                          sortKey === "cercano"
+                            ? distanceFromUser(c, userCoords) ?? undefined
+                            : undefined
+                        }
                       />
                       {i === 5 && (
                         <div className="px-3">
                           <AdSlot slot="search-infeed-1" format="infeed" />
                         </div>
                       )}
-                      {i === 17 && filtered.length > 18 && (
+                      {i === 17 && sorted.length > 18 && (
                         <div className="px-3">
                           <AdSlot slot="search-infeed-2" format="infeed" />
                         </div>
@@ -363,7 +424,7 @@ const SearchPage = () => {
           </aside>
 
           <div className={cn("flex-1 relative", mobileView === "map" ? "block" : "hidden md:block")}>
-            <MapView clubs={filtered} />
+            <MapView clubs={sorted} />
             <button
               onClick={() => setMobileView(mobileView === "map" ? "list" : "map")}
               className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 bg-orange text-white px-5 py-3 rounded-full shadow-card-hover text-[13px] font-semibold uppercase tracking-wider hover:brightness-90 transition"
@@ -402,8 +463,9 @@ const SearchPage = () => {
                     resultsLabel={resultsLabel}
                   />
                 </div>
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
                   {filtersTriggerButton}
+                  <SortDropdown value={sortKey} onChange={handleSortChange} />
                   <div className="hidden md:block">
                     <ViewToggle value={view} onChange={handleViewChange} />
                   </div>
@@ -455,7 +517,7 @@ const SearchPage = () => {
                   </div>
                 ) : view === "grid" ? (
                   <GridView
-                    clubs={filtered}
+                    clubs={sorted}
                     loading={dataLoading}
                     mobilePromo={
                       <div className="md:hidden">
@@ -465,7 +527,7 @@ const SearchPage = () => {
                   />
                 ) : (
                   <ListView
-                    clubs={filtered}
+                    clubs={sorted}
                     loading={dataLoading}
                     mobilePromo={
                       <div className="md:hidden">

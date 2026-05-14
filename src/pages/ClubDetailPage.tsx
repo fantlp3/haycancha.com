@@ -33,6 +33,7 @@ import { useClubBySlug, useClubesByBarrio, useClubesByCiudad } from "@/hooks/use
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { getPrimarySportSlug } from "@/lib/queries";
 import { buildClubHref } from "@/lib/club-display";
+import { getDirectionsUrl, getMapsSearchUrl, getWazeUrl } from "@/lib/maps";
 import { assetUrl } from "@/lib/directus";
 import { haversineKm } from "@/lib/geo";
 import { cn } from "@/lib/utils";
@@ -369,9 +370,11 @@ const ClubDetailPage = () => {
   // PostGIS GeoJSON: [lng, lat]. Leaflet wants [lat, lng].
   const [lng, lat] = club.ubicacion.coordinates;
   // search → "show me where it is"; dir → "navigate me there".
-  const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  const googleMapsDirUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-  const wazeUrl = `https://www.waze.com/ul?ll=${lat}%2C${lng}&navigate=yes`;
+  // All three URLs prefer Place ID > business name+address > coords (see lib/maps.ts).
+  // Raw lat/lng from imported Google Places can land mid-block; the cascade fixes that.
+  const googleMapsSearchUrl = getMapsSearchUrl(club);
+  const googleMapsDirUrl = getDirectionsUrl(club);
+  const wazeUrl = getWazeUrl(club);
 
   // Distance from user. Hidden entirely if permission isn't granted.
   const distanceKm =

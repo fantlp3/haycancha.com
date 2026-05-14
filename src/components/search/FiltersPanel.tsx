@@ -33,8 +33,6 @@ const services = [
   "Bar / Restaurante",
 ];
 
-const sortOptions = ["Relevancia", "Más cercano", "Nombre A-Z", "Más canchas"];
-
 export interface FiltersState {
   sports: string[];
   surfaces: string[];
@@ -63,7 +61,6 @@ export const FiltersPanel = ({
   onClear,
   onCountryChange,
 }: Props) => {
-  const [sortOpen, setSortOpen] = useState(false);
   const [countryOpen, setCountryOpen] = useState(false);
 
   const toggleSport = (id: string) => {
@@ -204,39 +201,6 @@ export const FiltersPanel = ({
               </label>
             );
           })}
-        </div>
-      </div>
-
-      {/* Sort */}
-      <div className="space-y-2">
-        <p className="label-meta uppercase text-gray">Ordenar por</p>
-        <div className="relative">
-          <button
-            onClick={() => setSortOpen((o) => !o)}
-            className="w-full flex items-center justify-between bg-light border border-border rounded-md px-3 h-10 text-[13px] font-medium text-dark hover:border-orange/40"
-          >
-            {value.sort}
-            <ChevronDown size={16} className={cn("transition", sortOpen && "rotate-180")} />
-          </button>
-          {sortOpen && (
-            <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-md shadow-card-hover overflow-hidden">
-              {sortOptions.map((o) => (
-                <button
-                  key={o}
-                  onClick={() => {
-                    onChange({ ...value, sort: o });
-                    setSortOpen(false);
-                  }}
-                  className={cn(
-                    "w-full text-left px-3 py-2 text-[13px] hover:bg-light",
-                    value.sort === o && "text-orange font-semibold"
-                  )}
-                >
-                  {o}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 

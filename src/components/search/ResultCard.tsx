@@ -12,9 +12,16 @@ interface Props {
   active?: boolean;
   onClick?: () => void;
   onHover?: () => void;
+  /** When set, renders the distance pill beside the location row. */
+  distanceKm?: number;
 }
 
-export const ResultCard = ({ club, active, onClick, onHover }: Props) => {
+const fmtKm = (km: number): string =>
+  km < 10
+    ? `${km.toFixed(1).replace(".", ",")} km`
+    : `${Math.round(km)} km`;
+
+export const ResultCard = ({ club, active, onClick, onHover, distanceKm }: Props) => {
   const sports = clubSports(club.clubes_deportes);
   const primary = getPrimarySportSlug(club.clubes_deportes ?? []);
   const location = club.barrio?.nombre
@@ -57,7 +64,12 @@ export const ResultCard = ({ club, active, onClick, onHover }: Props) => {
         </h3>
         <p className="flex items-center gap-1 text-[12px] text-gray">
           <MapPin size={11} className="text-orange shrink-0" />
-          {location}
+          <span className="truncate">{location}</span>
+          {distanceKm != null && (
+            <span className="ml-1 shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full bg-orange/10 text-dark text-[11px] font-medium">
+              a {fmtKm(distanceKm)}
+            </span>
+          )}
         </p>
         <div className="flex flex-wrap gap-1 pt-0.5">
           {sports.map((s) => (

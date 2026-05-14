@@ -101,6 +101,8 @@ export interface Club {
     type: "Point";
     coordinates: [number, number];
   };
+  /** Google Place ID for high-precision directions (preferred over coords). */
+  google_place_id: string | null;
 
   telefono: string | null;
   email: string | null;
@@ -220,9 +222,13 @@ export type ClubCard = Pick<
   pais: Pick<Pais, "nombre" | "slug">;
   barrio: Pick<Barrio, "nombre" | "slug"> | null;
   ciudad: Pick<Ciudad, "nombre" | "slug">;
+  /** Used by sort scoring ("completitud") and Más cercano. */
+  telefono?: string | null;
+  website?: string | null;
   clubes_deportes?: Array<{
     es_primario?: boolean;
     superficie?: Superficie | null;
+    cantidad_canchas?: number | null;
     deporte: { slug: string; nombre?: string };
   }>;
   ubicacion?: { type: "Point"; coordinates: [number, number] } | null;

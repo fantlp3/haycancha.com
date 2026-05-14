@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsent } from "@/components/legal/CookieConsent";
+import { ConsentBridge } from "@/lib/cookies/consent-bridge";
 import ScrollToTop from "@/components/utils/ScrollToTop";
 import Index from "./pages/Index.tsx";
 import SearchPage from "./pages/SearchPage.tsx";
@@ -47,12 +48,12 @@ const App = () => (
         </Routes>
         {/*
           Sitewide cookie consent banner + preferences modal.
-          Listens to `cookieConsentChange` so GA4 / AdSense can load conditionally.
-
-          // TODO: mount Google Analytics 4 here, LOAD ONLY IF cookieConsent.analytics === true
-          // TODO: mount Google AdSense script here, LOAD ONLY IF cookieConsent.advertising === true
+          ConsentBridge translates `cookieConsentChange` into Google Consent
+          Mode v2 `gtag('consent','update', …)` calls so GTM-loaded GA4 and
+          AdSense activate only when the matching category is granted.
         */}
         <CookieConsent />
+        <ConsentBridge />
       </BrowserRouter>
     </TooltipProvider>
 );

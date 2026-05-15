@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { withDefaultView } from "@/lib/view-mode";
 import {
@@ -9,7 +8,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Logo } from "./Logo";
-import { LogoHorizontal } from "./LogoHorizontal";
 
 const baseLinks = [
   { label: "Buscar canchas", href: "/canchas", hover: "hover:text-orange" },
@@ -74,9 +72,9 @@ export const Navbar = () => {
           </SheetContent>
         </Sheet>
 
-        <Link to="/" title="HayCancha - Inicio" aria-label="HayCancha inicio" className="shrink-0">
-          <LogoHorizontal className="h-8 md:h-10 w-auto" />
-        </Link>
+        <a href="/" aria-label="HayCancha inicio" className="shrink-0">
+          <Logo variant="light" size={28} />
+        </a>
 
         <nav className="hidden md:flex items-center gap-7 flex-1 justify-center">
           {links.map((l) => (

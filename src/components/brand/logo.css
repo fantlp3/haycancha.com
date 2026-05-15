@@ -1,8 +1,0 @@
-/* Shared brand colors for inline SVG logos.
-   The conceptual classes (.hch-ink, .hch-paper, .hch-brand-orange) replace
-   Illustrator-generated .st1/.st2/.st3 so future theming (e.g. dark inverse,
-   sport-themed circular variant) only touches CSS, not the SVG paths. */
-
-.hch-ink           { fill: #282933; }
-.hch-paper         { fill: #e9eaee; }
-.hch-brand-orange  { fill: #ef7c43; }

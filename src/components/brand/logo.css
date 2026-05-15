@@ -6,3 +6,12 @@
 .hch-ink           { fill: #282933; }
 .hch-paper         { fill: #e9eaee; }
 .hch-brand-orange  { fill: #ef7c43; }
+
+/* Sport-themed accent fill for the LogoCircular's outer arcs.
+   The base class is the default; wrapper classes (.hch-sport-*) override
+   for each landing page context. */
+.hch-sport-stroke                       { fill: #E7E242; }
+.hch-sport-tenis      .hch-sport-stroke { fill: #E7E242; }
+.hch-sport-padel      .hch-sport-stroke { fill: #5DB8D4; }
+.hch-sport-pickleball .hch-sport-stroke { fill: #84CC16; }
+.hch-sport-default    .hch-sport-stroke { fill: #E7E242; }

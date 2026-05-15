@@ -120,6 +120,17 @@ export const Footer = () => {
     <div style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
       <div className="max-w-container mx-auto px-6 lg:px-10 py-4 text-center text-[11px] text-white/50">
         © 2025 HayCancha<span className="text-orange">.</span>com · Hecho con ❤️ para el tenis latinoamericano
+        <div className="mt-1.5">
+          Desarrollado por{" "}
+          <a
+            href="https://p3design.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-orange transition-colors"
+          >
+            P3Design.com
+          </a>
+        </div>
       </div>
     </div>
   </footer>

@@ -1,9 +1,7 @@
 import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { LogoCircular } from "@/components/brand/LogoCircular";
+import { Logo } from "@/components/brand/Logo";
 import { openCookiePreferences } from "@/lib/cookie-consent";
 import { withDefaultView } from "@/lib/view-mode";
-import { getSportFromPath } from "@/lib/sport-from-path";
 
 interface FooterLink {
   label: string;
@@ -66,16 +64,12 @@ export const Footer = () => {
     []
   );
 
-  // Sport context from current route — themes the LogoCircular's outer arcs.
-  const { pathname } = useLocation();
-  const sport = getSportFromPath(pathname);
-
   return (
     <footer style={{ backgroundColor: "#1A1B22" }} className="text-white/60">
     <div className="max-w-container mx-auto px-6 lg:px-10 py-12 md:py-14">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-10">
         <div className="col-span-2 md:col-span-1 space-y-3">
-          <LogoCircular sport={sport} className="w-16 md:w-20" />
+          <Logo variant="light" size={28} />
           <p className="text-[14px] text-white/60 max-w-[220px]">
             El directorio de tenis de Latinoamérica.
           </p>

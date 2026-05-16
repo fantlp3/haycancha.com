@@ -52,8 +52,8 @@ export const Hero = () => {
   return (
     <>
       <HeroRotator overlayGradient="left">
-        <div className="max-w-container mx-auto px-6 lg:px-10 py-16 lg:py-0 lg:min-h-[85vh] flex items-center">
-          <div className="space-y-6 lg:space-y-8 max-w-2xl">
+        <div className="max-w-container mx-auto px-6 lg:px-10 py-16 lg:py-0 lg:min-h-[85vh] flex items-center w-full">
+          <div className="w-full min-w-0 space-y-6 lg:space-y-8 max-w-2xl">
             <p className="label-meta uppercase text-orange tracking-[3px] inline-flex items-center gap-2">
               <SportIcon sport="tenis" size={26} />
               El directorio de tenis de Latinoamérica
@@ -71,7 +71,7 @@ export const Hero = () => {
             <form
               id="home-search"
               onSubmit={handleSubmit}
-              className="bg-white rounded-lg p-2 flex items-center gap-2 max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
+              className="bg-white rounded-lg p-2 flex items-center gap-2 w-full max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
             >
               <div className="flex-1 flex items-center gap-3 pl-3 min-w-0">
                 <Search size={20} className="text-orange shrink-0" />
@@ -85,7 +85,7 @@ export const Hero = () => {
               </div>
               <button
                 type="submit"
-                className="hidden md:inline-flex items-center justify-center h-10 md:h-12 px-6 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition"
+                className="hidden md:inline-flex shrink-0 items-center justify-center h-10 md:h-12 px-6 bg-orange text-white font-semibold text-[14px] uppercase tracking-[1px] leading-none rounded-md hover:brightness-90 transition"
               >
                 Buscar
               </button>
@@ -99,7 +99,7 @@ export const Hero = () => {
             </button>
 
             {/* Chips — horizontal scroll on mobile, wrap on desktop */}
-            <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-visible flex-nowrap -mx-6 px-6 md:mx-0 md:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-visible flex-nowrap -mx-6 px-6 md:mx-0 md:px-0 max-w-[100vw] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {chipsWithView.map((c) => (
                 <a
                   key={c.label}

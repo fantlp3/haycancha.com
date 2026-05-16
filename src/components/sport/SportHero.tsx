@@ -29,14 +29,14 @@ export const SportHero = ({ sport }: Props) => {
 
   return (
     <HeroRotator deporte={sport.key} overlayGradient="left">
-      <div className="max-w-container mx-auto px-6 lg:px-10 py-16 md:py-20 lg:py-24">
-        <div className="space-y-6 lg:space-y-7 max-w-2xl">
+      <div className="max-w-container mx-auto px-6 lg:px-10 py-16 md:py-20 lg:py-24 w-full">
+        <div className="w-full min-w-0 space-y-6 lg:space-y-7 max-w-2xl">
           <p className={cn("text-[11px] font-semibold uppercase tracking-[3px] inline-flex items-center gap-2", text)}>
             <SportIcon sport={sport.key} size={26} />
             {sport.eyebrow}
           </p>
-          <h1 className="font-display text-white leading-[0.85] text-[72px] md:text-[96px] lg:text-[120px]">
-            {sport.name}
+          <h1 className="font-display text-white leading-[0.85] text-[56px] md:text-[80px] lg:text-[96px] whitespace-pre-line">
+            {sport.heroTitle}
             <br />
             <span className={text}>{sport.taglineWord}.</span>
           </h1>
@@ -48,7 +48,7 @@ export const SportHero = ({ sport }: Props) => {
           <form
             id="sport-hero-search"
             onSubmit={handleSubmit}
-            className="bg-white rounded-lg p-2 flex items-center gap-2 max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
+            className="bg-white rounded-lg p-2 flex items-center gap-2 w-full max-w-xl shadow-card focus-within:shadow-focus-orange transition-shadow"
           >
             <span
               className={cn(

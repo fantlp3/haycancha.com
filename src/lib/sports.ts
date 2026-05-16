@@ -18,8 +18,10 @@ export interface EditorialBlock {
 
 export interface SportConfig {
   key: SportKey;
-  /** Display name in UI (uppercase H1). */
+  /** Display name in UI (uppercase H1). Used in chips, filters, breadcrumbs. */
   name: string;
+  /** Hero title — overrides `name` only in the H1 of the sport landing hero. Supports \n for line breaks. */
+  heroTitle: string;
   /** Genitive form for "canchas de X". */
   ofName: string;
   /** Tailwind color name from theme (orange|yellow|celeste|lime). */
@@ -43,10 +45,11 @@ export const SPORTS: Record<SportKey, SportConfig> = {
   tenis: {
     key: "tenis",
     name: "TENIS",
+    heroTitle: "EL SET",
     ofName: "tenis",
     color: "yellow",
     hex: "#E7E242",
-    taglineWord: "perfecta",
+    taglineWord: "empieza acá",
     subtitle:
       "Encontrá clubes de tenis en toda Latinoamérica. Polvo de ladrillo, cemento, sintético, indoor y outdoor — sin intermediarios.",
     eyebrow: "EL DIRECTORIO DE TENIS DE LATINOAMÉRICA",
@@ -101,10 +104,11 @@ export const SPORTS: Record<SportKey, SportConfig> = {
   padel: {
     key: "padel",
     name: "PÁDEL",
+    heroTitle: "ARMÁ PARTIDO",
     ofName: "pádel",
     color: "celeste",
     hex: "#5DB8D4",
-    taglineWord: "indoor",
+    taglineWord: "más fácil",
     subtitle:
       "Encontrá clubes de pádel en toda Latinoamérica. Indoor y outdoor, cristal panorámico, redes reglamentarias.",
     eyebrow: "EL DIRECTORIO DE PÁDEL DE LATINOAMÉRICA",
@@ -159,10 +163,11 @@ export const SPORTS: Record<SportKey, SportConfig> = {
   pickleball: {
     key: "pickleball",
     name: "PICKLEBALL",
+    heroTitle: "EL DEPORTE QUE\nMÁS CRECE",
     ofName: "pickleball",
     color: "lime",
     hex: "#84CC16",
-    taglineWord: "amateur",
+    taglineWord: "ya tiene cancha",
     subtitle:
       "Encontrá clubes de pickleball en toda Latinoamérica — el deporte amateur de mayor crecimiento en la región.",
     eyebrow: "EL DIRECTORIO DE PICKLEBALL DE LATINOAMÉRICA",

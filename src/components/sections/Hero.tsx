@@ -59,9 +59,9 @@ export const Hero = () => {
               El directorio de tenis de Latinoamérica
             </p>
             <h1 className="font-display text-white text-[56px] md:text-[72px] lg:text-[80px] leading-[0.9]">
-              ENCONTRÁ<br />
-              TU CANCHA<br />
-              <span className="text-orange">PERFECTA.</span>
+              TU PRÓXIMO<br />
+              PARTIDO<br />
+              <span className="text-orange">EMPIEZA ACÁ.</span>
             </h1>
             <p className="text-white/85 text-[16px] md:text-[18px] max-w-xl leading-relaxed">
               Más de {totalDisplay} clubes y canchas de tenis, pádel y pickleball en toda Latinoamérica. Gratis.

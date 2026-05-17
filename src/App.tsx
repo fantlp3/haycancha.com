@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsent } from "@/components/legal/CookieConsent";
 import { ConsentBridge } from "@/lib/cookies/consent-bridge";
 import ScrollToTop from "@/components/utils/ScrollToTop";
+import { AdsenseScript } from "@/components/blog/AdsenseScript";
 import Index from "./pages/Index.tsx";
 import SearchPage from "./pages/SearchPage.tsx";
 import ClubDetailPage from "./pages/ClubDetailPage.tsx";
@@ -16,6 +17,8 @@ import TerminosPage from "./pages/TerminosPage.tsx";
 import AtribucionOsmPage from "./pages/AtribucionOsmPage.tsx";
 import SobrePage from "./pages/SobrePage.tsx";
 import ContactoPage from "./pages/ContactoPage.tsx";
+import BlogPage from "./pages/BlogPage.tsx";
+import ArticuloDetailPage from "./pages/ArticuloDetailPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const App = () => (
@@ -36,6 +39,8 @@ const App = () => (
           <Route path="/sobre" element={<SobrePage />} />
           <Route path="/sobre-haycancha" element={<SobrePage />} />
           <Route path="/contacto" element={<ContactoPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<ArticuloDetailPage />} />
           <Route path="/canchas" element={<SearchPage />} />
           <Route path="/canchas/:pais" element={<SearchPage />} />
           <Route path="/canchas/:pais/:ciudad" element={<SearchPage />} />
@@ -54,6 +59,7 @@ const App = () => (
         */}
         <CookieConsent />
         <ConsentBridge />
+        <AdsenseScript />
       </BrowserRouter>
     </TooltipProvider>
 );

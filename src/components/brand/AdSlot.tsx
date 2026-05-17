@@ -1,24 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { MONETIZATION } from "@/lib/monetization";
 
 /**
- * AdSlot — Google AdSense slot wrapper.
+ * AdSlot — Google AdSense slot wrapper (directorio: home / club detail /
+ * search results). Distinct from the blog's `AdSlotMarker`.
  *
- * Renders an <ins class="adsbygoogle"> and pushes to adsbygoogle on mount.
- * If AdSense returns `data-ad-status="unfilled"` (or never responds within
- * UNFILL_TIMEOUT_MS), the whole slot is unmounted — no empty placeholder
- * is shown in production. While the AdSense account is in review this is
- * effectively always-hidden, which is the desired behavior.
+ * Gated by env var via `MONETIZATION.adsense`. When the publisher id isn't
+ * configured, the slot is fully suppressed (`return null`) — no `<ins>` ever
+ * mounts, no `window.adsbygoogle.push` ever fires, no request to
+ * pagead2.googlesyndication.com is queued. This matches the "AdSense pending
+ * approval" UX: don't show empty slots in production.
  *
- * Detection technique:
- *   primary  → MutationObserver on data-ad-status (filled | unfilled)
- *   fallback → after timeout, check getBoundingClientRect().height < threshold
- *              (covers blocked scripts, adblockers, script-not-loaded races)
- *
- * Note on `slot` prop: AdSense expects a numeric publisher slot id
- * (e.g. "1234567890"), not a semantic string. Until those ids are created
- * in the AdSense dashboard and mapped here, the semantic strings cause
- * AdSense to return unfilled → slot stays hidden, which is fine.
+ * When enabled:
+ *   - renders `<ins class="adsbygoogle">` with the env-driven client id
+ *   - pushes to adsbygoogle on mount
+ *   - auto-hides if `data-ad-status="unfilled"` arrives (primary) or the
+ *     timeout fires without a fill (fallback)
  */
 
 declare global {
@@ -27,7 +25,6 @@ declare global {
   }
 }
 
-const ADSENSE_CLIENT = "ca-pub-2602781084435740";
 const UNFILL_TIMEOUT_MS = 4000;
 const FILLED_HEIGHT_PX = 10;
 
@@ -77,8 +74,11 @@ const FORMAT_META: Record<
 export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps) => {
   const insRef = useRef<HTMLModElement | null>(null);
   const [status, setStatus] = useState<AdStatus>("loading");
+  const enabled = MONETIZATION.adsense.enabled;
+  const publisherId = MONETIZATION.adsense.publisherId;
 
   useEffect(() => {
+    if (!enabled || !publisherId) return;
     if (typeof window === "undefined") return;
     const ins = insRef.current;
     if (!ins) return;
@@ -119,9 +119,12 @@ export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps)
       observer.disconnect();
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [enabled, publisherId]);
 
   if (hidden) return null;
+  // Suppress entirely when AdSense isn't configured. No <ins>, no push,
+  // no network requests to pagead2.googlesyndication.com.
+  if (!enabled || !publisherId) return null;
   if (status === "unfilled") return null;
 
   const meta = FORMAT_META[format];
@@ -145,7 +148,7 @@ export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps)
         ref={insRef}
         className="adsbygoogle"
         style={{ display: "block" }}
-        data-ad-client={ADSENSE_CLIENT}
+        data-ad-client={publisherId}
         data-ad-slot={slot}
         data-ad-format="auto"
         data-full-width-responsive="true"

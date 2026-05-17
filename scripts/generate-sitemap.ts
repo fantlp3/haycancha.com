@@ -41,6 +41,13 @@ interface ClubRow {
   barrio: { slug: string | null } | null;
 }
 
+interface ArticuloRow {
+  slug: string | null;
+  url_canonical: string | null;
+  fecha_publicacion: string | null;
+  fecha_modificacion: string | null;
+}
+
 type Url = {
   loc: string;
   lastmod?: string;
@@ -64,6 +71,47 @@ async function fetchCollection<T>(collection: string, fields: string): Promise<T
   return json.data;
 }
 
+/**
+ * Mirrors the public-app filter (`publishedOrDueFilter` in src/lib/queries.ts):
+ * `published` OR (`scheduled` AND `fecha_publicacion <= now`). This way
+ * articles "auto-publish" into the sitemap as their date passes.
+ */
+async function fetchPublicArticulos(): Promise<ArticuloRow[]> {
+  const filter = {
+    _or: [
+      { estado: { _eq: "published" } },
+      {
+        _and: [
+          { estado: { _eq: "scheduled" } },
+          { fecha_publicacion: { _lte: new Date().toISOString() } },
+        ],
+      },
+    ],
+  };
+  const params = new URLSearchParams({
+    filter: JSON.stringify(filter),
+    fields: "slug,url_canonical,fecha_publicacion,fecha_modificacion",
+    limit: "-1",
+  });
+  const url = `${DIRECTUS_URL}/items/articulos?${params.toString()}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    // Fail-soft: if `articulos` lacks Public Read (e.g. permissions not yet
+    // configured), skip blog URLs but still emit the rest of the sitemap.
+    // The build keeps working; we just lose blog SEO until permissions land.
+    const body = await res.text().catch(() => "<unreadable>");
+    console.warn(
+      `[sitemap] WARN: articulos fetch returned HTTP ${res.status}. ` +
+        `Blog URLs will be omitted from the sitemap. ` +
+        `Fix: configure Public Read on the 'articulos' collection in Directus.`
+    );
+    console.warn(`[sitemap] WARN response body: ${body.slice(0, 200)}`);
+    return [];
+  }
+  const json = (await res.json()) as { data: ArticuloRow[] };
+  return json.data;
+}
+
 const isoOrUndef = (s: string | null | undefined): string | undefined =>
   s ? s : undefined;
 
@@ -82,17 +130,18 @@ const renderUrl = (u: Url): string => {
 
 async function main() {
   console.log(`[sitemap] DIRECTUS_URL = ${DIRECTUS_URL}`);
-  console.log("[sitemap] Fetching paises, ciudades, barrios, clubes…");
+  console.log("[sitemap] Fetching paises, ciudades, barrios, clubes, articulos…");
 
-  const [paises, ciudades, barrios, clubes] = await Promise.all([
+  const [paises, ciudades, barrios, clubes, articulos] = await Promise.all([
     fetchCollection<PaisRow>("paises", "slug,date_updated"),
     fetchCollection<CiudadRow>("ciudades", "slug,date_updated,pais.slug"),
     fetchCollection<BarrioRow>("barrios", "slug,date_updated,ciudad.slug,ciudad.pais.slug"),
     fetchCollection<ClubRow>("clubes", "slug,date_updated,pais.slug,ciudad.slug,barrio.slug"),
+    fetchPublicArticulos(),
   ]);
 
   console.log(
-    `[sitemap] Got ${paises.length} paises · ${ciudades.length} ciudades · ${barrios.length} barrios · ${clubes.length} clubes`
+    `[sitemap] Got ${paises.length} paises · ${ciudades.length} ciudades · ${barrios.length} barrios · ${clubes.length} clubes · ${articulos.length} articulos`
   );
 
   const urls: Url[] = [];
@@ -176,7 +225,27 @@ async function main() {
     console.warn(`[sitemap] Skipped ${clubsSkipped} clubes with missing pais/ciudad/slug`);
   }
 
-  // 10. Legal pages
+  // 10. Blog hub
+  urls.push({
+    loc: `${SITE_URL}/blog`,
+    changefreq: "daily",
+    priority: "0.7",
+  });
+
+  // 11. Article detail pages — `published` OR `scheduled` whose date passed
+  let articulosEmitted = 0;
+  for (const a of articulos) {
+    if (!a.slug) continue;
+    urls.push({
+      loc: `${SITE_URL}/blog/${a.slug}`,
+      lastmod: isoOrUndef(a.fecha_modificacion || a.fecha_publicacion),
+      changefreq: "weekly",
+      priority: "0.6",
+    });
+    articulosEmitted++;
+  }
+
+  // 12. Legal pages
   for (const legal of ["privacidad", "terminos", "atribucion-osm"]) {
     urls.push({
       loc: `${SITE_URL}/${legal}`,
@@ -193,7 +262,7 @@ ${urls.map(renderUrl).join("\n")}
 
   writeFileSync(OUTPUT_PATH, xml);
   console.log(
-    `[sitemap] Wrote ${OUTPUT_PATH} — ${urls.length} URLs (${clubsEmitted} clubes)`
+    `[sitemap] Wrote ${OUTPUT_PATH} — ${urls.length} URLs (${clubsEmitted} clubes · ${articulosEmitted} articulos)`
   );
 }
 

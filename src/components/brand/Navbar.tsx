@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { withDefaultView } from "@/lib/view-mode";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +17,18 @@ const baseLinks = [
   { label: "Tenis", href: "/tenis", hover: "hover:text-yellow" },
   { label: "Pádel", href: "/padel", hover: "hover:text-celeste" },
   { label: "Pickleball", href: "/pickleball", hover: "hover:text-lime" },
+  { label: "Blog", href: "/blog", hover: "hover:text-orange" },
 ];
+
+/** Active when pathname matches the link's path. `/blog` also covers
+ *  `/blog/:slug`; `/canchas` covers any nested geo route. Query strings
+ *  on the link href (e.g. ?view=map) are ignored for matching. */
+const isLinkActive = (linkHref: string, pathname: string): boolean => {
+  const path = linkHref.split("?")[0];
+  if (path === "/blog") return pathname === "/blog" || pathname.startsWith("/blog/");
+  if (path === "/canchas") return pathname === "/canchas" || pathname.startsWith("/canchas/");
+  return pathname === path;
+};
 
 export const Navbar = () => {
   // "Buscar canchas" gets its default view (grid/list) injected once at mount.
@@ -29,6 +42,7 @@ export const Navbar = () => {
   );
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { pathname } = useLocation();
 
   return (
     <header className="sticky top-0 z-[1000] bg-dark border-b border-white/10">
@@ -50,16 +64,25 @@ export const Navbar = () => {
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col px-2 py-4">
-              {links.map((l) => (
-                <a
-                  key={l.label}
-                  href={l.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`px-4 py-3 rounded-md text-[15px] font-medium text-white/85 ${l.hover} hover:bg-white/5 transition-colors`}
-                >
-                  {l.label}
-                </a>
-              ))}
+              {links.map((l) => {
+                const active = isLinkActive(l.href, pathname);
+                return (
+                  <a
+                    key={l.label}
+                    href={l.href}
+                    onClick={() => setMobileOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "px-4 py-3 rounded-md text-[15px] font-medium transition-colors",
+                      active
+                        ? "text-orange bg-white/5"
+                        : `text-white/85 ${l.hover} hover:bg-white/5`
+                    )}
+                  >
+                    {l.label}
+                  </a>
+                );
+              })}
               <div className="my-3 mx-4 h-px bg-white/10" />
               <a
                 href="/agregar-cancha"
@@ -77,15 +100,22 @@ export const Navbar = () => {
         </a>
 
         <nav className="hidden md:flex items-center gap-7 flex-1 justify-center">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className={`text-[14px] font-medium text-white/80 ${l.hover} transition-colors`}
-            >
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) => {
+            const active = isLinkActive(l.href, pathname);
+            return (
+              <a
+                key={l.label}
+                href={l.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "text-[14px] font-medium transition-colors",
+                  active ? "text-orange" : `text-white/80 ${l.hover}`
+                )}
+              >
+                {l.label}
+              </a>
+            );
+          })}
         </nav>
 
         <a

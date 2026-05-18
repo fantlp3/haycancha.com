@@ -63,9 +63,10 @@ const ArticuloDetailPage = () => {
       />
       {articulo.imagen_destacada_url && articulo.imagen_destacada_credito && (
         <div className="max-w-container mx-auto px-6 lg:px-10">
-          <p className="text-xs text-muted-foreground text-right italic mt-2">
-            {articulo.imagen_destacada_credito}
-          </p>
+          <p
+            className="text-xs text-muted-foreground text-right italic mt-2"
+            dangerouslySetInnerHTML={{ __html: articulo.imagen_destacada_credito }}
+          />
         </div>
       )}
 

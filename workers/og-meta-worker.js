@@ -2,36 +2,37 @@
  * og-meta-worker.js
  *
  * Cloudflare Worker that serves dynamic OG / Twitter / canonical meta tags
- * for social-media bots scraping article URLs on haycancha.com.
+ * for social-media bots scraping content URLs on haycancha.com.
  *
- *   bot   → fetch the article from Directus, return minimal HTML with proper meta
+ *   bot   → fetch the item from Directus, return minimal HTML with proper meta
  *   human → passthrough to the regular React SPA (Cloudflare Pages origin)
  *
- * Routes are configured in `wrangler.toml`. The Worker is only attached to
- * /blog/* — the SPA serves everything else with no Worker overhead.
+ * Currently handles:
+ *   - /blog/<slug>                                       (articulos)
+ *   - /canchas/<pais>/<ciudad>/<slug>                    (clubes, ambiguous 3-seg)
+ *   - /canchas/<pais>/<ciudad>/<barrio>/<slug>           (clubes, canonical 4-seg)
+ *
+ * The 3-seg /canchas form is ambiguous on the SPA (slug may be a barrio
+ * instead of a club). The Worker treats it like the SPA: try the club
+ * lookup; if it returns null, passthrough so the SPA can render the
+ * barrio search page or 404.
  *
  * ───────────────────────────────────────────────────────────────────────────
- * Extending to /canchas/<pais>/<ciudad>/<slug> (or any other route)
+ * Extending to a new content type
  * ───────────────────────────────────────────────────────────────────────────
- * 1. Add the route to wrangler.toml under [[routes]] (e.g.
- *    pattern = "haycancha.com/canchas/*"). One Worker can fan out across
- *    many route patterns.
+ * 1. Add the route pattern to wrangler.toml under [[routes]].
  * 2. Add a branch to `matchRoute(pathname)` that returns
- *    { type: "club", pais, ciudad, slug }. Keep the strict ASCII slug regex.
- * 3. Add a fetcher (e.g. `fetchClubMeta`) that hits
- *    GET {DIRECTUS_URL}/items/clubes?filter[slug][_eq]=<slug>
- *        &fields=nombre,descripcion,imagen_portada,direccion,...
- *        &deep[clubes_deportes][_filter][es_primario][_eq]=true
- *    Be sure to also filter by `pais`/`ciudad` to disambiguate slugs that
- *    repeat across cities. Pick `imagen_portada` (a Directus File UUID, not
- *    an external URL like articulos do) and build the asset URL with
- *    `${DIRECTUS_URL}/assets/${uuid}?width=1080&height=720&fit=cover`.
- * 4. Add a renderer that maps club fields → meta tags (same shape as
- *    renderMetaHtml below, just different titulo/description/image sources).
- * 5. Dispatch in the main fetch handler based on `route.type`.
+ *    { type: "<name>", slug } (or whatever params you need). Keep the
+ *    strict ASCII slug regex.
+ * 3. Write a `fetch<Type>Meta(slug, token)` that hits Directus and returns
+ *    the normalised shape consumed by `renderMetaHtml`:
+ *      { title, description, image, image_alt, og_type, image_width,
+ *        image_height }
+ *    Returning null triggers passthrough — never invent a fake payload.
+ * 4. Dispatch on `route.type` in the main fetch handler.
  *
- * Keep the cache key per-route-type and per-slug so blog and club caches
- * don't collide.
+ * Caching is keyed by full URL (origin + pathname), so different route
+ * types don't collide.
  */
 
 const DIRECTUS_URL = "https://api.haycancha.com";
@@ -104,16 +105,17 @@ export default {
       const cached = await cache.match(cacheKey);
       if (cached) return cached;
 
-      const meta = await fetchArticleMeta(route.slug, env.DIRECTUS_TOKEN);
+      const meta = await fetchMetaForRoute(route, env.DIRECTUS_TOKEN);
 
-      // Article not found / unpublished → passthrough. The SPA renders a
-      // 404 page; bots see that page's default meta. Not ideal but not
+      // Item not found / unpublished → passthrough. The SPA renders the
+      // 404 page (or, for ambiguous 3-seg /canchas, the barrio search
+      // page). Bots see that page's default meta. Not ideal but not
       // catastrophic, and avoids us inventing a fake meta payload.
       if (!meta) {
         return fetch(request);
       }
 
-      const canonicalUrl = `https://haycancha.com/blog/${meta.slug}`;
+      const canonicalUrl = buildCanonicalUrl(route, meta);
       const html = renderMetaHtml(meta, canonicalUrl);
 
       const response = new Response(html, {
@@ -121,7 +123,7 @@ export default {
         headers: {
           "content-type": "text/html; charset=utf-8",
           "cache-control": `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}`,
-          "x-og-worker": "blog",
+          "x-og-worker": route.type,
         },
       });
 
@@ -139,22 +141,46 @@ export default {
  * Match a request path to a known content type. Returns null if the path
  * shouldn't be intercepted (and the Worker should passthrough).
  *
- * Current: /blog/<slug>
- * Future:  /canchas/<pais>/<ciudad>/<slug> — add another branch and let
- *          matchRoute return { type: "club", pais, ciudad, slug }.
+ *   /blog/<slug>                              → { type: "blog", slug }
+ *   /canchas/<pais>/<ciudad>/<slug>           → { type: "club", slug, pathname }
+ *   /canchas/<pais>/<ciudad>/<barrio>/<slug>  → { type: "club", slug, pathname }
  *
- * Importantly: `/blog`, `/blog/`, and `/blog/<slug>/something` all return
- * null. The Worker only acts on a single-segment slug under /blog/.
+ * Notes:
+ * - Club slugs are globally unique in `clubes` (verified against Directus,
+ *   2297/2297 unique), so the Worker only needs the trailing slug to
+ *   fetch — no pais/ciudad/barrio filter.
+ * - The 3-seg /canchas form is ambiguous (could be a barrio). The Worker
+ *   speculatively tries the club lookup; a null result causes passthrough,
+ *   which is the correct behaviour for both "this slug is a barrio" and
+ *   "this slug doesn't exist."
+ * - The original `pathname` is stashed on the route so the canonical URL
+ *   we emit matches the URL the bot scraped — important for
+ *   FB / Twitter dedupe.
  */
 function matchRoute(pathname) {
   // Strip exactly one trailing slash for matching, but keep the
-  // distinction between "/blog" and "/blog/<slug>".
-  const parts = pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+  // distinction between e.g. "/blog" and "/blog/<slug>".
+  const trimmed = pathname.replace(/\/+$/, "");
+  const parts = trimmed.split("/").filter(Boolean);
 
   if (parts.length === 2 && parts[0] === "blog") {
     const slug = parts[1];
     if (!SLUG_PATTERN.test(slug)) return null;
-    return { type: "blog", slug };
+    return { type: "blog", slug, pathname: trimmed };
+  }
+
+  // /canchas/<pais>/<ciudad>/<slug>  OR  /canchas/<pais>/<ciudad>/<barrio>/<slug>
+  if (
+    (parts.length === 4 || parts.length === 5) &&
+    parts[0] === "canchas"
+  ) {
+    // Every segment must be a clean slug. Reject if any is junk so we
+    // don't fan out to Directus for nonsense paths.
+    for (const segment of parts.slice(1)) {
+      if (!SLUG_PATTERN.test(segment)) return null;
+    }
+    const slug = parts[parts.length - 1];
+    return { type: "club", slug, pathname: trimmed };
   }
 
   return null;
@@ -165,24 +191,34 @@ function isBot(userAgent) {
   return BOT_PATTERN.test(userAgent);
 }
 
-/**
- * Fetch the meta fields for an article by slug. Returns null when:
- *   - the slug isn't published / doesn't exist
- *   - Directus returns a non-2xx
- *   - the request times out (8s ceiling)
- *
- * Callers MUST handle null by falling back to passthrough.
- */
-async function fetchArticleMeta(slug, token) {
-  const endpoint = new URL("/items/articulos", DIRECTUS_URL);
-  endpoint.searchParams.set("filter[slug][_eq]", slug);
-  endpoint.searchParams.set("filter[estado][_eq]", "published");
-  endpoint.searchParams.set(
-    "fields",
-    "slug,titulo,excerpt,imagen_destacada_url,imagen_destacada_alt"
-  );
-  endpoint.searchParams.set("limit", "1");
+/** Default OG image for items missing a portada. Same asset the SPA shell uses. */
+const FALLBACK_OG_IMAGE = "https://haycancha.com/og-default.jpg";
 
+/** Standard OG card dimensions — FB/Twitter prefer 1200x630. */
+const OG_IMAGE_WIDTH = 1200;
+const OG_IMAGE_HEIGHT = 630;
+
+/** Build the canonical URL the worker emits in `<link rel="canonical">` and og:url. */
+function buildCanonicalUrl(route, _meta) {
+  // We echo back the exact pathname the bot requested. For /canchas the
+  // SPA accepts both 3-seg and 4-seg forms; respecting what was scraped
+  // keeps social-network dedupe working.
+  return `https://haycancha.com${route.pathname}`;
+}
+
+/** Dispatch by content type to the right fetcher. */
+async function fetchMetaForRoute(route, token) {
+  if (route.type === "blog") return fetchArticleMeta(route.slug, token);
+  if (route.type === "club") return fetchClubMeta(route.slug, token);
+  return null;
+}
+
+/**
+ * Wraps a Directus GET with a Bearer token (if set), an 8s timeout, and
+ * Cloudflare edge caching for 60s. Returns the parsed `data` array, or
+ * null on any non-2xx / timeout.
+ */
+async function fetchFromDirectus(endpoint, token) {
   const headers = { accept: "application/json" };
   if (token) headers.authorization = `Bearer ${token}`;
 
@@ -201,17 +237,106 @@ async function fetchArticleMeta(slug, token) {
   }
 
   if (!res.ok) return null;
-
   const payload = await res.json();
-  const row = payload?.data?.[0];
+  return payload?.data ?? null;
+}
+
+/**
+ * Fetch meta for an article by slug. Returns the normalised shape consumed
+ * by `renderMetaHtml`, or null when the slug isn't published / doesn't
+ * exist / Directus errors out.
+ */
+async function fetchArticleMeta(slug, token) {
+  const endpoint = new URL("/items/articulos", DIRECTUS_URL);
+  endpoint.searchParams.set("filter[slug][_eq]", slug);
+  endpoint.searchParams.set("filter[estado][_eq]", "published");
+  endpoint.searchParams.set(
+    "fields",
+    "slug,titulo,excerpt,imagen_destacada_url,imagen_destacada_alt"
+  );
+  endpoint.searchParams.set("limit", "1");
+
+  const rows = await fetchFromDirectus(endpoint, token);
+  const row = rows?.[0];
   if (!row || !row.slug) return null;
 
+  const title = row.titulo || "";
   return {
-    slug: row.slug,
-    titulo: row.titulo || "",
-    excerpt: row.excerpt || "",
-    imagen_destacada_url: row.imagen_destacada_url || "",
-    imagen_destacada_alt: row.imagen_destacada_alt || "",
+    page_title: `${title} — HayCancha`,
+    title,
+    description: row.excerpt || "",
+    image: row.imagen_destacada_url || FALLBACK_OG_IMAGE,
+    image_alt: row.imagen_destacada_alt || title,
+    og_type: "article",
+    // Articulos use the editorial portrait crop (1080x720 from the CMS).
+    image_width: 1080,
+    image_height: 720,
+  };
+}
+
+/**
+ * Fetch meta for a club by slug. Slugs are globally unique across the
+ * `clubes` collection, so the trailing URL segment is enough to identify
+ * the row. The `activo = true` filter is the published gate (same one
+ * src/lib/queries.ts uses for the SPA).
+ *
+ * Fallbacks:
+ *   - foto_portada null → og:default fallback image
+ *   - meta_title  null → "{nombre} — HayCancha"
+ *   - meta_descripcion null → descripcion → "{nombre} en {barrio o ciudad}…"
+ */
+async function fetchClubMeta(slug, token) {
+  const endpoint = new URL("/items/clubes", DIRECTUS_URL);
+  endpoint.searchParams.set("filter[slug][_eq]", slug);
+  endpoint.searchParams.set("filter[activo][_eq]", "true");
+  endpoint.searchParams.set(
+    "fields",
+    [
+      "slug",
+      "nombre",
+      "descripcion",
+      "meta_title",
+      "meta_description",
+      "foto_portada",
+      "pais.nombre",
+      "ciudad.nombre",
+      "barrio.nombre",
+    ].join(",")
+  );
+  endpoint.searchParams.set("limit", "1");
+
+  const rows = await fetchFromDirectus(endpoint, token);
+  const row = rows?.[0];
+  if (!row || !row.slug) return null;
+
+  const nombre = row.nombre || "";
+  const localityLabel =
+    row.barrio?.nombre || row.ciudad?.nombre || row.pais?.nombre || "";
+
+  const pageTitle = row.meta_title || `${nombre} — HayCancha`;
+
+  const description =
+    row.meta_description ||
+    row.descripcion ||
+    (localityLabel
+      ? `${nombre} en ${localityLabel}. Información, contacto y ubicación en HayCancha.`
+      : `${nombre} — HayCancha.`);
+
+  const image = row.foto_portada
+    ? `${DIRECTUS_URL}/assets/${row.foto_portada}?width=${OG_IMAGE_WIDTH}&height=${OG_IMAGE_HEIGHT}&fit=cover`
+    : FALLBACK_OG_IMAGE;
+
+  return {
+    page_title: pageTitle,
+    title: nombre,
+    description,
+    image,
+    image_alt: nombre,
+    // "website" instead of "place" — equivalent visual treatment in social
+    // previews and we avoid needing lat/lng + place:location:* fields.
+    og_type: "website",
+    image_width: OG_IMAGE_WIDTH,
+    image_height: OG_IMAGE_HEIGHT,
   };
 }
 
@@ -220,43 +345,41 @@ async function fetchArticleMeta(slug, token) {
  * Body intentionally contains a short note + a link to the canonical URL
  * so that a human who somehow lands here (curl with a bot UA, etc.) can
  * still navigate.
+ *
+ * `meta` shape (produced by fetch*Meta):
+ *   { page_title, title, description, image, image_alt, og_type,
+ *     image_width, image_height }
  */
 function renderMetaHtml(meta, canonicalUrl) {
-  const titulo = meta.titulo;
-  const excerpt = meta.excerpt;
-  const image = meta.imagen_destacada_url;
-  const imageAlt = meta.imagen_destacada_alt;
-  const pageTitle = `${titulo} — HayCancha`;
-
   return `<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(pageTitle)}</title>
-<meta name="description" content="${esc(excerpt)}">
+<title>${esc(meta.page_title)}</title>
+<meta name="description" content="${esc(meta.description)}">
 <link rel="canonical" href="${esc(canonicalUrl)}">
 
-<meta property="og:type" content="article">
-<meta property="og:title" content="${esc(titulo)}">
-<meta property="og:description" content="${esc(excerpt)}">
-<meta property="og:image" content="${esc(image)}">
-<meta property="og:image:alt" content="${esc(imageAlt)}">
-<meta property="og:image:width" content="1080">
-<meta property="og:image:height" content="720">
+<meta property="og:type" content="${esc(meta.og_type)}">
+<meta property="og:title" content="${esc(meta.title)}">
+<meta property="og:description" content="${esc(meta.description)}">
+<meta property="og:image" content="${esc(meta.image)}">
+<meta property="og:image:alt" content="${esc(meta.image_alt)}">
+<meta property="og:image:width" content="${esc(meta.image_width)}">
+<meta property="og:image:height" content="${esc(meta.image_height)}">
 <meta property="og:url" content="${esc(canonicalUrl)}">
 <meta property="og:site_name" content="HayCancha">
 <meta property="og:locale" content="es_AR">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${esc(titulo)}">
-<meta name="twitter:description" content="${esc(excerpt)}">
-<meta name="twitter:image" content="${esc(image)}">
-<meta name="twitter:image:alt" content="${esc(imageAlt)}">
+<meta name="twitter:title" content="${esc(meta.title)}">
+<meta name="twitter:description" content="${esc(meta.description)}">
+<meta name="twitter:image" content="${esc(meta.image)}">
+<meta name="twitter:image:alt" content="${esc(meta.image_alt)}">
 </head>
 <body>
-<h1>${esc(titulo)}</h1>
-<p>${esc(excerpt)}</p>
+<h1>${esc(meta.title)}</h1>
+<p>${esc(meta.description)}</p>
 <p><a href="${esc(canonicalUrl)}">${esc(canonicalUrl)}</a></p>
 </body>
 </html>`;

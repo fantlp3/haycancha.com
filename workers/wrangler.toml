@@ -16,6 +16,14 @@ zone_name = "haycancha.com"
 pattern = "www.haycancha.com/blog/*"
 zone_name = "haycancha.com"
 
+[[routes]]
+pattern = "haycancha.com/canchas/*"
+zone_name = "haycancha.com"
+
+[[routes]]
+pattern = "www.haycancha.com/canchas/*"
+zone_name = "haycancha.com"
+
 # Observability — surface Worker logs in `wrangler tail` and the dashboard.
 [observability]
 enabled = true

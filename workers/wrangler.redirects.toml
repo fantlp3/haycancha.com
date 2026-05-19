@@ -1,0 +1,23 @@
+name = "haycancha-redirects"
+main = "redirects-worker.js"
+compatibility_date = "2025-05-01"
+
+# Attach to all of haycancha.com (incl. www). The worker itself does the
+# narrow matching and passes everything else through unchanged. The OG
+# meta worker lives on more specific routes (/blog/* and /canchas/*);
+# Cloudflare route-resolution picks the most specific route, so the OG
+# worker keeps owning those paths and never collides with this one.
+[[routes]]
+pattern = "haycancha.com/*"
+zone_name = "haycancha.com"
+
+[[routes]]
+pattern = "www.haycancha.com/*"
+zone_name = "haycancha.com"
+
+[observability]
+enabled = true
+
+# DIRECTUS_TOKEN comes in as a Worker secret (anonymous read works for
+# clubes today, but the Bearer header is sent when set):
+#   wrangler secret put DIRECTUS_TOKEN --config wrangler.redirects.toml

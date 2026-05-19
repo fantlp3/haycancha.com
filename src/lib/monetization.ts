@@ -27,6 +27,15 @@ export const MONETIZATION = {
       AD_SLOT_1: (import.meta.env.VITE_ADSENSE_SLOT_1 as string | undefined) || null,
       AD_SLOT_2: (import.meta.env.VITE_ADSENSE_SLOT_2 as string | undefined) || null,
       AD_SLOT_3: (import.meta.env.VITE_ADSENSE_SLOT_3 as string | undefined) || null,
+      // Directory-side slots (Index, ClubDetailPage, SearchPage). Mapped from
+      // the descriptive slot prop in AdSlot.tsx so the page code keeps using
+      // human-readable identifiers ("home-between-sections", etc.) while the
+      // <ins data-ad-slot> receives the real numeric ad-unit id.
+      DIR_HOME_1: (import.meta.env.VITE_ADSENSE_DIR_HOME_1 as string | undefined) || null,
+      DIR_CLUB_AFTER: (import.meta.env.VITE_ADSENSE_DIR_CLUB_AFTER as string | undefined) || null,
+      DIR_CLUB_BEFORE: (import.meta.env.VITE_ADSENSE_DIR_CLUB_BEFORE as string | undefined) || null,
+      DIR_SEARCH_1: (import.meta.env.VITE_ADSENSE_DIR_SEARCH_1 as string | undefined) || null,
+      DIR_SEARCH_2: (import.meta.env.VITE_ADSENSE_DIR_SEARCH_2 as string | undefined) || null,
     },
   },
 

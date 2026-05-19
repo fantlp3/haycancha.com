@@ -71,11 +71,26 @@ const FORMAT_META: Record<
   },
 };
 
+// Map the human-readable `slot` prop to the real AdSense ad-unit id pulled from
+// env vars via MONETIZATION.adsense.slotIds. The page code keeps using
+// descriptive strings ("home-between-sections", etc.); AdSense receives the
+// numeric id. When the mapped id is null (env var missing) we suppress the
+// slot entirely rather than send a string AdSense can't resolve.
+const SLOT_ID_MAP: Record<string, keyof typeof MONETIZATION.adsense.slotIds> = {
+  "home-between-sections": "DIR_HOME_1",
+  "club-after-gallery": "DIR_CLUB_AFTER",
+  "club-before-similar": "DIR_CLUB_BEFORE",
+  "search-infeed-1": "DIR_SEARCH_1",
+  "search-infeed-2": "DIR_SEARCH_2",
+};
+
 export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps) => {
   const insRef = useRef<HTMLModElement | null>(null);
   const [status, setStatus] = useState<AdStatus>("loading");
   const enabled = MONETIZATION.adsense.enabled;
   const publisherId = MONETIZATION.adsense.publisherId;
+  const slotIdKey = SLOT_ID_MAP[slot];
+  const resolvedSlotId = slotIdKey ? MONETIZATION.adsense.slotIds[slotIdKey] : null;
 
   useEffect(() => {
     if (!enabled || !publisherId) return;
@@ -125,6 +140,10 @@ export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps)
   // Suppress entirely when AdSense isn't configured. No <ins>, no push,
   // no network requests to pagead2.googlesyndication.com.
   if (!enabled || !publisherId) return null;
+  // No real ad-unit id mapped for this slot → don't render. Avoids sending a
+  // descriptive string as data-ad-slot, which AdSense can't resolve and which
+  // produces a guaranteed unfilled (the bug that left wrappers as ghost gaps).
+  if (!resolvedSlotId) return null;
   if (status === "unfilled") return null;
 
   const meta = FORMAT_META[format];
@@ -133,7 +152,7 @@ export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps)
     <aside
       role="complementary"
       aria-label="Publicidad"
-      data-ad-slot={slot}
+      data-ad-slot={resolvedSlotId}
       data-ad-format={format}
       className={cn(
         "block my-6 md:my-8",
@@ -149,7 +168,7 @@ export const AdSlot = ({ slot, format, hidden = false, className }: AdSlotProps)
         className="adsbygoogle"
         style={{ display: "block" }}
         data-ad-client={publisherId}
-        data-ad-slot={slot}
+        data-ad-slot={resolvedSlotId}
         data-ad-format="auto"
         data-full-width-responsive="true"
       />

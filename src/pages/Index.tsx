@@ -25,10 +25,6 @@ const Index = () => {
           <AdSlot slot="home-between-sections" format="in-article" />
         </div>
         <MapSection />
-        {/* Slot 1 — home-mid-leaderboard (after hero block, before "Buscá por zona") */}
-        <div className="max-w-container mx-auto px-6 lg:px-10">
-          <AdSlot slot="home-mid-leaderboard" format="leaderboard" />
-        </div>
         <ZoneSection />
         <ClubsCta />
       </main>

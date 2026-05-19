@@ -1,0 +1,26 @@
+name = "haycancha-og-meta"
+main = "og-meta-worker.js"
+compatibility_date = "2025-05-01"
+
+# Run on the apex + www. The Worker passes through anything that isn't
+# /blog/<slug> for a recognised bot, so attaching to a wider pattern is
+# safe. If you later add other server-rendered routes (e.g.
+# /canchas/...), add them here.
+#
+# `zone_name` is required when using `pattern` (instead of `zone_id`).
+[[routes]]
+pattern = "haycancha.com/blog/*"
+zone_name = "haycancha.com"
+
+[[routes]]
+pattern = "www.haycancha.com/blog/*"
+zone_name = "haycancha.com"
+
+# Observability — surface Worker logs in `wrangler tail` and the dashboard.
+[observability]
+enabled = true
+
+# DIRECTUS_TOKEN is NOT declared here on purpose. Set it as a secret:
+#   wrangler secret put DIRECTUS_TOKEN
+# The Worker reads it from `env.DIRECTUS_TOKEN` and falls back to anonymous
+# read (which currently works on the articulos collection) if it's unset.

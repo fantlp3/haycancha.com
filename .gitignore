@@ -29,3 +29,8 @@ scripts/import/
 
 # Sitemap is regenerated from Directus on every build (see scripts/generate-sitemap.ts)
 public/sitemap.xml
+
+# Cloudflare Workers (workers/) — local-only files
+workers/.dev.vars
+workers/.wrangler/
+workers/node_modules/

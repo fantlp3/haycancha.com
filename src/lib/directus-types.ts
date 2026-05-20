@@ -471,11 +471,28 @@ export type ArticuloCard = Pick<
   categoria_principal: Pick<Categoria, "id" | "slug" | "nombre" | "color_hex">;
 };
 
+/** Junction row: articulos_tags. `tags_id` is the expanded `Tag` row. */
+export interface ArticuloTagRel {
+  id: string;
+  tags_id: Tag;
+}
+
+/** Junction row: articulos_deportes. `deportes_id` is the expanded `Deporte` row. */
+export interface ArticuloDeporteRel {
+  id: string;
+  deportes_id: Deporte;
+}
+
 /**
  * Projection of `Articulo` returned by detail queries (`fetchArticuloBySlug`).
- * Full body included, M2O relations expanded with all their fields.
+ * Full body included, M2O relations expanded with all their fields, and the
+ * M2M junction aliases `tags_rel`/`deportes_rel` populated with their related
+ * rows. The legacy JSON columns (`tags`, `deportes`) remain on `Articulo`
+ * during the migration window and are ignored by detail consumers.
  */
 export type ArticuloFull = Omit<Articulo, "autor" | "categoria_principal"> & {
   autor: Autor;
   categoria_principal: Categoria;
+  tags_rel: ArticuloTagRel[];
+  deportes_rel: ArticuloDeporteRel[];
 };

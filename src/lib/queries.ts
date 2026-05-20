@@ -625,6 +625,16 @@ const ARTICULO_FULL_FIELDS = [
   "categoria_principal.nombre",
   "categoria_principal.color_hex",
   "categoria_principal.seo_descripcion",
+  // M2M junctions — expand the related row inline so detail consumers get
+  // a flat `tags: Tag[]` and `deportes: Deporte[]` after derivation.
+  "tags_rel.id",
+  "tags_rel.tags_id.id",
+  "tags_rel.tags_id.slug",
+  "tags_rel.tags_id.nombre",
+  "tags_rel.tags_id.descripcion",
+  "tags_rel.tags_id.activo",
+  "deportes_rel.id",
+  "deportes_rel.deportes_id.*",
 ];
 
 export interface FetchArticulosOptions {
@@ -632,50 +642,33 @@ export interface FetchArticulosOptions {
   offset?: number;
   /** Filter by `categoria_principal.slug`. */
   categoriaSlug?: string;
-  /** Filter by `deportes` JSON array containing the deporte with this slug. */
+  /** Filter by an associated deporte slug via the `articulos_deportes` junction. */
   deporteSlug?: string;
-  /** Filter by `tags` JSON array containing the tag with this slug. */
+  /** Filter by an associated tag slug via the `articulos_tags` junction. */
   tagSlug?: string;
 }
 
 /**
- * Detail-page payload: `ArticuloFull` with `tags` and `deportes` already
- * hydrated from JSON-of-UUIDs into expanded rows. Pages never see the raw
- * UUID arrays.
+ * Detail-page payload: `ArticuloFull` with `tags` and `deportes` flattened
+ * out of their M2M junctions into the array shape pages expect. Pages
+ * never see the raw `tags_rel`/`deportes_rel` structures.
  */
-export type ArticuloDetail = Omit<ArticuloFull, "tags" | "deportes"> & {
+export type ArticuloDetail = Omit<ArticuloFull, "tags" | "deportes" | "tags_rel" | "deportes_rel"> & {
   tags: Tag[];
   deportes: Deporte[];
 };
 
-/** Resolves a slug → UUID for a given collection, or null when missing. */
-async function resolveSlugToId(
-  collection: "deportes" | "tags",
-  slug: string
-): Promise<string | null> {
-  const rows = (await directus.request(
-    readItems(collection, {
-      fields: ["id"],
-      filter: { slug: { _eq: slug } },
-      limit: 1,
-    })
-  )) as Array<{ id: string }>;
-  return rows[0]?.id ?? null;
-}
-
 /**
- * Lists published articles, newest first. Supports filtering by category
- * (FK slug, native dot-notation) and by deporte/tag (JSON UUID arrays — we
- * resolve the slug to UUID first, then use `_contains` against the JSON
- * column).
+ * Lists published articles, newest first. Filtering by deporte/tag walks the
+ * M2M junctions (`articulos_deportes`, `articulos_tags`) — the legacy JSON
+ * columns are still on the row but no longer queried (Directus json columns
+ * don't support contains-style filters).
  */
 export async function fetchArticulos(
   options: FetchArticulosOptions = {}
 ): Promise<ArticuloCard[]> {
   const { limit = 12, offset = 0, categoriaSlug, deporteSlug, tagSlug } = options;
 
-  // Build filter conjunctively. We resolve slug→UUID for JSON-array facets
-  // before composing the filter, since Directus can't dot-walk into JSON.
   const filter: Record<string, unknown> = {
     ...publishedOrDueFilter(),
   };
@@ -683,14 +676,10 @@ export async function fetchArticulos(
     filter.categoria_principal = { slug: { _eq: categoriaSlug } };
   }
   if (deporteSlug) {
-    const id = await resolveSlugToId("deportes", deporteSlug);
-    if (!id) return [];
-    filter.deportes = { _contains: id };
+    filter.deportes_rel = { deportes_id: { slug: { _eq: deporteSlug } } };
   }
   if (tagSlug) {
-    const id = await resolveSlugToId("tags", tagSlug);
-    if (!id) return [];
-    filter.tags = { _contains: id };
+    filter.tags_rel = { tags_id: { slug: { _eq: tagSlug } } };
   }
 
   const result = await directus.request(
@@ -707,8 +696,9 @@ export async function fetchArticulos(
 
 /**
  * Detail-page fetch. Returns the full article with M2O relations expanded
- * AND the JSON-of-UUID arrays (`tags`, `deportes`) hydrated into full rows.
- * Returns null when the slug doesn't exist or isn't published.
+ * AND the M2M junction rows flattened into `tags: Tag[]` and
+ * `deportes: Deporte[]`. Returns null when the slug doesn't exist or isn't
+ * published.
  */
 export async function fetchArticuloBySlug(
   slug: string
@@ -727,35 +717,11 @@ export async function fetchArticuloBySlug(
   if (list.length === 0) return null;
   const articulo = list[0];
 
-  // Hydrate JSON-of-UUID arrays. Empty/null arrays skip the round-trip.
-  const [tagsHydrated, deportesHydrated] = await Promise.all([
-    hydrateByIds<Tag>("tags", articulo.tags ?? []),
-    hydrateByIds<Deporte>("deportes", articulo.deportes ?? []),
-  ]);
-
   return {
     ...articulo,
-    tags: tagsHydrated,
-    deportes: deportesHydrated,
+    tags: (articulo.tags_rel ?? []).map((r) => r.tags_id),
+    deportes: (articulo.deportes_rel ?? []).map((r) => r.deportes_id),
   };
-}
-
-/** Bulk-fetches rows for a JSON-of-UUIDs array. Preserves insertion order. */
-async function hydrateByIds<T extends { id: string }>(
-  collection: "tags" | "deportes",
-  ids: string[]
-): Promise<T[]> {
-  if (ids.length === 0) return [];
-  const rows = (await directus.request(
-    readItems(collection, {
-      fields: ["*"],
-      filter: { id: { _in: ids } },
-      limit: ids.length,
-    })
-  )) as T[];
-  // Restore the original order — `_in` returns in DB order, not request order.
-  const byId = new Map(rows.map((r) => [r.id, r]));
-  return ids.map((id) => byId.get(id)).filter((r): r is T => Boolean(r));
 }
 
 /** Active categories, ordered by `orden` ascending. */

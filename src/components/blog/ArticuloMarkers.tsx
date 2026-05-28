@@ -85,8 +85,8 @@ export const AdSlotMarker = ({ n }: AdSlotMarkerProps) => {
         style={{ display: "block", minHeight: 250 }}
         data-ad-client={publisherId}
         data-ad-slot={slotId}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
+        data-ad-format="fluid"
+        data-ad-layout="in-article"
       />
     </aside>
   );

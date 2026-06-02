@@ -81,20 +81,20 @@ const SobrePage = () => {
         Si tenés un club que no aparece, podés agregarlo gratis a través del formulario{" "}
         <LegalA href="/agregar-cancha">Agregá tu cancha</LegalA>. Si tu club ya está y querés
         actualizar la información o destacarlo, escribinos a{" "}
-        <LegalA href="mailto:contacto@haycancha.com">contacto@haycancha.com</LegalA>.
+        <LegalA href="mailto:haycancha.online@gmail.com">haycancha.online@gmail.com</LegalA>.
       </LegalP>
 
       <LegalH2 id="anunciantes">Para anunciantes</LegalH2>
       <LegalP>
         Si querés llegar a jugadores activos de tenis, pádel o pickleball en Latinoamérica,
         escribinos a{" "}
-        <LegalA href="mailto:publicidad@haycancha.com">publicidad@haycancha.com</LegalA>.
+        <LegalA href="mailto:haycancha.online@gmail.com">haycancha.online@gmail.com</LegalA>.
       </LegalP>
 
       <LegalH2 id="contacto">Contacto</LegalH2>
       <LegalP>
         Email general:{" "}
-        <LegalA href="mailto:contacto@haycancha.com">contacto@haycancha.com</LegalA>
+        <LegalA href="mailto:haycancha.online@gmail.com">haycancha.online@gmail.com</LegalA>
       </LegalP>
     </LegalPageLayout>
   );

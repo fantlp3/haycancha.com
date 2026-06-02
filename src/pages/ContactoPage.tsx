@@ -14,7 +14,7 @@ const CARDS: ContactCard[] = [
     icon: MessageCircle,
     heading: "Consultas generales",
     body: "Sugerencias, reportes de errores, preguntas sobre el sitio.",
-    cta: { label: "contacto@haycancha.com", href: "mailto:contacto@haycancha.com", variant: "link" },
+    cta: { label: "haycancha.online@gmail.com", href: "mailto:haycancha.online@gmail.com", variant: "link" },
   },
   {
     icon: Plus,
@@ -26,13 +26,13 @@ const CARDS: ContactCard[] = [
     icon: Megaphone,
     heading: "Publicidad y partners",
     body: "Anunciantes, marcas deportivas, academias, alianzas comerciales.",
-    cta: { label: "publicidad@haycancha.com", href: "mailto:publicidad@haycancha.com", variant: "link" },
+    cta: { label: "haycancha.online@gmail.com", href: "mailto:haycancha.online@gmail.com", variant: "link" },
   },
   {
     icon: Shield,
     heading: "Privacidad y datos",
     body: "Solicitudes sobre tus datos personales, ejercicio de derechos.",
-    cta: { label: "privacidad@haycancha.com", href: "mailto:privacidad@haycancha.com", variant: "link" },
+    cta: { label: "haycancha.online@gmail.com", href: "mailto:haycancha.online@gmail.com", variant: "link" },
   },
 ];
 

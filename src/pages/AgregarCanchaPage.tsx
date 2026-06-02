@@ -314,7 +314,7 @@ const AgregarCanchaPage = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setServerError(
-        "No pudimos enviar tu solicitud. Revisá tu conexión e intentá de nuevo. Si el problema persiste, escribinos a contacto@haycancha.com"
+        "No pudimos enviar tu solicitud. Revisá tu conexión e intentá de nuevo. Si el problema persiste, escribinos a haycancha.online@gmail.com"
       );
     } finally {
       setSubmitting(false);
@@ -431,8 +431,8 @@ const AgregarCanchaPage = () => {
           <p className="text-[15px] text-dark">
             El alta es totalmente gratuita. Si querés mayor visibilidad o posicionamiento destacado,
             escribinos a{" "}
-            <a href="mailto:contacto@haycancha.com" className="text-orange font-semibold hover:underline">
-              contacto@haycancha.com
+            <a href="mailto:haycancha.online@gmail.com" className="text-orange font-semibold hover:underline">
+              haycancha.online@gmail.com
             </a>
           </p>
         </div>

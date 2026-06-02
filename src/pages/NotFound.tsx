@@ -59,8 +59,8 @@ const NotFound = () => {
           </div>
           <p className="text-[13px] text-gray">
             ¿Encontraste un link roto? Avisanos a{" "}
-            <a href="mailto:contacto@haycancha.com" className="text-orange hover:underline">
-              contacto@haycancha.com
+            <a href="mailto:haycancha.online@gmail.com" className="text-orange hover:underline">
+              haycancha.online@gmail.com
             </a>
           </p>
         </div>

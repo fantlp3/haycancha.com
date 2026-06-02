@@ -24,14 +24,14 @@ export const ClubsCta = () => (
         </CtaButton>
         <CtaButton asChild variant="secondary">
           <a
-            href="mailto:contacto@haycancha.com?subject=Quiero%20ser%20Premium"
+            href="mailto:haycancha.online@gmail.com?subject=Quiero%20ser%20Premium"
             onClick={(e) => {
               // Belt-and-suspenders: some environments swallow the default
               // navigation when an anchor lives inside a Radix Slot. The
               // imperative redirect guarantees the mailto fires.
               e.preventDefault();
               window.location.href =
-                "mailto:contacto@haycancha.com?subject=Quiero%20ser%20Premium";
+                "mailto:haycancha.online@gmail.com?subject=Quiero%20ser%20Premium";
             }}
           >
             Ver planes premium

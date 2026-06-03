@@ -89,6 +89,15 @@ export const SUPERFICIES = [
   "Indoor cubierto",
 ] as const;
 
+// Per-sport surface menus shown in the Agregar Cancha form.
+// All values are drawn from SUPERFICIES so the mapper's downstream emit logic
+// keeps working without label divergence.
+export const SUPERFICIES_POR_DEPORTE = {
+  tenis: ["Polvo de ladrillo", "Cemento", "Césped sintético", "Multipiso"],
+  padel: ["Cemento", "Césped sintético", "Cristal (pádel)"],
+  pickleball: ["Cemento", "Césped sintético", "Multipiso"],
+} as const;
+
 export const SERVICIOS = [
   { key: "vestuarios", label: "Vestuarios" },
   { key: "estacionamiento", label: "Estacionamiento" },

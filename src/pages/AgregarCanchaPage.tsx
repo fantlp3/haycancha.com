@@ -23,12 +23,14 @@ import {
   CITY_SUGGESTIONS,
   NEIGHBORHOOD_SUGGESTIONS,
   TIPOS_COMPLEJO,
-  SUPERFICIES,
+  SUPERFICIES_POR_DEPORTE,
   SERVICIOS,
   DIAS,
   SECTIONS,
   type DiaKey,
 } from "@/lib/agregar-cancha-config";
+import { useSubmitClub } from "@/hooks/useSubmitClub";
+import { toSubmission } from "@/lib/agregar-cancha-mapper";
 
 // ----- Schema -----
 const horarioSchema = z.object({
@@ -37,16 +39,28 @@ const horarioSchema = z.object({
   hasta: z.string(),
 });
 
+const sportDetailSchema = z.object({
+  cantidad: z.number().int().min(1, "Mínimo 1").max(50, "Máximo 50"),
+  superficies: z
+    .array(z.string())
+    .min(1, "Seleccioná al menos una superficie"),
+});
+
 const formSchema = z.object({
   submitter_role: z.enum(["owner", "player"]),
   nombre: z.string().trim().min(2, "Ingresá el nombre del complejo").max(200),
   tipo: z.string().min(1, "Seleccioná el tipo de complejo"),
   descripcion: z.string().max(800).optional(),
   deportes: z
-    .object({ tenis: z.boolean(), padel: z.boolean(), pickleball: z.boolean() })
-    .refine((d) => d.tenis || d.padel || d.pickleball, "Seleccioná al menos un deporte"),
-  cantidad_canchas: z.number().int().min(1).max(50).nullable(),
-  superficies: z.array(z.string()),
+    .object({
+      tenis: sportDetailSchema.optional(),
+      padel: sportDetailSchema.optional(),
+      pickleball: sportDetailSchema.optional(),
+    })
+    .refine(
+      (d) => !!d.tenis || !!d.padel || !!d.pickleball,
+      "Seleccioná al menos un deporte"
+    ),
   iluminacion: z.boolean(),
   tipo_instalacion: z.enum(["outdoor", "indoor", "mixto"]).nullable(),
   servicios: z.record(z.string(), z.boolean()),
@@ -90,9 +104,7 @@ const initial: FormData = {
   nombre: "",
   tipo: "",
   descripcion: "",
-  deportes: { tenis: false, padel: false, pickleball: false },
-  cantidad_canchas: null,
-  superficies: [],
+  deportes: {},
   iluminacion: false,
   tipo_instalacion: null,
   servicios: Object.fromEntries(SERVICIOS.map((s) => [s.key, false])),
@@ -166,7 +178,7 @@ const inputClass = (invalid?: boolean) =>
 // Section completion logic
 const sectionStatus = (data: FormData): Record<string, boolean> => ({
   info: !!data.nombre && !!data.tipo,
-  deportes: data.deportes.tenis || data.deportes.padel || data.deportes.pickleball,
+  deportes: !!data.deportes.tenis || !!data.deportes.padel || !!data.deportes.pickleball,
   servicios: true,
   ubicacion:
     !!data.ubicacion.pais &&
@@ -190,6 +202,7 @@ const AgregarCanchaPage = () => {
   const [success, setSuccess] = useState<{ nombre: string; email: string } | null>(null);
   const [phoneIsWhatsapp, setPhoneIsWhatsapp] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const { mutateAsync } = useSubmitClub();
 
   const country = data.ubicacion.pais;
   const countryMeta = COUNTRIES_FORM.find((c) => c.name === country);
@@ -226,9 +239,9 @@ const AgregarCanchaPage = () => {
 
   const status = useMemo(() => {
     const s = sectionStatus(data);
-    s.fotos = photos.length >= 1 && photos.some((p) => p.isCover);
+    s.fotos = true;
     return s;
-  }, [data, photos]);
+  }, [data]);
 
   const completedCount = Object.values(status).filter(Boolean).length;
   const progressPct = Math.round((completedCount / SECTIONS.length) * 100);
@@ -251,6 +264,28 @@ const AgregarCanchaPage = () => {
       ...d,
       horarios: { ...d.horarios, [day]: { ...d.horarios[day], ...patch } },
     }));
+
+  type SportKey = "tenis" | "padel" | "pickleball";
+  const toggleSport = (sport: SportKey, on: boolean) =>
+    setData((d) => {
+      const next = { ...d, deportes: { ...d.deportes } };
+      if (on) {
+        next.deportes[sport] = next.deportes[sport] ?? { cantidad: 1, superficies: [] };
+      } else {
+        delete next.deportes[sport];
+      }
+      return next;
+    });
+
+  const updateSport = (sport: SportKey, patch: Partial<{ cantidad: number; superficies: string[] }>) =>
+    setData((d) => {
+      const current = d.deportes[sport];
+      if (!current) return d;
+      return {
+        ...d,
+        deportes: { ...d.deportes, [sport]: { ...current, ...patch } },
+      };
+    });
 
   const copyMondayToAll = () => {
     const src = data.horarios.lunes;
@@ -276,8 +311,6 @@ const AgregarCanchaPage = () => {
         newErr[issue.path.join(".")] = issue.message;
       }
     }
-    if (photos.length === 0) newErr["fotos"] = "Subí al menos una foto";
-    if (photos.some((p) => p.oversize)) newErr["fotos"] = "Hay fotos que superan el tamaño máximo";
     if (data.ubicacion.lat == null || data.ubicacion.lng == null) {
       newErr["ubicacion.lat"] = "Confirmá la ubicación en el mapa";
     }
@@ -290,35 +323,58 @@ const AgregarCanchaPage = () => {
     e.preventDefault();
     setServerError(null);
     const { ok, firstErrorKey } = validate();
+    const sectionMap: Record<string, string> = {
+      nombre: "info",
+      tipo: "info",
+      deportes: "deportes",
+      ubicacion: "ubicacion",
+      "ubicacion.lat": "ubicacion",
+      contacto: "contacto",
+      consentimiento: "confirmacion",
+    };
     if (!ok) {
-      const sectionMap: Record<string, string> = {
-        nombre: "info",
-        tipo: "info",
-        deportes: "deportes",
-        ubicacion: "ubicacion",
-        "ubicacion.lat": "ubicacion",
-        contacto: "contacto",
-        fotos: "fotos",
-        consentimiento: "confirmacion",
-      };
       const sec = sectionMap[firstErrorKey?.split(".")[0] ?? ""] ?? "info";
       sectionRefs.current[sec]?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     setSubmitting(true);
-    try {
-      // TODO: wire to Directus POST /items/clubes_pending with token
-      // TODO: wire Cloudflare Turnstile site key from env
-      await new Promise((res) => setTimeout(res, 1500));
+    const result = await mutateAsync(toSubmission(data));
+    setSubmitting(false);
+    if (result.success) {
       setSuccess({ nombre: data.nombre, email: data.contacto.email });
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch {
-      setServerError(
-        "No pudimos enviar tu solicitud. Revisá tu conexión e intentá de nuevo. Si el problema persiste, escribinos a haycancha.online@gmail.com"
-      );
-    } finally {
-      setSubmitting(false);
+      return;
     }
+    if (result.details) {
+      // Map Directus collection field names back to the form's nested error keys
+      // so per-field <ErrorMsg> components and the scroll-to-section logic work.
+      const fieldMap: Record<string, string> = {
+        nombre: "nombre",
+        tipo: "tipo",
+        direccion: "ubicacion.direccion",
+        pais_texto: "ubicacion.pais",
+        ciudad_texto: "ubicacion.ciudad",
+        barrio_texto: "ubicacion.barrio",
+        latitud: "ubicacion.lat",
+        longitud: "ubicacion.lng",
+        telefono: "contacto.telefono",
+        website: "contacto.website",
+        nombre_remitente: "contacto.nombre_apellido",
+        email_remitente: "contacto.email",
+        relacion_con_club: "submitter_role",
+        deportes_indicados: "deportes",
+        cantidad_canchas: "deportes",
+      };
+      const newErr: Record<string, string> = {};
+      for (const [field, message] of Object.entries(result.details)) {
+        newErr[fieldMap[field] ?? field] = message;
+      }
+      setErrors((prev) => ({ ...prev, ...newErr }));
+      const firstKey = Object.keys(newErr)[0];
+      const sec = sectionMap[firstKey?.split(".")[0] ?? ""] ?? "info";
+      sectionRefs.current[sec]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    setServerError(result.error);
   };
 
   const resetForm = () => {
@@ -543,84 +599,101 @@ const AgregarCanchaPage = () => {
                   <legend className="block text-[13px] font-semibold text-dark mb-2">
                     Deportes ofrecidos <span className="text-orange">*</span>
                   </legend>
-                  <div className="flex flex-wrap gap-2">
+                  <p className="text-[12px] text-gray mb-3">
+                    Marcá los deportes que ofrece tu complejo. Por cada uno indicá la cantidad
+                    de canchas y la(s) superficie(s).
+                  </p>
+                  <div className="space-y-3">
                     {([
                       { k: "tenis", l: "Tenis" },
                       { k: "padel", l: "Pádel" },
                       { k: "pickleball", l: "Pickleball" },
                     ] as const).map((s) => {
-                      const checked = data.deportes[s.k as keyof FormData["deportes"]];
+                      const detail = data.deportes[s.k];
+                      const active = !!detail;
+                      const cantidadErr = errors[`deportes.${s.k}.cantidad`];
+                      const superficiesErr = errors[`deportes.${s.k}.superficies`];
                       return (
-                        <label
+                        <div
                           key={s.k}
                           className={cn(
-                            "inline-flex items-center gap-2 px-3 py-2 rounded-md border text-[14px] font-medium cursor-pointer transition",
-                            checked
-                              ? "bg-orange border-orange text-white"
-                              : "bg-light border-border text-dark hover:border-orange/40"
+                            "border rounded-md transition",
+                            active ? "border-orange bg-orange/5" : "border-border bg-light"
                           )}
                         >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={(e) =>
-                              update("deportes", { ...data.deportes, [s.k]: e.target.checked })
-                            }
-                            className="sr-only"
-                          />
-                          <SportIcon sport={s.k} size={14} /> {s.l}
-                        </label>
+                          <label className="flex items-center gap-2 p-3 cursor-pointer text-[14px] font-semibold text-dark">
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              onChange={(e) => toggleSport(s.k, e.target.checked)}
+                              className="accent-orange w-4 h-4"
+                            />
+                            <SportIcon sport={s.k} size={16} />
+                            {s.l}
+                          </label>
+                          {active && detail && (
+                            <div className="px-4 pb-4 space-y-4">
+                              <div>
+                                <FieldLabel htmlFor={`cantidad-${s.k}`} required>
+                                  ¿Cuántas canchas de {s.l.toLowerCase()}?
+                                </FieldLabel>
+                                <input
+                                  id={`cantidad-${s.k}`}
+                                  type="number"
+                                  min={1}
+                                  max={50}
+                                  value={detail.cantidad || ""}
+                                  onChange={(e) =>
+                                    updateSport(s.k, {
+                                      cantidad: e.target.value ? parseInt(e.target.value) : 0,
+                                    })
+                                  }
+                                  placeholder="Ej: 4"
+                                  aria-required
+                                  aria-invalid={!!cantidadErr}
+                                  className={cn(inputClass(!!cantidadErr), "max-w-[160px]")}
+                                />
+                                <ErrorMsg msg={cantidadErr} />
+                              </div>
+                              <div>
+                                <p className="block text-[13px] font-semibold text-dark mb-1.5">
+                                  Superficie(s) <span className="text-orange">*</span>
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  {SUPERFICIES_POR_DEPORTE[s.k].map((surf) => {
+                                    const checked = detail.superficies.includes(surf);
+                                    return (
+                                      <label
+                                        key={surf}
+                                        className="flex items-center gap-2 text-[14px] cursor-pointer"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={checked}
+                                          onChange={() =>
+                                            updateSport(s.k, {
+                                              superficies: checked
+                                                ? detail.superficies.filter((x) => x !== surf)
+                                                : [...detail.superficies, surf],
+                                            })
+                                          }
+                                          className="accent-orange w-4 h-4"
+                                        />
+                                        {surf}
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+                                <ErrorMsg msg={superficiesErr} />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
                   <ErrorMsg msg={errors.deportes} />
                 </fieldset>
-
-                <div>
-                  <FieldLabel htmlFor="cantidad">Cantidad total de canchas</FieldLabel>
-                  <input
-                    id="cantidad"
-                    type="number"
-                    min={1}
-                    max={50}
-                    value={data.cantidad_canchas ?? ""}
-                    onChange={(e) =>
-                      update("cantidad_canchas", e.target.value ? parseInt(e.target.value) : null)
-                    }
-                    placeholder="Ej: 6"
-                    className={cn(inputClass(), "max-w-[200px]")}
-                  />
-                </div>
-
-                <div>
-                  <p className="block text-[13px] font-semibold text-dark mb-1.5">Superficies</p>
-                  <p className="text-[12px] text-gray mb-2">
-                    Marcá todas las que apliquen — un complejo puede tener varias superficies.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {SUPERFICIES.map((s) => {
-                      const checked = data.superficies.includes(s);
-                      return (
-                        <label key={s} className="flex items-center gap-2 text-[14px] cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() =>
-                              update(
-                                "superficies",
-                                checked
-                                  ? data.superficies.filter((x) => x !== s)
-                                  : [...data.superficies, s]
-                              )
-                            }
-                            className="accent-orange w-4 h-4"
-                          />
-                          {s}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
 
                 <label className="flex items-center justify-between gap-3 p-3 border border-border rounded-md">
                   <span className="text-[14px] text-dark">El complejo cuenta con iluminación nocturna</span>
@@ -1038,16 +1111,16 @@ const AgregarCanchaPage = () => {
               ref={(el) => { sectionRefs.current.fotos = el; }}
               className="bg-white border border-border rounded-xl p-6 md:p-8"
             >
-              <SectionLabel>Fotos</SectionLabel>
+              <SectionLabel>Fotos (próximamente)</SectionLabel>
               <p className="text-[13px] font-semibold text-dark mb-1.5">
-                Subí fotos del complejo <span className="text-orange">*</span>
+                Subí fotos del complejo
               </p>
               <p className="text-[12px] text-gray mb-4">
-                La foto de portada es la que se muestra en los resultados de búsqueda. Subí imágenes
-                nítidas, en horizontal, que muestren las canchas o las instalaciones.
+                Por ahora esta sección es opcional: las fotos todavía no se envían con la solicitud.
+                Cuando aprobemos tu complejo te pediremos las imágenes por email. Podés ir cargándolas
+                acá para previsualizar el resultado.
               </p>
               <PhotoUploader photos={photos} onChange={setPhotos} />
-              <ErrorMsg msg={errors.fotos} />
             </section>
 
             {/* SECTION 8 — CONFIRMACIÓN */}
@@ -1133,7 +1206,7 @@ const AgregarCanchaPage = () => {
                 </button>
               </div>
               <p className="text-[11px] text-gray text-center mt-3">
-                Protegido por verificación anti-spam invisible.
+                Las solicitudes son revisadas manualmente antes de publicarse.
               </p>
             </section>
 

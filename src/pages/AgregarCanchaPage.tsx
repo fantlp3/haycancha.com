@@ -31,6 +31,9 @@ import {
 } from "@/lib/agregar-cancha-config";
 import { useSubmitClub } from "@/hooks/useSubmitClub";
 import { toSubmission } from "@/lib/agregar-cancha-mapper";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
 // ----- Schema -----
 const horarioSchema = z.object({
@@ -201,7 +204,9 @@ const AgregarCanchaPage = () => {
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ nombre: string; email: string } | null>(null);
   const [phoneIsWhatsapp, setPhoneIsWhatsapp] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
   const { mutateAsync } = useSubmitClub();
 
   const country = data.ubicacion.pais;
@@ -337,14 +342,26 @@ const AgregarCanchaPage = () => {
       sectionRefs.current[sec]?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
+    if (!turnstileToken) {
+      setServerError(
+        TURNSTILE_SITE_KEY
+          ? "Esperá a que termine la verificación anti-spam y volvé a enviar."
+          : "Verificación anti-spam no configurada en este entorno. No se puede enviar."
+      );
+      sectionRefs.current.confirmacion?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     setSubmitting(true);
-    const result = await mutateAsync(toSubmission(data));
+    const result = await mutateAsync({ data: toSubmission(data), turnstileToken });
     setSubmitting(false);
     if (result.success) {
       setSuccess({ nombre: data.nombre, email: data.contacto.email });
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+    // Token is single-use — reset the widget so the user can submit again.
+    setTurnstileToken(null);
+    turnstileRef.current?.reset();
     if (result.details) {
       // Map Directus collection field names back to the form's nested error keys
       // so per-field <ErrorMsg> components and the scroll-to-section logic work.
@@ -1187,10 +1204,30 @@ const AgregarCanchaPage = () => {
                 </div>
               )}
 
+              {TURNSTILE_SITE_KEY ? (
+                <div className="mt-6 flex flex-col items-center gap-2">
+                  <Turnstile
+                    ref={turnstileRef}
+                    siteKey={TURNSTILE_SITE_KEY}
+                    options={{ theme: "auto" }}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => setTurnstileToken(null)}
+                  />
+                  <p className="text-[11px] text-gray text-center">
+                    Protegido contra spam con verificación de Cloudflare.
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-6 text-[12px] text-destructive text-center">
+                  Dev: VITE_TURNSTILE_SITE_KEY no está configurada — el envío está deshabilitado.
+                </p>
+              )}
+
               <div className="mt-8 flex justify-center">
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || !turnstileToken}
                   aria-busy={submitting}
                   className={cn(
                     "h-14 w-full sm:w-[320px] inline-flex items-center justify-center gap-2 bg-orange text-white font-bold uppercase tracking-[1px] rounded-md hover:brightness-90 transition disabled:opacity-50 disabled:cursor-not-allowed"

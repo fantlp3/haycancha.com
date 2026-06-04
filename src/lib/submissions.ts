@@ -1,5 +1,3 @@
-import { directus } from "./directus";
-import { createItem } from "@directus/sdk";
 import type { ClubPendingSubmission } from "./directus-types";
 
 export type SubmissionResult =
@@ -7,48 +5,41 @@ export type SubmissionResult =
   | { success: false; error: string; details?: Record<string, string> };
 
 /**
- * Submit a new club to the moderation queue.
+ * Submit a new club to the moderation queue via the Pages Function
+ * (functions/api/submit-club.ts), which verifies a Cloudflare Turnstile
+ * token before forwarding to Directus's clubes_pending collection.
  *
- * IMPORTANT — endpoint behavior:
- *   - On success, Directus returns 204 No Content (no body).
- *     The SDK resolves with empty data — DO NOT expect a created row back.
- *
- * Forbidden fields (will be rejected with 403): estado, club_creado,
- * ip_remitente, notas_admin, procesado_at.
+ * The Function returns the SubmissionResult contract as JSON, so this
+ * wrapper only handles network/parse failures.
  */
 export async function submitClubPending(
-  data: ClubPendingSubmission
+  data: ClubPendingSubmission,
+  turnstileToken: string
 ): Promise<SubmissionResult> {
   try {
-    await directus.request(createItem("clubes_pending", data as any));
-    return { success: true };
-  } catch (error: any) {
-    console.error("[submitClubPending] error:", error);
+    const res = await fetch("/api/submit-club", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ submission: data, turnstileToken }),
+    });
 
-    const status = error?.response?.status ?? 0;
-    const errors = error?.errors ?? [];
-
-    if (status === 422 && errors.length > 0) {
-      const details: Record<string, string> = {};
-      for (const err of errors) {
-        const field = err.extensions?.field;
-        const message = err.message;
-        if (field) details[field] = message;
-      }
-      return {
-        success: false,
-        error: "Algunos campos no son válidos. Revisá el formulario.",
-        details,
-      };
+    let body: SubmissionResult | null = null;
+    try {
+      body = (await res.json()) as SubmissionResult;
+    } catch {
+      // Response without a JSON body — treat as generic failure below.
     }
 
-    if (status === 403) {
-      return {
-        success: false,
-        error: "No se pudo enviar la solicitud. Verificá los campos.",
-      };
+    if (body && (body.success === true || body.success === false)) {
+      return body;
     }
 
+    return {
+      success: false,
+      error: "No se pudo enviar la solicitud. Intentá de nuevo en unos minutos.",
+    };
+  } catch (error) {
+    console.error("[submitClubPending] network error:", error);
     return {
       success: false,
       error: "No se pudo enviar la solicitud. Intentá de nuevo en unos minutos.",

@@ -34,3 +34,4 @@ public/sitemap.xml
 workers/.dev.vars
 workers/.wrangler/
 workers/node_modules/
+.env

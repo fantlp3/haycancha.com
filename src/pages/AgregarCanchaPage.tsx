@@ -84,7 +84,21 @@ const formSchema = z.object({
     email: z.string().trim().email("Email inválido"),
     telefono: z.string().min(8, "Mínimo 8 dígitos"),
     whatsapp: z.string().optional(),
-    website: z.string().url("URL inválida").optional().or(z.literal("")),
+    website: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => {
+        if (!v) return true;
+        const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+        try {
+          // Reject obvious garbage but accept bare domains like "miclub.com.ar".
+          const u = new URL(withScheme);
+          return /\./.test(u.hostname);
+        } catch {
+          return false;
+        }
+      }, "URL inválida"),
     instagram: z.string().optional(),
   }),
   horarios: z.object({
@@ -97,7 +111,7 @@ const formSchema = z.object({
     domingo: horarioSchema,
     notas: z.string().max(200).optional(),
   }),
-  consentimiento: z.object({ autorizacion: z.literal(true), terminos: z.literal(true) }),
+  consentimiento: z.object({ autorizacion: z.boolean(), terminos: z.literal(true) }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -141,8 +155,9 @@ const initial: FormData = {
     domingo: { abierto: false, desde: "09:00", hasta: "18:00" },
     notas: "",
   },
-  // Consent fields are not pre-true to satisfy z.literal(true) only after click.
-  consentimiento: { autorizacion: false as unknown as true, terminos: false as unknown as true },
+  // `terminos` is z.literal(true) — cast keeps initial false compatible with the schema type.
+  // `autorizacion` is optional now, plain boolean.
+  consentimiento: { autorizacion: false, terminos: false as unknown as true },
 };
 
 // ----- Reusable bits -----
@@ -193,7 +208,8 @@ const sectionStatus = (data: FormData): Record<string, boolean> => ({
   contacto: !!data.contacto.nombre_apellido && !!data.contacto.email && data.contacto.telefono.length >= 8,
   horarios: true,
   fotos: false, // overridden in component (depends on photos state)
-  confirmacion: !!data.consentimiento.autorizacion && !!data.consentimiento.terminos,
+  // Only `terminos` is required to consider the section complete; `autorizacion` is optional.
+  confirmacion: !!data.consentimiento.terminos,
 });
 
 const AgregarCanchaPage = () => {
@@ -1154,15 +1170,14 @@ const AgregarCanchaPage = () => {
                     onChange={(e) =>
                       update("consentimiento", {
                         ...data.consentimiento,
-                        autorizacion: e.target.checked as unknown as true,
+                        autorizacion: e.target.checked,
                       })
                     }
-                    aria-required
                     className="accent-orange w-4 h-4 mt-1"
                   />
                   <span>
                     Confirmo que tengo autorización para publicar la información de este complejo en
-                    HayCancha.com. <span className="text-orange">*</span>
+                    HayCancha.com.
                   </span>
                 </label>
                 <label className="flex items-start gap-2 text-[14px] cursor-pointer">

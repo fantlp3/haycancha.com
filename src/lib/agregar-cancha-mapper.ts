@@ -189,7 +189,9 @@ export function toSubmission(data: SubmissionFormInput): ClubPendingSubmission {
   if (telefono) out.telefono = telefono;
 
   const website = trim(data.contacto.website);
-  if (website) out.website = website;
+  if (website) {
+    out.website = /^https?:\/\//i.test(website) ? website : `https://${website}`;
+  }
 
   if (selected.length > 0) out.deportes_indicados = [...selected];
 

@@ -344,3 +344,35 @@ describe("toSubmission — optional-field elision", () => {
     expect("email" in out).toBe(false);
   });
 });
+
+describe("toSubmission — website scheme normalization", () => {
+  const withWebsite = (website: string) =>
+    baseForm({
+      contacto: { ...baseForm().contacto, website },
+    });
+
+  it("prepends https:// when the bare domain has no scheme", () => {
+    const out = toSubmission(withWebsite("miclub.com.ar"));
+    expect(out.website).toBe("https://miclub.com.ar");
+  });
+
+  it("keeps http:// untouched", () => {
+    const out = toSubmission(withWebsite("http://x.com"));
+    expect(out.website).toBe("http://x.com");
+  });
+
+  it("keeps https:// untouched", () => {
+    const out = toSubmission(withWebsite("https://x.com"));
+    expect(out.website).toBe("https://x.com");
+  });
+
+  it("omits website entirely when empty", () => {
+    const out = toSubmission(withWebsite(""));
+    expect("website" in out).toBe(false);
+  });
+
+  it("trims whitespace before adding the scheme", () => {
+    const out = toSubmission(withWebsite("  miclub.com.ar  "));
+    expect(out.website).toBe("https://miclub.com.ar");
+  });
+});

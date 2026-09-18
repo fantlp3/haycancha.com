@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveCanonical } from "./SeoMeta";
+import { resolveCanonical } from "./canonical";
 
 describe("resolveCanonical", () => {
   it("prefixes a bare path with the site origin", () => {

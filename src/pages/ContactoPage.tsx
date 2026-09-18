@@ -1,6 +1,6 @@
-import { useEffect } from "react";
 import { MessageCircle, Plus, Megaphone, Shield, type LucideIcon } from "lucide-react";
 import { LegalPageLayout, LegalP, LegalStrong } from "@/components/legal/LegalPageLayout";
+import { SeoMeta } from "@/components/SeoMeta";
 
 interface ContactCard {
   icon: LucideIcon;
@@ -37,15 +37,17 @@ const CARDS: ContactCard[] = [
 ];
 
 const ContactoPage = () => {
-  useEffect(() => {
-    document.title = "Contacto — HayCancha";
-  }, []);
 
   return (
     <LegalPageLayout
       title="CONTACTO"
       breadcrumb={[{ label: "Inicio", href: "/" }, { label: "Contacto" }]}
     >
+      <SeoMeta
+        title="Contacto"
+        description="Escribinos para sumar tu club al directorio, anunciar en HayCancha.com o corregir los datos de una cancha. Respondemos en días hábiles."
+        canonicalPath="/contacto"
+      />
       <LegalP>
         ¿Tenés algo para decirnos? Estamos para escucharte. Elegí el canal según el motivo:
       </LegalP>

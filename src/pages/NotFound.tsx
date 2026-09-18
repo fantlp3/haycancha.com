@@ -2,17 +2,22 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar } from "@/components/brand/Navbar";
 import { Footer } from "@/components/sections/Footer";
+import { SeoMeta } from "@/components/SeoMeta";
 
 const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-    document.title = "Página no encontrada — HayCancha";
   }, [location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col bg-light">
+      <SeoMeta
+        title="Página no encontrada"
+        description="La página que buscás no existe o cambió de dirección. Volvé al directorio para encontrar canchas de tenis, pádel y pickleball en Latinoamérica."
+        noIndex
+      />
       <Navbar />
       <main className="flex-1 flex items-center justify-center px-6 py-16 md:py-24">
         <div className="max-w-[600px] w-full mx-auto text-center relative">

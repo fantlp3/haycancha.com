@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { SeoMeta } from "@/components/SeoMeta";
 import {
   LegalPageLayout,
   LegalH2,
@@ -8,19 +8,17 @@ import {
 } from "@/components/legal/LegalPageLayout";
 
 const SobrePage = () => {
-  useEffect(() => {
-    document.title = "Sobre HayCancha — El directorio LATAM de tenis, pádel y pickleball";
-    const meta = document.querySelector('meta[name="description"]');
-    const desc =
-      "HayCancha.com es el directorio de canchas de tenis, pádel y pickleball en Latinoamérica. Especializado, gratis y sin comisiones.";
-    if (meta) meta.setAttribute("content", desc);
-  }, []);
 
   return (
     <LegalPageLayout
       title="SOBRE HAYCANCHA"
       breadcrumb={[{ label: "Inicio", href: "/" }, { label: "Sobre HayCancha" }]}
     >
+      <SeoMeta
+        title="Sobre HayCancha — El directorio LATAM de tenis, pádel y pickleball"
+        description="HayCancha.com es el directorio de canchas de tenis, pádel y pickleball en Latinoamérica. Especializado, gratis y sin comisiones."
+        canonicalPath="/sobre"
+      />
       <LegalH2 id="que-es">El directorio de tenis, pádel y pickleball de Latinoamérica</LegalH2>
       <LegalP>
         HayCancha.com es un directorio digital pensado para que cualquier jugador amateur encuentre

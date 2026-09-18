@@ -32,6 +32,7 @@ import {
 import { useSubmitClub } from "@/hooks/useSubmitClub";
 import { toSubmission } from "@/lib/agregar-cancha-mapper";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { SeoMeta } from "@/components/SeoMeta";
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
@@ -424,6 +425,11 @@ const AgregarCanchaPage = () => {
   if (success) {
     return (
       <div className="min-h-screen flex flex-col bg-light">
+        <SeoMeta
+          title="Agregá tu cancha o club al directorio"
+          description="Sumá gratis tu club de tenis, pádel o pickleball a HayCancha.com. Publicación sin costo, sin comisiones y sin intermediarios: completá el formulario y te contactamos."
+          canonicalPath="/agregar-cancha"
+        />
         <Navbar />
         <main className="flex-1 flex items-center justify-center px-6 py-16">
           <div className="bg-white rounded-xl border border-border shadow-card p-12 max-w-[600px] w-full text-center">
@@ -468,6 +474,11 @@ const AgregarCanchaPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-light">
+      <SeoMeta
+        title="Agregá tu cancha o club al directorio"
+        description="Sumá gratis tu club de tenis, pádel o pickleball a HayCancha.com. Publicación sin costo, sin comisiones y sin intermediarios: completá el formulario y te contactamos."
+        canonicalPath="/agregar-cancha"
+      />
       <Navbar />
 
       {/* Mobile progress bar */}

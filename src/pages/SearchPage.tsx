@@ -32,6 +32,7 @@ import { filterClubs } from "@/lib/filter";
 import { getDefaultView } from "@/lib/view-mode";
 import { sortClubs, distanceFromUser, isSortKey, type SortKey } from "@/lib/sort-clubs";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { SeoMeta } from "@/components/SeoMeta";
 import {
   useAllClubes,
   useClubesByPais,
@@ -57,6 +58,13 @@ const titleCase = (s: string) =>
   s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 const nfAR = new Intl.NumberFormat("es-AR");
+
+/** Accented, human names for the `?deporte=` facet, used in title/description. */
+const SPORT_SEO_NAMES: Record<string, string> = {
+  tenis: "tenis",
+  padel: "pádel",
+  pickleball: "pickleball",
+};
 
 const isViewMode = (v: string | null): v is ViewMode =>
   v === "map" || v === "grid" || v === "list";
@@ -310,8 +318,35 @@ const SearchPage = () => {
       : `${nfAR.format(n)} resultados${scopeContext}`
     : `${nfAR.format(n)} ${n === 1 ? "club" : "clubes"} en ${scopeLabel}`;
 
+  // ── SEO ───────────────────────────────────────────────────────────────────
+  // The canonical is always the clean path. `?view=`, `?deporte=` and `?q=`
+  // are facets of the same listing, not separate pages, and none of them are
+  // in the sitemap — canonicalising to the path consolidates them.
+  const canonicalPath =
+    pais && ciudad && barrio
+      ? `/canchas/${pais}/${ciudad}/${barrio}`
+      : pais && ciudad
+      ? `/canchas/${pais}/${ciudad}`
+      : pais
+      ? `/canchas/${pais}`
+      : "/canchas";
+
+  const sportName = SPORT_SEO_NAMES[sportParam ?? ""] ?? null;
+  const sportsPhrase = sportName ?? "tenis, pádel y pickleball";
+
+  const seoTitle = `Canchas de ${sportsPhrase} en ${scopeLabel}`;
+  const seoDescription =
+    `Encontrá canchas y clubes de ${sportsPhrase} en ${scopeLabel}: superficie, ` +
+    `iluminación, dirección, teléfono y mapa de cada uno. Directorio gratuito, ` +
+    `sin reservas ni comisiones.`;
+
   return (
     <div className="min-h-screen flex flex-col bg-light">
+      <SeoMeta
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={canonicalPath}
+      />
       <Navbar />
 
       {/* SR-only live region announcing view changes */}

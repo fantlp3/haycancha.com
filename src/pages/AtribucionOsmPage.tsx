@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { SeoMeta } from "@/components/SeoMeta";
 import {
   LegalPageLayout,
   LegalH2,
@@ -18,19 +18,6 @@ const TOC = [
 ];
 
 const AtribucionOsmPage = () => {
-  useEffect(() => {
-    document.title = "Atribución OpenStreetMap — HayCancha";
-    const desc =
-      "Atribución de los datos cartográficos de OpenStreetMap utilizados en HayCancha.com bajo licencia Open Database License (ODbL) 1.0.";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", desc);
-    else {
-      const m = document.createElement("meta");
-      m.name = "description";
-      m.content = desc;
-      document.head.appendChild(m);
-    }
-  }, []);
 
   return (
     <LegalPageLayout
@@ -39,6 +26,11 @@ const AtribucionOsmPage = () => {
       lastUpdated="12 de mayo de 2026"
       toc={TOC}
     >
+      <SeoMeta
+        title="Atribución OpenStreetMap"
+        description="Atribución de los datos cartográficos de OpenStreetMap utilizados en HayCancha.com bajo licencia Open Database License (ODbL) 1.0."
+        canonicalPath="/atribucion-osm"
+      />
       <LegalP>
         Esta página reconoce públicamente la fuente de los datos cartográficos utilizados en
         HayCancha.com, conforme a los términos de la licencia aplicable.

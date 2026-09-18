@@ -8,10 +8,16 @@ import { ClubsCta } from "@/components/sections/ClubsCta";
 import { Footer } from "@/components/sections/Footer";
 import { AdSlot } from "@/components/brand/AdSlot";
 import { PromoSlot } from "@/components/promo/PromoSlot";
+import { SeoMeta } from "@/components/SeoMeta";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-light">
+      <SeoMeta
+        title="HayCancha.com — Encontrá tu cancha perfecta en Latinoamérica"
+        description="Directorio gratuito de canchas y clubes de tenis, pádel y pickleball en Latinoamérica. Superficie, iluminación, dirección y contacto directo del club. Sin reservas ni comisiones."
+        canonicalPath="/"
+      />
       <Navbar />
       <main>
         <Hero />

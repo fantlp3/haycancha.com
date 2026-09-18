@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { SeoMeta } from "@/components/SeoMeta";
 import {
   LegalPageLayout,
   LegalH2,
@@ -31,19 +31,6 @@ const TOC = [
 ];
 
 const TerminosPage = () => {
-  useEffect(() => {
-    document.title = "Términos y Condiciones — HayCancha";
-    const desc =
-      "Términos y Condiciones de uso del directorio HayCancha.com, operado por P3GROUP S.A. Reglas de uso, contenido de usuarios, propiedad intelectual y jurisdicción.";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", desc);
-    else {
-      const m = document.createElement("meta");
-      m.name = "description";
-      m.content = desc;
-      document.head.appendChild(m);
-    }
-  }, []);
 
   return (
     <LegalPageLayout
@@ -52,6 +39,11 @@ const TerminosPage = () => {
       lastUpdated="12 de mayo de 2026"
       toc={TOC}
     >
+      <SeoMeta
+        title="Términos y Condiciones"
+        description="Términos y Condiciones de uso del directorio HayCancha.com, operado por P3GROUP S.A. Reglas de uso, contenido de usuarios, propiedad intelectual y jurisdicción."
+        canonicalPath="/terminos"
+      />
       <LegalP>
         Estos Términos y Condiciones regulan el acceso y uso de HayCancha.com. Al utilizar el Sitio,
         aceptás de forma plena y sin reservas las disposiciones que se detallan a continuación.

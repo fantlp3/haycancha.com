@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { SeoMeta } from "@/components/SeoMeta";
 import {
   LegalPageLayout,
   LegalH2,
@@ -25,19 +25,6 @@ const TOC = [
 ];
 
 const PrivacidadPage = () => {
-  useEffect(() => {
-    document.title = "Política de Privacidad — HayCancha";
-    const desc =
-      "Cómo HayCancha.com recolecta, usa y protege tus datos personales. Política de privacidad de P3GROUP S.A. conforme a la Ley 25.326 de Argentina.";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", desc);
-    else {
-      const m = document.createElement("meta");
-      m.name = "description";
-      m.content = desc;
-      document.head.appendChild(m);
-    }
-  }, []);
 
   return (
     <LegalPageLayout
@@ -46,6 +33,11 @@ const PrivacidadPage = () => {
       lastUpdated="12 de mayo de 2026"
       toc={TOC}
     >
+      <SeoMeta
+        title="Política de Privacidad"
+        description="Cómo HayCancha.com recolecta, usa y protege tus datos personales. Política de privacidad de P3GROUP S.A. conforme a la Ley 25.326 de Argentina."
+        canonicalPath="/privacidad"
+      />
       <LegalP>
         Esta Política de Privacidad explica cómo HayCancha.com recolecta, usa, comparte y protege
         los datos personales de quienes visitan o interactúan con el Sitio.

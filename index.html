@@ -52,27 +52,35 @@
     </script>
     <!-- End Google Tag Manager -->
 
+    <!-- SEO defaults.
+         These carry data-rh="true" so react-helmet-async ADOPTS them on mount
+         and swaps in the per-route values from <SeoMeta>, instead of appending
+         a second <meta name="description"> and leaving this generic one first
+         in the document — which is what search engines and social scrapers
+         were reading on all 2.887 pages.
+         Consequence: every route MUST render <SeoMeta>, or it ends up with no
+         description at all. See src/components/SeoMeta.tsx. -->
     <title>HayCancha.com — Encontrá tu cancha perfecta en Latinoamérica</title>
-    <meta name="description" content="HayCancha.com: el directorio de canchas de tenis, pádel y pickleball de Latinoamérica. Más de 1.500 clubes en 15 países. Buscá por barrio, ciudad o nombre." />
+    <meta data-rh="true" name="description" content="HayCancha.com: el directorio de canchas de tenis, pádel y pickleball de Latinoamérica. Más de 1.500 clubes en 15 países. Buscá por barrio, ciudad o nombre." />
     <meta name="author" content="HayCancha" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="HayCancha.com — Canchas de tenis, pádel y pickleball en LATAM" />
-    <meta property="og:description" content="Directorio gratuito de canchas de tenis, pádel y pickleball en toda Latinoamérica." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://haycancha.com" />
-    <meta property="og:image" content="https://haycancha.com/og-default.jpg" />
-    <meta property="og:image:width" content="1536" />
-    <meta property="og:image:height" content="1024" />
-    <meta property="og:image:alt" content="HayCancha — cancha de tenis de polvo de ladrillo al atardecer" />
-    <meta property="og:site_name" content="HayCancha" />
-    <meta property="og:locale" content="es_AR" />
+    <meta data-rh="true" property="og:title" content="HayCancha.com — Canchas de tenis, pádel y pickleball en LATAM" />
+    <meta data-rh="true" property="og:description" content="Directorio gratuito de canchas de tenis, pádel y pickleball en toda Latinoamérica." />
+    <meta data-rh="true" property="og:type" content="website" />
+    <meta data-rh="true" property="og:url" content="https://haycancha.com" />
+    <meta data-rh="true" property="og:image" content="https://haycancha.com/og-default.jpg" />
+    <meta data-rh="true" property="og:image:width" content="1536" />
+    <meta data-rh="true" property="og:image:height" content="1024" />
+    <meta data-rh="true" property="og:image:alt" content="HayCancha — cancha de tenis de polvo de ladrillo al atardecer" />
+    <meta data-rh="true" property="og:site_name" content="HayCancha" />
+    <meta data-rh="true" property="og:locale" content="es_AR" />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="HayCancha.com — Canchas de tenis, pádel y pickleball en LATAM" />
-    <meta name="twitter:description" content="Directorio gratuito de canchas de tenis, pádel y pickleball en toda Latinoamérica." />
-    <meta name="twitter:image" content="https://haycancha.com/og-default.jpg" />
+    <meta data-rh="true" name="twitter:card" content="summary_large_image" />
+    <meta data-rh="true" name="twitter:title" content="HayCancha.com — Canchas de tenis, pádel y pickleball en LATAM" />
+    <meta data-rh="true" name="twitter:description" content="Directorio gratuito de canchas de tenis, pádel y pickleball en toda Latinoamérica." />
+    <meta data-rh="true" name="twitter:image" content="https://haycancha.com/og-default.jpg" />
   </head>
 
   <body>

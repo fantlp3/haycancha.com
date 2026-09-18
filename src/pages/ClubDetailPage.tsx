@@ -33,6 +33,7 @@ import { useClubBySlug, useClubesByBarrio, useClubesByCiudad } from "@/hooks/use
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { getPrimarySportSlug } from "@/lib/queries";
 import { buildClubHref } from "@/lib/club-display";
+import { buildClubSeoDescription } from "@/lib/club-seo";
 import { getDirectionsUrl, getMapsSearchUrl, getWazeUrl } from "@/lib/maps";
 import { assetUrl } from "@/lib/directus";
 import { haversineKm } from "@/lib/geo";
@@ -281,9 +282,7 @@ const ClubDetailPage = () => {
   const seoTitle = sportNames
     ? `${club.nombre} — ${sportNames} en ${club.ciudad.nombre}`
     : `${club.nombre} en ${club.ciudad.nombre}`;
-  const seoDescription = club.descripcion
-    ? club.descripcion.slice(0, 160)
-    : `${club.nombre}: ${sportNames || "Canchas"} en ${club.ciudad.nombre}.`;
+  const seoDescription = buildClubSeoDescription(club);
   const canonicalPath = buildClubHref(club);
 
   const breadcrumbItems = [

@@ -1,3 +1,5 @@
+# haycancha.com — directorio de canchas de tenis, pádel y pickleball en LATAM
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +14,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://haycancha.com/sitemap.xml

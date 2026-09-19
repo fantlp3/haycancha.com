@@ -45,13 +45,6 @@ de `legacy-sin-destino.csv`, donde el score era alto pero la geografía no cerra
 (p. ej. "Asociación Urquiza Tenis Club", de Villa Urquiza, contra un "Urquiza
 Padel" de Monserrat).
 
-## Para revisar
-
-`alcorta-tenis` → `Sportium Alcorta` quedó en 0,49, apenas debajo del umbral.
-Probablemente sea el mismo lugar rebrandeado, y **"sportium alcorta" es la
-consulta con más clics de todo el sitio** (71 en el último trimestre), así que
-conviene confirmarlo a mano y agregar la fila al CSV.
-
 ## Regenerar
 
 ```bash

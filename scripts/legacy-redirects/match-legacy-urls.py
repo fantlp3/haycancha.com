@@ -53,6 +53,7 @@ MANUAL_REJECT = {
  "asociacion-urquiza-tenis-club": "mismo caso: Villa Urquiza vs Monserrat",
  "buenos-aires-rowing-tenis": "Rowing (Tigre) y Lawn Tennis Club son clubes distintos",
  "tenis-point": '"Tenis Point" y "Match Point" son clubes distintos',
+ "alcorta-tenis": "confirmado por Andy: NO es el mismo club (instagram.com/sportium.alcorta)",
 }
 # Aceptados a mano por debajo del umbral.
 MANUAL_ACCEPT = {"doblas-tenis": 'mismo club; el registro nuevo sólo agrega "y Futbol"'}

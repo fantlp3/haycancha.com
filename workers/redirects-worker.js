@@ -73,6 +73,37 @@ const CANCHAS_FALLBACK = "/canchas";
 const CANCHA_PHP_FALLBACK = "/canchas/argentina/buenos-aires";
 
 /**
+ * URLs legacy resueltas contra Directus, de scripts/legacy-redirects/.
+ *
+ * El slug viejo casi nunca coincide con el de Directus ("aruba-club-de-tenis"
+ * vs "aruba-club-tenis-flores"), así que el lookup por slug falla y cae al
+ * fallback. Estas 13 son las que el cruce resolvió con confianza.
+ *
+ * Van acá y no en Bulk Redirects de Cloudflare porque el source lleva query
+ * string (`?url=<slug>`) y las Bulk Redirects matchean por URL completa: las
+ * 13 colapsarían contra el mismo `/cancha.php`. El worker ya parsea el
+ * parámetro, así que es el lugar natural.
+ *
+ * Para regenerar: python3 scripts/legacy-redirects/match-legacy-urls.py --dump <backup.sql>
+ */
+const LEGACY_SLUG_MAP = {
+  "altolaguirre-tenis":           "/canchas/argentina/buenos-aires/villa-urquiza/altolaguirre-tenis-villa-urquiza",
+  "alvear-tenis-club":            "/canchas/argentina/buenos-aires/alvear-tenis-club-buenos-aires",
+  "aruba-club-de-tenis":          "/canchas/argentina/buenos-aires/flores/aruba-club-tenis-flores",
+  "belgrano-tenis":               "/canchas/argentina/buenos-aires/belgrano-tenis-buenos-aires",
+  "buenos-aires-lawn-tenis-club": "/canchas/argentina/buenos-aires/buenos-aires-lawn-tennis-club-buenos-aires",
+  "club-comunicaciones":          "/canchas/argentina/buenos-aires/agronomia/club-comunicaciones-agronomia",
+  "complejo-el-circulo":          "/canchas/argentina/buenos-aires/complejo-deportivo-el-circulo-buenos-aires",
+  "costa-rica-gym":               "/canchas/argentina/buenos-aires/palermo/costa-rica-caba",
+  "doblas-tenis":                 "/canchas/argentina/buenos-aires/doblas-tenis-y-futbol-buenos-aires",
+  "el-anden":                     "/canchas/argentina/buenos-aires/caballito/el-anden-caba",
+  "match-point":                  "/canchas/argentina/isidro-casanova/match-point-isidro-casanova",
+  "village-club":                 "/canchas/argentina/buenos-aires/flores/village-club-caba",
+  "village-tenis":                "/canchas/argentina/buenos-aires/flores/village-club-caba",
+};
+
+
+/**
  * Static redirect table. Each entry is matched in order; first match wins.
  * `match` is either:
  *   - an exact pathname string (case-insensitive comparison)
@@ -180,6 +211,12 @@ async function handleCanchaPhp(url, env, ctx) {
 
   if (!rawSlug || !SLUG_PATTERN.test(rawSlug)) {
     return redirect(CANCHAS_FALLBACK, { source: "cancha.php-no-slug" });
+  }
+
+  // Mapa estático primero: es exacto y evita una ida a Directus.
+  const mapped = Object.hasOwn(LEGACY_SLUG_MAP, rawSlug) ? LEGACY_SLUG_MAP[rawSlug] : null;
+  if (mapped) {
+    return redirect(mapped, { source: "cancha.php-legacy-map" });
   }
 
   try {

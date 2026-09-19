@@ -61,6 +61,18 @@ const DIRECTUS_TIMEOUT_MS = 6000;
 const CANCHAS_FALLBACK = "/canchas";
 
 /**
+ * Fallback específico de /cancha.php cuando el slug no resuelve.
+ *
+ * El directorio viejo era 100% del AMBA (la tabla `barrios` del dump son
+ * barrios de CABA y partidos del conurbano), así que el listado de Buenos
+ * Aires es bastante más relevante que el global para alguien que llega por
+ * una ficha de club legacy. Las 13 URLs que sí resuelven contra Directus
+ * están cargadas como Bulk Redirects en Cloudflare y ni siquiera llegan acá
+ * — ver scripts/legacy-redirects/.
+ */
+const CANCHA_PHP_FALLBACK = "/canchas/argentina/buenos-aires";
+
+/**
  * Static redirect table. Each entry is matched in order; first match wins.
  * `match` is either:
  *   - an exact pathname string (case-insensitive comparison)
@@ -180,7 +192,7 @@ async function handleCanchaPhp(url, env, ctx) {
     console.error("redirects-worker cancha.php error", err);
   }
 
-  return redirect(CANCHAS_FALLBACK, { source: "cancha.php-fallback" });
+  return redirect(CANCHA_PHP_FALLBACK, { source: "cancha.php-fallback" });
 }
 
 /**

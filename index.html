@@ -12,13 +12,40 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#F97316" />
 
-    <!-- Consent Mode v2 — default denied antes de GTM -->
+    <!-- Consent Mode v2 — defaults por región.
+         El consentimiento previo lo exigen el RGPD (EEE), el UK GDPR y la LPD
+         suiza. El tráfico de HayCancha es casi todo LATAM, donde no rige esa
+         obligación: allí los defaults arrancan concedidos y el banner sirve
+         para OPTAR POR SALIR, no para habilitar la medición.
+         En el EEE, Reino Unido y Suiza todo arranca denegado y no se mide
+         nada hasta que la persona acepta.
+         En cualquier región, una elección guardada manda sobre el default. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
 
-      // Defaults: todo denied salvo security/functionality.
+      // EEE (UE-27 + IS, LI, NO) + Reino Unido + Suiza.
+      var HC_CONSENT_REQUIRED_REGIONS = [
+        'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE',
+        'IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE',
+        'IS','LI','NO',
+        'GB','CH'
+      ];
+
+      // Default global — el resto del mundo, es decir LATAM.
       gtag('consent', 'default', {
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted',
+        'functionality_storage': 'granted',
+        'security_storage': 'granted'
+      });
+
+      // Override por región: donde se exige consentimiento previo, todo denegado.
+      // wait_for_update le da 500 ms al banner para resolver antes de disparar.
+      gtag('consent', 'default', {
+        'region': HC_CONSENT_REQUIRED_REGIONS,
         'ad_storage': 'denied',
         'ad_user_data': 'denied',
         'ad_personalization': 'denied',
@@ -28,7 +55,7 @@
         'wait_for_update': 500
       });
 
-      // Si el user ya decidió antes (localStorage), aplicar inmediatamente.
+      // Si la persona ya decidió, su elección pisa el default en cualquier región.
       try {
         var saved = JSON.parse(localStorage.getItem('haycancha:cookie-consent') || 'null');
         if (saved) {

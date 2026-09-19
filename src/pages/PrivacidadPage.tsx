@@ -30,7 +30,7 @@ const PrivacidadPage = () => {
     <LegalPageLayout
       title="POLÍTICA DE PRIVACIDAD"
       breadcrumb={[{ label: "Inicio", href: "/" }, { label: "Política de Privacidad" }]}
-      lastUpdated="12 de mayo de 2026"
+      lastUpdated="18 de septiembre de 2026"
       toc={TOC}
     >
       <SeoMeta
@@ -179,6 +179,17 @@ const PrivacidadPage = () => {
         Al ingresar al Sitio por primera vez, se le presenta al usuario un banner de cookies donde
         puede aceptar o rechazar el uso de cookies no necesarias. El usuario puede modificar sus
         preferencias en cualquier momento.
+      </LegalP>
+      <LegalP>
+        El momento en que se activan las cookies no necesarias depende del lugar desde el que se
+        navega. En el <LegalStrong>Espacio Económico Europeo, el Reino Unido y Suiza</LegalStrong>,
+        donde rige la obligación de consentimiento previo, las cookies de análisis y publicidad
+        permanecen desactivadas hasta que el usuario las acepta. En el{" "}
+        <LegalStrong>resto de los países</LegalStrong> —incluida la Argentina, cuyo marco legal no
+        impone el bloqueo previo— estas cookies se activan al ingresar al Sitio, y el usuario puede
+        desactivarlas en cualquier momento desde el banner o desde «Configurar cookies» en el pie
+        de página. En ambos casos, la elección del usuario se conserva y prevalece sobre la
+        configuración por defecto.
       </LegalP>
       <LegalP>
         Adicionalmente, el usuario puede gestionar y eliminar cookies directamente desde la

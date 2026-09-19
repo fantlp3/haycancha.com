@@ -126,8 +126,8 @@ export const CookieConsent = () => {
           </div>
           <p className="text-[14px] leading-relaxed text-white/85 mb-5">
             Usamos cookies para que el sitio funcione, medir el tráfico de forma anónima y mostrar
-            publicidad relevante. Podés aceptar todas, solo las esenciales, o personalizar tus
-            preferencias. Más info en nuestra{" "}
+            publicidad relevante. Podés aceptar todas, dejar solo las esenciales o personalizar tus
+            preferencias, y cambiar la elección cuando quieras. Más info en nuestra{" "}
             <a href="/privacidad" className="text-orange font-medium hover:underline">
               Política de Privacidad
             </a>

@@ -244,13 +244,30 @@ const SearchPage = () => {
     return sortClubs(filtered, sortKey, userCoords);
   }, [filtered, sortKey, userCoords, geo.status]);
 
+  /**
+   * El nombre lindo de la ciudad y el barrio vive en Directus; el slug es una
+   * aproximación sin tildes. Derivarlo del slug daba títulos y descriptions
+   * con "Cordoba", "Asuncion" y —el peor— "San Jose Cr" en vez de "Córdoba",
+   * "Asunción" y "San José", en las páginas de listado, que son las que tienen
+   * que rankear para "canchas de tenis en <ciudad>".
+   *
+   * Los clubes traen ciudad.nombre y barrio.nombre, así que se toma de ahí, con
+   * el slug capitalizado como fallback mientras carga o si el dato falta.
+   */
+  const ciudadLabel = ciudad
+    ? clubsData?.find((c) => c.ciudad?.slug === ciudad)?.ciudad?.nombre ?? titleCase(ciudad)
+    : undefined;
+  const barrioLabel = barrio
+    ? clubsData?.find((c) => c.barrio?.slug === barrio)?.barrio?.nombre ?? titleCase(barrio)
+    : undefined;
+
   const scopeLabel =
-    barrio && ciudad
-      ? `${titleCase(barrio)}, ${titleCase(ciudad)}`
-      : barrio
-      ? titleCase(barrio)
-      : ciudad
-      ? titleCase(ciudad)
+    barrioLabel && ciudadLabel
+      ? `${barrioLabel}, ${ciudadLabel}`
+      : barrioLabel
+      ? barrioLabel
+      : ciudadLabel
+      ? ciudadLabel
       : pais
       ? countrySlugToName(pais)
       : "Latinoamérica";
@@ -258,8 +275,8 @@ const SearchPage = () => {
   const crumbs = [
     { label: "Canchas", href: "/canchas" },
     ...(pais ? [{ label: countrySlugToName(pais), href: `/canchas/${pais}` }] : []),
-    ...(ciudad ? [{ label: titleCase(ciudad), href: `/canchas/${pais}/${ciudad}` }] : []),
-    ...(barrio ? [{ label: titleCase(barrio) }] : []),
+    ...(ciudadLabel ? [{ label: ciudadLabel, href: `/canchas/${pais}/${ciudad}` }] : []),
+    ...(barrioLabel ? [{ label: barrioLabel }] : []),
   ];
   if (!pais && !ciudad && !barrio) crumbs[crumbs.length - 1] = { label: "Canchas" };
 

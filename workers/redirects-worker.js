@@ -61,16 +61,60 @@ const DIRECTUS_TIMEOUT_MS = 6000;
 const CANCHAS_FALLBACK = "/canchas";
 
 /**
- * Fallback específico de /cancha.php cuando el slug no resuelve.
+ * Fichas legacy que no resuelven → 410 Gone.
  *
- * El directorio viejo era 100% del AMBA (la tabla `barrios` del dump son
- * barrios de CABA y partidos del conurbano), así que el listado de Buenos
- * Aires es bastante más relevante que el global para alguien que llega por
- * una ficha de club legacy. Las 13 URLs que sí resuelven contra Directus
- * están cargadas como Bulk Redirects en Cloudflare y ni siquiera llegan acá
- * — ver scripts/legacy-redirects/.
+ * Antes redirigían 301 al listado de Buenos Aires. Google trata un 301 hacia
+ * una página no equivalente como soft 404 (subieron de 363 a 385 tras el
+ * deploy), así que las URLs sin destino quedaban dando vueltas en el índice.
+ * Un 410 las saca de forma explícita y definitiva.
+ *
+ * Las 13 que sí resuelven están en LEGACY_SLUG_MAP y no llegan acá; las 111
+ * sin destino están listadas en scripts/legacy-redirects/legacy-sin-destino.csv.
  */
-const CANCHA_PHP_FALLBACK = "/canchas/argentina/buenos-aires";
+const GONE_HTML = `<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Esta ficha ya no existe | HayCancha</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center;
+    justify-content: center; padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f7f8f9; color: #1a1d1f;
+  }
+  main { max-width: 480px; text-align: center; }
+  .code { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #8a9199; margin: 0 0 12px; }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 12px; }
+  p { font-size: 16px; line-height: 1.55; color: #4a5158; margin: 0 0 28px; }
+  .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  a { display: inline-block; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; }
+  .primary { background: #0f7b4f; color: #fff; }
+  .secondary { background: #fff; color: #1a1d1f; border: 1px solid #d7dbdf; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #14171a; color: #f2f4f5; }
+    p { color: #a8b0b7; }
+    .secondary { background: #1e2227; color: #f2f4f5; border-color: #333a41; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="code">410 · Contenido eliminado</p>
+  <h1>Esta ficha ya no existe</h1>
+  <p>La página del club que buscás fue dada de baja del directorio. Podés buscar canchas de tenis, pádel y pickleball cerca tuyo desde el listado.</p>
+  <div class="actions">
+    <a class="primary" href="${SITE_ORIGIN}/canchas">Ver canchas</a>
+    <a class="secondary" href="${SITE_ORIGIN}/">Ir al inicio</a>
+  </div>
+</main>
+</body>
+</html>
+`;
 
 /**
  * URLs legacy resueltas contra Directus, de scripts/legacy-redirects/.
@@ -197,10 +241,28 @@ function redirect(target, { source = "static" } = {}) {
 }
 
 /**
+ * Build a 410 Gone response con un cuerpo HTML propio (self-contained, sin
+ * pedir nada al SPA). `x-robots-tag: noindex` refuerza la baja para los
+ * crawlers que ignoran el status.
+ */
+function gone({ source = "gone" } = {}) {
+  return new Response(GONE_HTML, {
+    status: 410,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "public, max-age=86400",
+      "x-robots-tag": "noindex",
+      "x-redirects-worker": source,
+    },
+  });
+}
+
+/**
  * /cancha.php handler.
  *
  *   - ?url=<slug> with a valid slug → resolve to canonical club path
- *   - missing/invalid ?url, or slug unknown / Directus error → /canchas
+ *   - missing/invalid ?url → 301 /canchas (es una puerta de entrada, no una ficha)
+ *   - slug desconocido / error de Directus → 410 Gone
  *
  * Resolution is cached for 24h via Cache API; cache key encodes only the
  * slug, so the same club resolves from cache regardless of the legacy URL
@@ -229,7 +291,7 @@ async function handleCanchaPhp(url, env, ctx) {
     console.error("redirects-worker cancha.php error", err);
   }
 
-  return redirect(CANCHA_PHP_FALLBACK, { source: "cancha.php-fallback" });
+  return gone({ source: "cancha.php-gone" });
 }
 
 /**

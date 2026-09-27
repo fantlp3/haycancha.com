@@ -52,3 +52,17 @@ python3 match-legacy-urls.py --dump ruta/al/backup.sql
 ```
 
 Baja los clubes activos de Directus y reescribe los dos CSV.
+
+## URLs legacy sin destino → 410 Gone
+
+Las 111 filas de `legacy-sin-destino.csv` no tienen equivalente en Directus.
+Hasta el 26/09/2026 el worker las mandaba 301 al listado de Buenos Aires, pero
+Google trata un 301 hacia una página no equivalente como **soft 404** (subieron
+de 363 a 385 en Search Console tras el deploy del 18/09).
+
+Ahora `/cancha.php?url=<slug>` que no resuelve devuelve **410 Gone** con un
+cuerpo HTML propio del worker (`GONE_HTML`) y `x-robots-tag: noindex`. Eso las
+saca del índice de forma explícita en vez de dejarlas circulando.
+
+`/cancha.php` sin parámetro `url` sigue haciendo 301 a `/canchas`: es una puerta
+de entrada al directorio, no una ficha de club dada de baja.

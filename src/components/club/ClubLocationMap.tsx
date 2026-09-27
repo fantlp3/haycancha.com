@@ -1,12 +1,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-export interface ClubLocationMapProps {
-  lat: number;
-  lng: number;
-  name: string;
-}
+import { MAP_BOX_CLASS, type ClubLocationMapProps } from "./map-box";
 
 // Same orange teardrop pin used in the search MapView, inlined to avoid re-export.
 const orangePinIcon = L.divIcon({
@@ -57,6 +52,3 @@ export default function ClubLocationMap({ lat, lng, name }: ClubLocationMapProps
     />
   );
 }
-
-/** Alto fijo compartido con el placeholder, para que cargar el mapa no mueva el layout. */
-export const MAP_BOX_CLASS = "w-full h-[280px] z-0";

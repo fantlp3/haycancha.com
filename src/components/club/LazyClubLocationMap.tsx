@@ -1,6 +1,6 @@
 import { Suspense, lazy } from "react";
 import { WhenVisible } from "@/components/utils/WhenVisible";
-import { MAP_BOX_CLASS, type ClubLocationMapProps } from "./ClubLocationMap";
+import { MAP_BOX_CLASS, type ClubLocationMapProps } from "./map-box";
 
 const ClubLocationMap = lazy(() => import("./ClubLocationMap"));
 

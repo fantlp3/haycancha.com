@@ -42,6 +42,19 @@ export function WhenVisible({
       return;
     }
 
+    // El navegador restaura la posición de scroll ANTES de que monte React, así
+    // que al montar el elemento puede haber quedado por encima del fold. En ese
+    // caso el observer no dispara nunca: pasa de "no interseca" a "no interseca"
+    // sin cruzar el umbral, y el contenido se quedaría sin montar para siempre.
+    //
+    // Estrictamente < 0: un elemento con display:none tiene el rect TODO en cero,
+    // y con <= 0 el panel oculto del mapa en móvil montaría igual, que es
+    // exactamente lo que este gate evita.
+    if (node.getBoundingClientRect().bottom < 0) {
+      setVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {

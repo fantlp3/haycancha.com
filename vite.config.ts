@@ -17,18 +17,19 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         /**
-         * leaflet (~150 KB) lo comparten tres chunks diferidos: el mapa de la
-         * ficha, el del listado y el LocationPicker de /agregar-cancha. Sin
-         * esto Rollup lo sube al ancestro comun —el chunk de entrada— y lo
-         * termina pagando cualquier visitante, incluso el que nunca ve un
-         * mapa. En su propio chunk se baja recien cuando alguno de los tres
-         * se monta.
+         * OJO: leaflet NO va acá. Forzarlo a un chunk nombrado hace que el
+         * entry lo importe ESTATICAMENTE (Rollup iza la referencia), y Vite le
+         * pone un <link rel="modulepreload"> en el HTML — o sea que los 150 KB
+         * se bajan en toda pagina y el split no sirve para nada. Pasó, se vio
+         * mirando el HTML de produccion. Sin esta entrada, Rollup lo deja como
+         * chunk compartido de los tres imports dinamicos (mapa de ficha, mapa
+         * de listado, LocationPicker) y se baja solo cuando alguno se monta.
          *
-         * react / react-dom / router / react-query van aparte porque casi no
-         * cambian: sobreviven en cache del visitante entre deploys.
+         * react / react-dom / router / react-query si van aparte: son
+         * estaticos de verdad y casi no cambian, asi que sobreviven en cache
+         * del visitante entre deploys.
          */
         manualChunks: {
-          leaflet: ["leaflet"],
           "vendor-react": [
             "react",
             "react-dom",

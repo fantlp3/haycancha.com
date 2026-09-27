@@ -2,7 +2,8 @@ import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { WhenVisible } from "./WhenVisible";
 
-type ObserverCb = (entries: { isIntersecting: boolean }[]) => void;
+type Entry = { isIntersecting: boolean; boundingClientRect?: { bottom: number } };
+type ObserverCb = (entries: Entry[]) => void;
 
 function stubObserver() {
   const calls: { cb: ObserverCb; observed: Element[]; disconnected: boolean }[] = [];
@@ -46,7 +47,7 @@ describe("WhenVisible", () => {
         <span>contenido pesado</span>
       </WhenVisible>
     );
-    observers[0].cb([{ isIntersecting: true }]);
+    observers[0].cb([{ isIntersecting: true, boundingClientRect: { bottom: 500 } }]);
     rerender(
       <WhenVisible placeholder={<span>cargando</span>}>
         <span>contenido pesado</span>
@@ -64,7 +65,7 @@ describe("WhenVisible", () => {
         <span>contenido pesado</span>
       </WhenVisible>
     );
-    observers[0].cb([{ isIntersecting: false }]);
+    observers[0].cb([{ isIntersecting: false, boundingClientRect: { bottom: 2400 } }]);
     rerender(
       <WhenVisible placeholder={<span>cargando</span>}>
         <span>contenido pesado</span>
@@ -91,5 +92,50 @@ describe("WhenVisible", () => {
       </WhenVisible>
     );
     expect(container.firstElementChild?.className).toBe("w-full h-full");
+  });
+});
+
+describe("WhenVisible — elemento ya pasado al montar", () => {
+  function stubRect(bottom: number) {
+    Element.prototype.getBoundingClientRect = vi.fn(
+      () => ({ bottom, top: bottom - 280, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect
+    );
+  }
+  const realRect = Element.prototype.getBoundingClientRect;
+  afterEach(() => {
+    Element.prototype.getBoundingClientRect = realRect;
+  });
+
+  it("monta al instante si al montar ya quedó ARRIBA del fold (scroll restaurado)", () => {
+    stubObserver();
+    stubRect(-1487);
+    const { queryByText } = render(
+      <WhenVisible placeholder={<span>cargando</span>}>
+        <span>contenido pesado</span>
+      </WhenVisible>
+    );
+    expect(queryByText("contenido pesado")).not.toBeNull();
+  });
+
+  it("NO monta si al montar sigue abajo del fold", () => {
+    stubObserver();
+    stubRect(2400);
+    const { queryByText } = render(
+      <WhenVisible placeholder={<span>cargando</span>}>
+        <span>contenido pesado</span>
+      </WhenVisible>
+    );
+    expect(queryByText("contenido pesado")).toBeNull();
+  });
+
+  it("NO monta un panel oculto por CSS, cuyo rect es todo cero", () => {
+    stubObserver();
+    stubRect(0);
+    const { queryByText } = render(
+      <WhenVisible placeholder={<span>cargando</span>}>
+        <span>contenido pesado</span>
+      </WhenVisible>
+    );
+    expect(queryByText("contenido pesado")).toBeNull();
   });
 });

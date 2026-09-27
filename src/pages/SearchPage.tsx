@@ -366,6 +366,17 @@ const SearchPage = () => {
       />
       <Navbar />
 
+      {/*
+        Los listados no tenian NINGUN h1 (ni h2): arrancaban directo en los h3
+        de las tarjetas de club, con la jerarquia de encabezados rota en las
+        paginas que mas importan comercialmente.
+
+        Va en sr-only a proposito: arregla la estructura sin tocar el diseño.
+        Si despues se decide mostrarlo, es cambiar la clase por una visible —
+        el texto es el mismo del title.
+      */}
+      <h1 className="sr-only">{seoTitle}</h1>
+
       {/* SR-only live region announcing view changes */}
       <div className="sr-only" aria-live="polite">
         Vista cambiada a {VIEW_LABELS[view]}

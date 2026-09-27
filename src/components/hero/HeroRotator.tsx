@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {
   fetchHeroImages,
   heroImageUrl,
+  heroImageSrcSet,
   type HeroImage,
   type HeroSport,
 } from "@/lib/hero-images";
@@ -96,24 +97,49 @@ export const HeroRotator = ({
   const fallbackKey: HeroSport | "mix" = deporte ?? "mix";
   const current = images[index];
 
+  /**
+   * Ventana de imágenes montadas: la actual, la siguiente (precarga para que
+   * el cross-fade no entre en blanco) y la anterior (la que se está
+   * desvaneciendo). Antes se montaban TODAS: con 29 heroes activos el home
+   * disparaba 29 requests de imagen en el primer render — `loading="lazy"` no
+   * las difiere porque están dentro del viewport, sólo con opacity 0.
+   */
+  const mounted = useMemo(() => {
+    const n = images.length;
+    if (n === 0) return new Set<number>();
+    const w = new Set<number>([index]);
+    if (n > 1) {
+      w.add((index + 1) % n);
+      w.add((index - 1 + n) % n);
+    }
+    return w;
+  }, [index, images.length]);
+
   return (
     <section className={cn("relative overflow-hidden", FALLBACK_BG[fallbackKey], className)}>
       {/* Background layer */}
       <div aria-hidden className="absolute inset-0 z-0">
-        {images.map((img, i) => (
-          <img
-            key={img.id}
-            src={heroImageUrl(img.imagen)}
-            alt=""
-            loading={i === 0 ? "eager" : "lazy"}
-            decoding="async"
-            className={cn(
-              "absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out",
-              i === index ? "opacity-100" : "opacity-0"
-            )}
-            style={{ transitionDuration: `${FADE_MS}ms` }}
-          />
-        ))}
+        {images.map((img, i) =>
+          mounted.has(i) ? (
+            <img
+              key={img.id}
+              src={heroImageUrl(img.imagen)}
+              srcSet={heroImageSrcSet(img.imagen)}
+              sizes="100vw"
+              alt=""
+              loading={i === index ? "eager" : "lazy"}
+              decoding="async"
+              // React 18 no conoce fetchPriority en camelCase; en minúscula
+              // pasa como atributo tal cual y el navegador lo respeta.
+              {...({ fetchpriority: i === index ? "high" : "low" } as Record<string, string>)}
+              className={cn(
+                "absolute inset-0 w-full h-full object-cover transition-opacity ease-in-out",
+                i === index ? "opacity-100" : "opacity-0"
+              )}
+              style={{ transitionDuration: `${FADE_MS}ms` }}
+            />
+          ) : null
+        )}
         {overlayGradient !== "none" && images.length > 0 && (
           <div className={cn("absolute inset-0", GRADIENT_CLASS[overlayGradient])} />
         )}

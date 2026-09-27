@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="es">
   <head>
+    <!-- El hero y las fotos de club salen de Directus: abrir la conexión antes
+         de que el bundle la pida ahorra DNS+TLS del camino crítico del LCP. -->
+    <link rel="preconnect" href="https://api.haycancha.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.haycancha.com" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 

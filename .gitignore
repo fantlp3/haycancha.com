@@ -35,3 +35,6 @@ workers/.dev.vars
 workers/.wrangler/
 workers/node_modules/
 .env
+
+# temporales que deja vite/vitest al cargar la config
+*.timestamp-*.mjs

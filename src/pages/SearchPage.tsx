@@ -5,7 +5,7 @@ import { Navbar } from "@/components/brand/Navbar";
 import { SearchHeader } from "@/components/search/SearchHeader";
 import { FiltersPanel, type FiltersState } from "@/components/search/FiltersPanel";
 import { ResultCard, ResultCardSkeleton } from "@/components/search/ResultCard";
-import { MapView } from "@/components/search/MapView";
+import { LazyMapView } from "@/components/search/LazyMapView";
 import { EmptyState } from "@/components/search/EmptyState";
 import { SearchQueryChip } from "@/components/search/SearchQueryChip";
 import { PromoSlot } from "@/components/promo/PromoSlot";
@@ -459,7 +459,7 @@ const SearchPage = () => {
           </aside>
 
           <div className={cn("flex-1 relative", mobileView === "map" ? "block" : "hidden md:block")}>
-            <MapView clubs={sorted} />
+            <LazyMapView clubs={sorted} />
             <button
               onClick={() => setMobileView(mobileView === "map" ? "list" : "map")}
               className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 bg-orange text-white px-5 py-3 rounded-full shadow-card-hover text-[13px] font-semibold uppercase tracking-wider hover:brightness-90 transition"

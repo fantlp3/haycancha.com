@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { LazyClubLocationMap } from "@/components/club/LazyClubLocationMap";
 import { toast } from "sonner";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import {
   MapPin,
   Phone,
@@ -99,56 +98,6 @@ function buildTodayLabel(
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <p className="label-meta uppercase text-orange tracking-[3px] mb-3">{children}</p>
 );
-
-// Same orange teardrop pin used in the search MapView, inlined to avoid re-export.
-const orangePinIcon = L.divIcon({
-  className: "",
-  html: `<div style="width:32px;height:32px;border-radius:50% 50% 50% 0;background:#E8632A;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;">
-    <div style="width:10px;height:10px;background:white;border-radius:50%;"></div>
-  </div>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-});
-
-const ClubLocationMap = ({
-  lat,
-  lng,
-  name,
-}: {
-  lat: number;
-  lng: number;
-  name: string;
-}) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-
-  useEffect(() => {
-    if (!ref.current || mapRef.current) return;
-    const map = L.map(ref.current, {
-      zoomControl: true,
-      scrollWheelZoom: false,
-    }).setView([lat, lng], 15);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "© OpenStreetMap",
-    }).addTo(map);
-    L.marker([lat, lng], { icon: orangePinIcon }).addTo(map);
-    mapRef.current = map;
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
-  }, [lat, lng]);
-
-  return (
-    <div
-      ref={ref}
-      className="w-full h-[280px] z-0"
-      role="application"
-      aria-label={`Mapa de ${name}`}
-    />
-  );
-};
 
 const buildContactHref = (club: ClubFull): string | null => {
   if (club.whatsapp) {
@@ -667,7 +616,7 @@ const ClubDetailPage = () => {
       <section className={`${SECTION_PAD} mt-12 lg:mt-16`}>
         <SectionLabel>Ubicación</SectionLabel>
         <div className="relative rounded-xl overflow-hidden border border-border">
-          <ClubLocationMap lat={lat} lng={lng} name={club.nombre} />
+          <LazyClubLocationMap lat={lat} lng={lng} name={club.nombre} />
         </div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mt-4">
           <p className="text-[14px] text-dark">{club.direccion}</p>

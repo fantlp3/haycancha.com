@@ -13,6 +13,32 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  build: {
+    rollupOptions: {
+      output: {
+        /**
+         * leaflet (~150 KB) lo comparten tres chunks diferidos: el mapa de la
+         * ficha, el del listado y el LocationPicker de /agregar-cancha. Sin
+         * esto Rollup lo sube al ancestro comun —el chunk de entrada— y lo
+         * termina pagando cualquier visitante, incluso el que nunca ve un
+         * mapa. En su propio chunk se baja recien cuando alguno de los tres
+         * se monta.
+         *
+         * react / react-dom / router / react-query van aparte porque casi no
+         * cambian: sobreviven en cache del visitante entre deploys.
+         */
+        manualChunks: {
+          leaflet: ["leaflet"],
+          "vendor-react": [
+            "react",
+            "react-dom",
+            "react-router-dom",
+            "@tanstack/react-query",
+          ],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
